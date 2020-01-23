@@ -1,8 +1,11 @@
-description = 'DPM Diff data model'
+description = 'DPM Diff spreadsheet output'
 
 dependencies {
     implementation libs.kotlinStdLib
     implementation libs.kotlinReflect
+    implementation libs.apachePoi
+    implementation libs.apachePoiOoxml
+    implementation(project(':diff-model'))
 
     testCompile libs.junitJupiterApi
     testCompile libs.junitJupiterParams

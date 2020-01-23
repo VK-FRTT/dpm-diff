@@ -20,9 +20,9 @@ dependencies {
     shadowed libs.kotlinStdLib
     shadowed libs.kotlinReflect
     shadowed libs.joptSimple
-    shadowed libs.jacksonKotlin
-    shadowed libs.jacksonJsr310
-
+    shadowed(project(':diff-model'))
+    shadowed(project(':diff-report-generator'))
+    shadowed(project(':diff-spr-output'))
 
     testCompile libs.kotlinStdLib
     testCompile libs.kotlinStdLib

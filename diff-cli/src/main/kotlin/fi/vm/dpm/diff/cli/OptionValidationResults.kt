@@ -1,5 +1,7 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+
 class OptionValidationResults {
 
     private val messages = mutableListOf<String>()
@@ -12,17 +14,14 @@ class OptionValidationResults {
         messages.add("$subject: $explanation ($input)")
     }
 
-    fun failOnErrors() {
+    fun reportErrors(diagnostic: Diagnostic) {
         if (messages.any()) {
-            val sb = StringBuilder()
-            sb.appendln("Error:")
 
-            messages.forEach {
-                sb.appendln("- $it")
-            }
-
-            val message = sb.toString()
-            throwFail(message)
+            val message = messages.joinToString(
+                separator = "\n- ",
+                prefix = "- "
+            )
+            diagnostic.fatal(message)
         }
     }
 }

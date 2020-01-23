@@ -2,6 +2,8 @@ rootProject.name = "dpm-diff"
 
 include 'diff-cli'
 include 'diff-model'
+include 'diff-report-generator'
+include 'diff-spr-output'
 
 // Customise subprojects build file name & validate that it exists
 rootProject.children.each { project ->

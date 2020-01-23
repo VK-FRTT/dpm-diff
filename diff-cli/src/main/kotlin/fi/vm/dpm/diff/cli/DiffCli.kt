@@ -1,12 +1,13 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.DpmDiffReportGenerator
+import fi.vm.dpm.diff.model.SpreadsheetOutput
 import java.io.BufferedWriter
 import java.io.Closeable
 import java.io.OutputStreamWriter
 import java.io.PrintStream
 import java.io.PrintWriter
 import java.nio.charset.Charset
-import java.sql.DriverManager
 
 const val DPM_DIFF_CLI_SUCCESS = 0
 const val DPM_DIFF_CLI_FAIL = 1
@@ -15,12 +16,13 @@ const val DPM_DIFF_TITLE = "DPM Diff"
 internal class DiffCli(
     outStream: PrintStream,
     errStream: PrintStream,
-    charset: Charset,
-    private val definedOptions: DefinedOptions
+    charset: Charset
 ) : Closeable {
 
+    private val definedOptions = DefinedOptions()
     private val outWriter = PrintWriter(BufferedWriter(OutputStreamWriter(outStream, charset)), true)
     private val errWriter = PrintWriter(BufferedWriter(OutputStreamWriter(errStream, charset)), true)
+    private val diagnostic = DiffCliDiagnostic(outWriter)
 
     override fun close() {
         outWriter.close()
@@ -43,7 +45,7 @@ internal class DiffCli(
                 throwHalt()
             }
 
-            runDpmDiff(detectedOptions.validDpmDiffCmdParams())
+            executeDpmDiffReport(detectedOptions.dpmDiffReportParams(diagnostic))
         }
     }
 
@@ -67,8 +69,21 @@ internal class DiffCli(
         }
     }
 
-    private fun runDpmDiff(diffParams: DiffCmdParams) {
-        val baselineConnection = DriverManager.getConnection("jdbc:sqlite:${diffParams.baselineDpmDb}")
-        val changedConnection = DriverManager.getConnection("jdbc:sqlite:${diffParams.changedDpmDb}")
+    private fun executeDpmDiffReport(diffParams: DpmDiffReportParams) {
+
+        val report = DpmDiffReportGenerator(
+            baselineDpmDbPath = diffParams.baselineDpmDbPath,
+            actualDpmDbPath = diffParams.actualDpmDbPath,
+            diagnostic = diagnostic
+        ).use { generator ->
+            generator.generateReport()
+        }
+
+        SpreadsheetOutput(
+            outputFilePath = diffParams.outputFilePath,
+            diagnostic = diagnostic
+        ).use { output ->
+            output.renderOutput(report)
+        }
     }
 }

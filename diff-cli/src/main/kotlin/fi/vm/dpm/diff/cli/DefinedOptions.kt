@@ -11,12 +11,12 @@ import joptsimple.OptionSpec
 import joptsimple.ValueConversionException
 import joptsimple.util.EnumConverter
 import joptsimple.util.PathConverter
-import joptsimple.util.PathProperties
 
 enum class OptName(val nameString: String) {
     BASELINE_DPM_DB("baseline-dpm-db"),
-    CHANGED_DPM_DB("changed-dpm-db"),
-    REPORT_CONFIG("report-config")
+    ACTUAL_DPM_DB("actual-dpm-db"),
+    REPORT_CONFIG("report-config"),
+    OUTPUT("output")
 }
 
 class DefinedOptions {
@@ -26,9 +26,12 @@ class DefinedOptions {
     private val cmdShowVersion: OptionSpec<Void>
 
     private val baselineDpmDb: OptionSpec<Path>
-    private val changedDpmDb: OptionSpec<Path>
+    private val actualDpmDb: OptionSpec<Path>
 
     private val reportConfig: OptionSpec<Path>
+
+    private val output: OptionSpec<Path>
+    private val forceOverwrite: OptionSpec<Void>
 
     private val verbosity: OptionSpec<OutputVerbosity>
 
@@ -50,24 +53,38 @@ class DefinedOptions {
                 OptName.BASELINE_DPM_DB.nameString,
                 "DPM database to use as baseline in difference reporting"
             )
-            .withRequiredArg()
-            .withValuesConvertedBy(PathConverter(PathProperties.FILE_EXISTING, PathProperties.READABLE))
+            .withOptionalArg()
+            .withValuesConvertedBy(PathConverter())
 
-        changedDpmDb = optionParser
+        actualDpmDb = optionParser
             .accepts(
-                OptName.CHANGED_DPM_DB.nameString,
-                "second (the updated) DPM database for difference reporting"
+                OptName.ACTUAL_DPM_DB.nameString,
+                "DPM database to use as current in difference reporting"
             )
             .withRequiredArg()
-            .withValuesConvertedBy(PathConverter(PathProperties.FILE_EXISTING, PathProperties.READABLE))
+            .withValuesConvertedBy(PathConverter())
 
         reportConfig = optionParser
             .accepts(
                 OptName.REPORT_CONFIG.nameString,
                 "configuration file for controlling difference report details"
             )
-            .withOptionalArg()
+            .withRequiredArg()
             .withValuesConvertedBy(PathConverter())
+
+        output = optionParser
+            .accepts(
+                OptName.OUTPUT.nameString,
+                "output file where to store report"
+            )
+            .withRequiredArg()
+            .withValuesConvertedBy(PathConverter())
+
+        forceOverwrite = optionParser
+            .accepts(
+                "force-overwrite",
+                "silently overwrites the possibly existing target file"
+            )
 
         verbosity = optionParser
             .accepts(
@@ -108,11 +125,13 @@ class DefinedOptions {
         return DetectedOptions(
             cmdShowHelp = optionSet.has(cmdShowHelp),
             cmdShowVersion = optionSet.has(cmdShowVersion),
-            baselineDpmDb = optionSet.valueOf(baselineDpmDb),
-            changedDpmDb = optionSet.valueOf(changedDpmDb),
-            reportConfig = optionSet.valueOf(reportConfig),
+            baselineDpmDbPath = optionSet.valueOf(baselineDpmDb),
+            actualDpmDbPath = optionSet.valueOf(actualDpmDb),
+            reportConfigPath = optionSet.valueOf(reportConfig),
+            outputFilePath = optionSet.valueOf(output),
+            forceOverwrite = optionSet.has(this.forceOverwrite),
             verbosity = optionSet.valueOf(verbosity)
-            )
+        )
     }
 
     private class VerbosityConverter : EnumConverter<OutputVerbosity>(OutputVerbosity::class.java)

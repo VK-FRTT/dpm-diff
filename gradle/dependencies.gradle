@@ -4,6 +4,8 @@ ext {
             joptSimple:         "5.0.4",
             jacksonKotlin:      "2.10.2",
             jacksonJsr310:      "2.10.2",
+            xerialSqliteJdbc:   "3.30.1",
+            apachePoi:          "4.1.1",
             jupiter:            "5.5.2",
             assertj:            "3.14.0"
     ]
@@ -16,6 +18,9 @@ ext {
             joptSimple:             "net.sf.jopt-simple:jopt-simple:$versions.joptSimple",
             jacksonKotlin:          "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jacksonKotlin",
             jacksonJsr310:          "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$versions.jacksonJsr310",
+            xerialSqliteJdbc:       "org.xerial:sqlite-jdbc:$versions.xerialSqliteJdbc",
+            apachePoi:              "org.apache.poi:poi:$versions.apachePoi",
+            apachePoiOoxml:         "org.apache.poi:poi-ooxml:$versions.apachePoi",
 
             kotlinTest:             "org.jetbrains.kotlin:kotlin-test:$versions.kotlin",
             kotlinTestJunit:        "org.jetbrains.kotlin:kotlin-test-junit:$versions.kotlin",

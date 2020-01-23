@@ -1,8 +1,11 @@
-description = 'DPM Diff data model'
+description = 'DPM Diff report generator'
 
 dependencies {
     implementation libs.kotlinStdLib
     implementation libs.kotlinReflect
+    implementation libs.jacksonKotlin
+    implementation libs.jacksonJsr310
+    implementation(project(':diff-model'))
 
     testCompile libs.junitJupiterApi
     testCompile libs.junitJupiterParams

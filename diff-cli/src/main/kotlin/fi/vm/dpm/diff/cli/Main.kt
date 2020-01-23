@@ -7,8 +7,7 @@ fun main(args: Array<String>) {
     val status = DiffCli(
         System.out,
         System.err,
-        Charset.defaultCharset(),
-        DefinedOptions()
+        Charset.defaultCharset()
     ).use { cli ->
         cli.execute(args)
     }
