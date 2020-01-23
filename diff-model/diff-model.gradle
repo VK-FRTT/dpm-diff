@@ -1,0 +1,15 @@
+description = 'DPM Diff data model'
+
+dependencies {
+    implementation libs.kotlinStdLib
+    implementation libs.kotlinReflect
+    implementation libs.jacksonKotlin
+    implementation libs.jacksonJsr310
+
+    testCompile libs.junitJupiterApi
+    testCompile libs.junitJupiterParams
+    testCompile libs.assertjCore
+
+    testRuntimeOnly libs.junitJupiterEngine
+}
+

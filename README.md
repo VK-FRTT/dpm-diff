@@ -1,1 +1,3 @@
-# vk-dpm-diff
+# DPM Diff
+
+Command line tool for comparing Data Point Model contents. 

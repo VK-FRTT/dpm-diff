@@ -1,0 +1,75 @@
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
+description = 'DPM Diff command line interface'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath("com.github.jengelman.gradle.plugins:shadow:${shadowPluginVersion}")
+    }
+}
+
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+dependencies {
+    shadowed libs.kotlinStdLib
+    shadowed libs.kotlinReflect
+    shadowed libs.joptSimple
+    shadowed libs.jacksonKotlin
+    shadowed libs.jacksonJsr310
+
+
+    testCompile libs.kotlinStdLib
+    testCompile libs.kotlinStdLib
+    testCompile libs.junitJupiterApi
+    testCompile libs.junitJupiterParams
+    testCompile libs.assertjCore
+
+    testRuntimeOnly libs.junitJupiterEngine
+}
+
+
+def lookupGitShortHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class'            : 'fi.vm.dpm.diff.cli.MainKt',
+                'Implementation-Version': "0.1.0-SNAPSHOT",
+                'Build-Timestamp'       : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now()),
+                'Build-Revision'        : lookupGitShortHash(),
+                'Build-Jdk'             : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS'              : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}",
+        )
+    }
+}
+
+
+jar.enabled = false
+jar.dependsOn shadowJar
+
+
+shadowJar {
+    classifier = null
+    configurations = [project.configurations.shadowed]
+}
+
+
+artifacts {
+    archives shadowJar
+}
+
+
