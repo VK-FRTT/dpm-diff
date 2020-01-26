@@ -10,13 +10,13 @@ class RowWriter(
 ) {
     private var nextCellIndex: Int = 0
 
-    fun addCell(cellValue: String) {
+    fun addCell(cellValue: String?) {
         val cell = addCell()
         cell.setCellValue(cellValue)
     }
 
     fun addCell(
-        value: String,
+        value: String?,
         style: CellStyle
     ) {
         val cell = addCell()
@@ -25,7 +25,7 @@ class RowWriter(
     }
 
     fun addCell(
-        value: String,
+        value: String?,
         link: Hyperlink,
         style: CellStyle
     ) {

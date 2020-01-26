@@ -2,6 +2,8 @@ package fi.vm.dpm.diff.model
 
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.sproutput.CellStyles
+import fi.vm.dpm.diff.sproutput.ColumnDescriptor
+import fi.vm.dpm.diff.sproutput.ColumnKind
 import fi.vm.dpm.diff.sproutput.SheetWriter
 import java.io.Closeable
 import java.io.FileOutputStream
@@ -22,7 +24,11 @@ class SpreadsheetOutput(
         workbook.dispose()
     }
 
-    fun renderOutput(diffReport: DiffReport) {
+    fun renderOutput(diffReport: DifferenceReport) {
+        with(diagnostic) {
+            info("Writing spreadsheet...")
+        }
+
         addContentsSheet(diffReport)
         addSectionSheets(diffReport)
 
@@ -30,13 +36,15 @@ class SpreadsheetOutput(
         workbook.write(out)
         out.close()
 
-        diagnostic.info("Wrote: $outputFilePath")
+        with(diagnostic) {
+            info("Wrote: $outputFilePath")
+        }
     }
 
     private fun initCellStyles(): CellStyles {
 
         return CellStyles(
-            titleStyle = run {
+            headerStyle = run {
                 val font = workbook.createFont()
                 font.bold = true
 
@@ -59,11 +67,11 @@ class SpreadsheetOutput(
         )
     }
 
-    private fun addContentsSheet(diffReport: DiffReport) {
+    private fun addContentsSheet(diffReport: DifferenceReport) {
         val sw = addSheet("Contents")
         sw.sheet.trackAllColumnsForAutoSizing() // TODO
 
-        sw.addTitleRow("Data Point Model Difference Report")
+        sw.addHeaderRow("Data Point Model Difference Report")
 
         sw.addEmptyRows(1)
 
@@ -73,21 +81,20 @@ class SpreadsheetOutput(
 
         sw.addEmptyRows(3)
 
-        sw.addTitleRow("Sheet", "Description", "Difference count")
+        sw.addHeaderRow("Sheet", "Description", "Difference count")
 
         diffReport.sections.forEachIndexed { index, section ->
-            val sectionDescriptor = section.sectionDescriptor
 
             val sheetName = composeSheetName(
-                sectionDescriptor,
+                section.sectionDescriptor,
                 index
             )
 
             sw.addLinkToSheetRow(
-                sectionDescriptor.sectionTitle,
+                section.sectionDescriptor.sectionTitle,
                 "'$sheetName'!A1",
-                sectionDescriptor.sectionDescription,
-                "TODO"
+                section.sectionDescriptor.sectionDescription,
+                section.differences.size.toString()
             )
         }
 
@@ -96,7 +103,7 @@ class SpreadsheetOutput(
         sw.sheet.autoSizeColumn(2)
     }
 
-    private fun addSectionSheets(diffReport: DiffReport) {
+    private fun addSectionSheets(diffReport: DifferenceReport) {
         diffReport.sections.forEachIndexed { index, section ->
             val sheetName = composeSheetName(
                 section.sectionDescriptor,
@@ -104,7 +111,10 @@ class SpreadsheetOutput(
             )
 
             val sw = addSheet(sheetName)
-            sw.addRow("TODO")
+
+            val columns = composeSectionColumns(section)
+            addSectionTitleRow(columns, sw)
+            addSectionValueRows(columns, section, sw)
         }
     }
 
@@ -117,6 +127,95 @@ class SpreadsheetOutput(
             sheet = sheet,
             cellStyles = cellStyles
         )
+    }
+
+    private fun composeSectionColumns(
+        reportSection: ReportSection
+    ): List<ColumnDescriptor> {
+
+        return reportSection.sectionDescriptor.sectionFields.flatMap { field ->
+
+            when (field.fieldKind) {
+                FieldKind.CORRELATION_ID -> listOf(
+                    ColumnDescriptor(
+                        ColumnKind.CORRELATION_ID,
+                        field
+                    )
+                )
+
+                FieldKind.DISCRIMINATION_LABEL -> listOf(
+                    ColumnDescriptor(
+                        ColumnKind.CORRELATION_ID,
+                        field
+                    )
+                )
+
+                FieldKind.DIFFERENCE_KIND -> listOf(
+                    ColumnDescriptor(
+                        ColumnKind.CORRELATION_ID,
+                        field
+                    )
+                )
+
+                FieldKind.CHANGE -> listOf(
+                    ColumnDescriptor(
+                        ColumnKind.CHANGE_ACTUAL,
+                        field
+                    ),
+
+                    ColumnDescriptor(
+                        ColumnKind.CHANGE_BASELINE,
+                        field
+                    )
+                )
+            }
+        }
+    }
+
+    private fun addSectionTitleRow(
+        columns: List<ColumnDescriptor>,
+        sheetWriter: SheetWriter
+    ) {
+        val titles = columns
+            .map { it.title() }
+            .toTypedArray()
+
+        sheetWriter.addHeaderRow(*titles)
+    }
+
+    private fun addSectionValueRows(
+        columns: List<ColumnDescriptor>,
+        reportSection: ReportSection,
+        sheetWriter: SheetWriter
+    ) {
+        reportSection.differences.forEach { difference ->
+
+            val columnValues = columns.map { column ->
+
+                val differenceValue = difference.fields[column.field]
+
+                if (differenceValue == null) {
+                    null
+                } else {
+                    when (column.columnKind) {
+                        ColumnKind.CORRELATION_ID -> differenceValue.toString()
+                        ColumnKind.DISCRIMINATION_LABEL -> differenceValue.toString()
+                        ColumnKind.DIFFERENCE_KIND -> differenceValue.toString()
+
+                        ColumnKind.CHANGE_ACTUAL -> {
+                            val change = differenceValue as ChangeValue
+                            change.actualValue
+                        }
+                        ColumnKind.CHANGE_BASELINE -> {
+                            val change = differenceValue as ChangeValue
+                            change.baselineValue
+                        }
+                    }
+                }
+            }
+
+            sheetWriter.addRow(*columnValues.toTypedArray())
+        }
     }
 
     private fun composeSheetName(

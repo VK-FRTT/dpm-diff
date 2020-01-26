@@ -10,7 +10,7 @@ class SheetWriter(
     private var nextRowIndex: Int = 0
 
     fun addRow(
-        vararg cellValues: String
+        vararg cellValues: String?
     ) {
         val row = addRow()
 
@@ -19,7 +19,7 @@ class SheetWriter(
         }
     }
 
-    fun addTitleRow(
+    fun addHeaderRow(
         vararg cellValues: String
     ) {
         val row = addRow()
@@ -27,7 +27,7 @@ class SheetWriter(
         cellValues.forEach { cellValue ->
             row.addCell(
                 cellValue,
-                cellStyles.titleStyle
+                cellStyles.headerStyle
             )
         }
     }
@@ -35,7 +35,7 @@ class SheetWriter(
     fun addLinkToSheetRow(
         linkTitle: String,
         linkAddress: String,
-        vararg cellValues: String
+        vararg cellValues: String?
     ) {
         val row = addRow()
 
