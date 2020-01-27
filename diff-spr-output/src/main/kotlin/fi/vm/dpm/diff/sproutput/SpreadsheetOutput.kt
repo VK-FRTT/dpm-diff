@@ -8,8 +8,11 @@ import fi.vm.dpm.diff.sproutput.SheetWriter
 import java.io.Closeable
 import java.io.FileOutputStream
 import java.nio.file.Path
+import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.ss.usermodel.Font.U_SINGLE
 import org.apache.poi.ss.usermodel.IndexedColors
+import org.apache.poi.ss.util.CellRangeAddress
+import org.apache.poi.ss.util.SheetUtil
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
 class SpreadsheetOutput(
@@ -44,24 +47,36 @@ class SpreadsheetOutput(
     private fun initCellStyles(): CellStyles {
 
         return CellStyles(
+            normalStyle = run {
+                val font = workbook.createFont()
+                font.setFontHeightInPoints(12)
+
+                val style = workbook.createCellStyle()
+                style.setFont(font)
+                style.wrapText = true
+                style
+            },
+
             headerStyle = run {
                 val font = workbook.createFont()
+                font.setFontHeightInPoints(12)
                 font.bold = true
 
                 val style = workbook.createCellStyle()
                 style.setFont(font)
-
+                style.wrapText = true
                 style
             },
 
             linkStyle = run {
                 val font = workbook.createFont()
+                font.setFontHeightInPoints(12)
                 font.underline = U_SINGLE
                 font.color = IndexedColors.BLUE.index
 
                 val style = workbook.createCellStyle()
                 style.setFont(font)
-
+                style.wrapText = true
                 style
             }
         )
@@ -69,7 +84,8 @@ class SpreadsheetOutput(
 
     private fun addContentsSheet(diffReport: DifferenceReport) {
         val sw = addSheet("Contents")
-        sw.sheet.trackAllColumnsForAutoSizing() // TODO
+        val contentsSheetColumnCount = 3
+        repeat(contentsSheetColumnCount) { sw.sheet.trackColumnForAutoSizing(it) }
 
         sw.addHeaderRow("Data Point Model Difference Report")
 
@@ -98,9 +114,7 @@ class SpreadsheetOutput(
             )
         }
 
-        sw.sheet.autoSizeColumn(0)
-        sw.sheet.autoSizeColumn(1)
-        sw.sheet.autoSizeColumn(2)
+        repeat(contentsSheetColumnCount) { sw.sheet.autoSizeColumn(it) }
     }
 
     private fun addSectionSheets(diffReport: DifferenceReport) {
@@ -157,7 +171,7 @@ class SpreadsheetOutput(
                     )
                 )
 
-                FieldKind.CHANGE -> listOf(
+                FieldKind.ATOM -> listOf(
                     ColumnDescriptor(
                         ColumnKind.CHANGE_ACTUAL,
                         field
@@ -181,6 +195,25 @@ class SpreadsheetOutput(
             .toTypedArray()
 
         sheetWriter.addHeaderRow(*titles)
+
+        val formatter = DataFormatter()
+        val defaultCharWidth = SheetUtil.getDefaultCharWidth(sheetWriter.sheet.workbook)
+        val row = sheetWriter.sheet.getRow(0)
+
+        columns.forEachIndexed { colIndex, _ ->
+            val cell = row.getCell(colIndex)
+
+            val cellWidth = SheetUtil.getCellWidth(cell, defaultCharWidth, formatter, false)
+                .let { it * 256 + 800 }
+                .toInt()
+                .coerceIn(0..256 * 256)
+
+            sheetWriter.sheet.setColumnWidth(colIndex, cellWidth)
+        }
+
+        sheetWriter.sheet.setAutoFilter(
+            CellRangeAddress(0, 0, 0, columns.size - 1)
+        )
     }
 
     private fun addSectionValueRows(

@@ -22,12 +22,12 @@ class DimensionSection(
     }
 
     private val referencedDomainCode = FieldDescriptor(
-        fieldKind = FieldKind.CHANGE,
+        fieldKind = FieldKind.ATOM,
         fieldName = "referenced domain code"
     )
 
     private val isTypedDimension = FieldDescriptor(
-        fieldKind = FieldKind.CHANGE,
+        fieldKind = FieldKind.ATOM,
         fieldName = "is typed dimension"
     )
 

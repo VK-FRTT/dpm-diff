@@ -15,7 +15,7 @@ class SheetWriter(
         val row = addRow()
 
         cellValues.forEach { cellValue ->
-            row.addCell(cellValue)
+            row.addCell(cellValue, cellStyles.normalStyle)
         }
     }
 

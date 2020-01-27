@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.repgen.section.MemberSection
 import java.io.Closeable
 import java.nio.file.Path
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class DpmDiffReportGenerator(
     private val baselineDpmDbPath: Path,
@@ -47,7 +48,7 @@ class DpmDiffReportGenerator(
             DimensionSection(generationContext).generateSection()
 
         return DifferenceReport(
-            createdAt = LocalDateTime.now().toString(),
+            createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
             actualDpmDbFileName = actualDpmDbPath.fileName.toString(),
             sections = sections

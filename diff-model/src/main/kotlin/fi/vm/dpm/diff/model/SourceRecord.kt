@@ -30,7 +30,7 @@ data class SourceRecord(
                 FieldKind.CORRELATION_ID -> field to value
                 FieldKind.DISCRIMINATION_LABEL -> field to value
                 FieldKind.DIFFERENCE_KIND -> field to DifferenceKind.CHANGED
-                FieldKind.CHANGE -> {
+                FieldKind.ATOM -> {
                     val baselineValue = baselineRecord.fields[field]
 
                     if (value != baselineValue) {
@@ -45,7 +45,7 @@ data class SourceRecord(
             }
         }.toMap()
 
-        val hasChangeFields = differenceFields.any { (field, _) -> field.fieldKind == FieldKind.CHANGE }
+        val hasChangeFields = differenceFields.any { (field, _) -> field.fieldKind == FieldKind.ATOM }
 
         return if (hasChangeFields) {
             DifferenceRecord(

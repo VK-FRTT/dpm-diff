@@ -4,5 +4,5 @@ enum class FieldKind {
     CORRELATION_ID,
     DISCRIMINATION_LABEL,
     DIFFERENCE_KIND,
-    CHANGE
+    ATOM
 }

@@ -27,7 +27,7 @@ class MemberSection(
     }
 
     private val isDefaultMember = FieldDescriptor(
-        fieldKind = FieldKind.CHANGE,
+        fieldKind = FieldKind.ATOM,
         fieldName = "is default member"
     )
 

@@ -22,7 +22,7 @@ class DomainSection(
     }
 
     private val dataType = FieldDescriptor(
-        fieldKind = FieldKind.CHANGE,
+        fieldKind = FieldKind.ATOM,
         fieldName = "data type"
     )
 
