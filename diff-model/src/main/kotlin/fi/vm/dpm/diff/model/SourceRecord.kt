@@ -2,7 +2,7 @@ package fi.vm.dpm.diff.model
 
 private val ADD_REMOVE_DIFFERENCE_FIELD_KINDS = listOf(
     FieldKind.CORRELATION_ID,
-    FieldKind.DISCRIMINATION_LABEL,
+    FieldKind.IDENTIFICATION_LABEL,
     FieldKind.DIFFERENCE_KIND
 )
 
@@ -28,7 +28,7 @@ data class SourceRecord(
         val differenceFields = fields.mapNotNull { (field, value) ->
             when (field.fieldKind) {
                 FieldKind.CORRELATION_ID -> field to value
-                FieldKind.DISCRIMINATION_LABEL -> field to value
+                FieldKind.IDENTIFICATION_LABEL -> field to value
                 FieldKind.DIFFERENCE_KIND -> field to DifferenceKind.CHANGED
                 FieldKind.ATOM -> {
                     val baselineValue = baselineRecord.fields[field]

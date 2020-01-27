@@ -3,6 +3,7 @@ package fi.vm.dpm.diff.model
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.repgen.DbConnection
 import fi.vm.dpm.diff.repgen.GenerationContext
+import fi.vm.dpm.diff.repgen.section.DictionaryElementsSection
 import fi.vm.dpm.diff.repgen.section.DimensionSection
 import fi.vm.dpm.diff.repgen.section.DomainSection
 import fi.vm.dpm.diff.repgen.section.MemberSection
@@ -38,11 +39,12 @@ class DpmDiffReportGenerator(
         val generationContext = GenerationContext(
             baselineConnection = baselineConnection,
             actualConnection = actualConnection,
-            discriminationLangCodes = listOf("fi", "sv"), // TODO
+            identificationLabelLangCodes = listOf("fi", "sv"), // TODO
             diagnostic = diagnostic
         )
 
         val sections = emptyList<ReportSection>() +
+            DictionaryElementsSection(generationContext).generateSection() +
             MemberSection(generationContext).generateSection() +
             DomainSection(generationContext).generateSection() +
             DimensionSection(generationContext).generateSection()

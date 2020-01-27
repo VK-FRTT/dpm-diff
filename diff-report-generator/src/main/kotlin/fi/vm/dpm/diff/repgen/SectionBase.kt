@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.repgen
 
-import ext.kotlin.trimLineStartsAndBlankLines
+import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.DifferenceRecord
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
@@ -11,7 +11,7 @@ import fi.vm.dpm.diff.model.SourceRecord
 open class SectionBase(
     private val generationContext: GenerationContext
 ) {
-    protected open val discriminationLabels: Array<FieldDescriptor> = emptyArray()
+    protected open val identificationLabels: Array<FieldDescriptor> = emptyArray()
 
     protected val differenceKind = FieldDescriptor(
         fieldKind = FieldKind.DIFFERENCE_KIND,
@@ -35,31 +35,34 @@ open class SectionBase(
         columnNames.entries.associate { (columnMame, field) -> field to columnMame }
     }
 
-    fun composeDiscriminationLabelFields(
+    fun composeIdentificationLabels(
         nameCompose: (String) -> String
     ): Array<FieldDescriptor> {
 
-        return generationContext.discriminationLangCodes.map { langCode ->
+        return generationContext.identificationLabelLangCodes.map { langCode ->
 
             FieldDescriptor(
-                fieldKind = FieldKind.DISCRIMINATION_LABEL,
+                fieldKind = FieldKind.IDENTIFICATION_LABEL,
                 fieldName = nameCompose(langCode)
             )
         }.toTypedArray()
     }
 
-    fun composeDiscriminationLabelColumnNames(): Array<Pair<String, FieldDescriptor>> {
+    fun composeIdentificationLabelColumnNames(): Array<Pair<String, FieldDescriptor>> {
 
-        return generationContext.discriminationLangCodes.mapIndexed { index, langCode ->
+        return generationContext.identificationLabelLangCodes.mapIndexed { index, langCode ->
 
-            val field = discriminationLabels[index]
-            Pair("DiscriminationLabel_$langCode", field)
+            val field = identificationLabels[index]
+            Pair("IdLabel_$langCode", field)
         }.toTypedArray()
     }
 
-    fun composeDiscriminationLabelQueryFragment(): String {
-        return generationContext.discriminationLangCodes.map { langCode ->
-            ",MAX(CASE WHEN mLanguage.IsoCode = '$langCode' THEN mConceptTranslation.Text END) AS 'DiscriminationLabel_$langCode'"
+    fun composeIdentificationLabelQueryFragment(
+        isoCodeColumnName: String,
+        textColumnName: String
+    ): String {
+        return generationContext.identificationLabelLangCodes.map { langCode ->
+            ",MAX(CASE WHEN $isoCodeColumnName = '$langCode' THEN $textColumnName END) AS 'IdLabel_$langCode'"
         }.joinToString(
             separator = "\n"
         )
@@ -123,9 +126,9 @@ open class SectionBase(
     ) {
         val primaryTablesRowCountQuery = """
             SELECT SUM(Count) As TotalCount FROM (
-            ${queryPrimaryTables.map { "SELECT COUNT(*) AS Count FROM $it" }.joinToString(separator = "\nUNION\n")}
+            ${queryPrimaryTables.map { "SELECT COUNT(*) AS Count FROM $it" }.joinToString(separator = "\nUNION ALL\n")}
             )
-        """.trimLineStartsAndBlankLines()
+        """.trimLineStartsAndConsequentBlankLines()
 
         val totalRowCount = dbConnection.executeQuery(primaryTablesRowCountQuery) { resultSet ->
             resultSet.next()

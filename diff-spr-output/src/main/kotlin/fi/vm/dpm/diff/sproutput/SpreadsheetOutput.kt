@@ -157,7 +157,7 @@ class SpreadsheetOutput(
                     )
                 )
 
-                FieldKind.DISCRIMINATION_LABEL -> listOf(
+                FieldKind.IDENTIFICATION_LABEL -> listOf(
                     ColumnDescriptor(
                         ColumnKind.CORRELATION_ID,
                         field
@@ -232,7 +232,7 @@ class SpreadsheetOutput(
                 } else {
                     when (column.columnKind) {
                         ColumnKind.CORRELATION_ID -> differenceValue.toString()
-                        ColumnKind.DISCRIMINATION_LABEL -> differenceValue.toString()
+                        ColumnKind.IDENTIFICATION_LABEL -> differenceValue.toString()
                         ColumnKind.DIFFERENCE_KIND -> differenceValue.toString()
 
                         ColumnKind.CHANGE_ACTUAL -> {

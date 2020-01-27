@@ -1,8 +1,26 @@
 package ext.kotlin
 
-fun String.trimLineStartsAndBlankLines(): String {
+fun String.trimLineStartsAndConsequentBlankLines(): String {
     return lines()
         .map { it.trim() }
-        .filterNot { it.isBlank() }
+        .filterTwoNot { current, next -> current.isBlank() && next?.isBlank() ?: true }
         .joinToString(separator = "\n")
+}
+
+private fun List<String>.filterTwoNot(predicate: (String, String?) -> Boolean): List<String> {
+    val destination = mutableListOf<String>()
+
+    for (index in 1 until size) {
+        val currentElement = get(index)
+
+        val nextElementIndex = index + 1
+        val nextElement = if (nextElementIndex < size) {
+            get(nextElementIndex)
+        } else {
+            null
+        }
+
+        if (!predicate(currentElement, nextElement)) destination.add(currentElement)
+    }
+    return destination
 }

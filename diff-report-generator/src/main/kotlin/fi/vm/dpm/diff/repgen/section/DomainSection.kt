@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.repgen.section
 
-import ext.kotlin.trimLineStartsAndBlankLines
+import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -17,7 +17,7 @@ class DomainSection(
         fieldName = "domain code"
     )
 
-    override val discriminationLabels = composeDiscriminationLabelFields {
+    override val identificationLabels = composeIdentificationLabels {
         "domain label $it"
     }
 
@@ -32,7 +32,7 @@ class DomainSection(
         sectionDescription = "Domains: DataType changes",
         sectionFields = listOf(
             domainCode,
-            *discriminationLabels,
+            *identificationLabels,
             differenceKind,
             dataType
         )
@@ -42,7 +42,7 @@ class DomainSection(
         SELECT
         mDomain.DomainCode AS 'DomainCode'
         ,mDomain.DataType AS 'DataType'
-        ${composeDiscriminationLabelQueryFragment()}
+        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
 
         FROM mDomain
         LEFT JOIN mConceptTranslation on mConceptTranslation.ConceptID = mDomain.ConceptID
@@ -52,13 +52,13 @@ class DomainSection(
         mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL
 
         GROUP BY mDomain.DomainCode
-    """.trimLineStartsAndBlankLines()
+    """.trimLineStartsAndConsequentBlankLines()
 
     override val queryPrimaryTables = listOf("mDomain")
 
     override val columnNames = mapOf(
         "DomainCode" to domainCode,
-        *composeDiscriminationLabelColumnNames(),
+        *composeIdentificationLabelColumnNames(),
         "DataType" to dataType
     )
 }

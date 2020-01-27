@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.repgen.section
 
-import ext.kotlin.trimLineStartsAndBlankLines
+import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -22,7 +22,7 @@ class MemberSection(
         fieldName = "member code"
     )
 
-    override val discriminationLabels = composeDiscriminationLabelFields {
+    override val identificationLabels = composeIdentificationLabels {
         "member label $it"
     }
 
@@ -38,7 +38,7 @@ class MemberSection(
         sectionFields = listOf(
             domainCode,
             memberCode,
-            *discriminationLabels,
+            *identificationLabels,
             differenceKind,
             isDefaultMember
         )
@@ -49,7 +49,7 @@ class MemberSection(
         mDomain.DomainCode AS 'DomainCode'
         ,mMember.MemberCode AS 'MemberCode'
         ,mMember.IsDefaultMember AS 'IsDefaultMember'
-        ${composeDiscriminationLabelQueryFragment()}
+        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
 
         FROM mMember
         LEFT JOIN mDomain on mDomain.DomainID = mMember.DomainID
@@ -60,14 +60,14 @@ class MemberSection(
         mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL
 
         GROUP BY mDomain.DomainCode, mMember.MemberCode
-    """.trimLineStartsAndBlankLines()
+    """.trimLineStartsAndConsequentBlankLines()
 
     override val queryPrimaryTables = listOf("mMember")
 
     override val columnNames = mapOf(
         "DomainCode" to domainCode,
         "MemberCode" to memberCode,
-        *composeDiscriminationLabelColumnNames(),
+        *composeIdentificationLabelColumnNames(),
         "IsDefaultMember" to isDefaultMember
     )
 }

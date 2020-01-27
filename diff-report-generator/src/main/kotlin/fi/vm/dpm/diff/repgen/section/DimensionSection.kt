@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.repgen.section
 
-import ext.kotlin.trimLineStartsAndBlankLines
+import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -17,7 +17,7 @@ class DimensionSection(
         fieldName = "dimension code"
     )
 
-    override val discriminationLabels = composeDiscriminationLabelFields {
+    override val identificationLabels = composeIdentificationLabels {
         "dimension label $it"
     }
 
@@ -37,7 +37,7 @@ class DimensionSection(
         sectionDescription = "Dimensions: Domain reference and dimension kind changes",
         sectionFields = listOf(
             dimensionCode,
-            *discriminationLabels,
+            *identificationLabels,
             differenceKind,
             referencedDomainCode,
             isTypedDimension
@@ -49,7 +49,7 @@ class DimensionSection(
         mDimension.DimensionCode AS 'DimensionCode'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mDimension.IsTypedDimension AS 'IsTypedDimension'
-        ${composeDiscriminationLabelQueryFragment()}
+        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
 
         FROM mDimension
         LEFT JOIN mDomain on mDomain.DomainID = mDimension.DomainID
@@ -60,13 +60,13 @@ class DimensionSection(
         mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL
 
         GROUP BY mDimension.DimensionCode
-    """.trimLineStartsAndBlankLines()
+    """.trimLineStartsAndConsequentBlankLines()
 
     override val queryPrimaryTables = listOf("mDimension")
 
     override val columnNames = mapOf(
         "DimensionCode" to dimensionCode,
-        *composeDiscriminationLabelColumnNames(),
+        *composeIdentificationLabelColumnNames(),
         "DomainCode" to referencedDomainCode,
         "IsTypedDimension" to isTypedDimension
     )
