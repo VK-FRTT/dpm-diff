@@ -6,7 +6,9 @@ import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.DictionaryElementsSection
 import fi.vm.dpm.diff.repgen.section.DimensionSection
 import fi.vm.dpm.diff.repgen.section.DomainSection
+import fi.vm.dpm.diff.repgen.section.HierarchySection
 import fi.vm.dpm.diff.repgen.section.MemberSection
+import fi.vm.dpm.diff.repgen.section.MetricSection
 import java.io.Closeable
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -47,7 +49,9 @@ class DpmDiffReportGenerator(
             DictionaryElementsSection(generationContext),
             DomainSection(generationContext),
             MemberSection(generationContext),
-            DimensionSection(generationContext)
+            MetricSection(generationContext),
+            DimensionSection(generationContext),
+            HierarchySection(generationContext)
         )
 
         val generatedSections = sections.map { it.generateSection() }
