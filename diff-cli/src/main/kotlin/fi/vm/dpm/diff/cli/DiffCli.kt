@@ -1,7 +1,10 @@
 package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.DpmDiffReportGenerator
+import fi.vm.dpm.diff.model.FailException
+import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.SpreadsheetOutput
+import fi.vm.dpm.diff.model.throwHalt
 import java.io.BufferedWriter
 import java.io.Closeable
 import java.io.OutputStreamWriter

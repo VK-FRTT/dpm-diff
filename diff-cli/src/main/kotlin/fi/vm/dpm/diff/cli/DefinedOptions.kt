@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.throwFail
 import java.io.PrintWriter
 import java.nio.file.Path
 import java.util.LinkedHashSet

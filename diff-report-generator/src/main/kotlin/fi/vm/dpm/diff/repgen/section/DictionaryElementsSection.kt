@@ -12,18 +12,35 @@ class DictionaryElementsSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val dictionaryElementCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_ID,
-        fieldName = "dictionary element code"
+    private val elementId = FieldDescriptor(
+        fieldKind = FieldKind.FALLBACK_VALUE,
+        fieldName = "ElementId"
     )
 
-    private val dictionaryElementType = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_ID,
-        fieldName = "dictionary element type"
+    private val elementInherentLabel = FieldDescriptor(
+        fieldKind = FieldKind.FALLBACK_VALUE,
+        fieldName = "ElementLabel"
     )
 
-    override val identificationLabels = composeIdentificationLabels {
-        "dictionary element label $it"
+    private val elementType = FieldDescriptor(
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Element type"
+    )
+
+    private val elementCode = FieldDescriptor(
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Element code",
+        fallbackCorrelationKey = elementInherentLabel,
+        fallbackCorrelationNote = listOf(elementId, elementInherentLabel)
+    )
+
+    private val parentElementCode = FieldDescriptor(
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Parent element code"
+    )
+
+    override val identificationLabels = composeIdentificationLabelFields {
+        "Element label $it"
     }
 
     override val sectionDescriptor = SectionDescriptor(
@@ -31,111 +48,150 @@ class DictionaryElementsSection(
         sectionTitle = "Dictionary elements overview",
         sectionDescription = "Dictionary elements: added and removed Domains, Members, Metrics, Dimensions and Hierarchies",
         sectionFields = listOf(
-            dictionaryElementCode,
-            dictionaryElementType,
+            elementId,
+            elementInherentLabel,
+            elementType,
+            elementCode,
+            parentElementCode,
             *identificationLabels,
-            differenceKind
+            differenceKind,
+            note
         )
     )
 
-    override val query = """
-        SELECT
-        ElementCode AS 'ElementCode'
-        ,ElementType AS 'ElementType'
-        ${composeIdentificationLabelQueryFragment(
-        "IdLabelIsoCode",
-        "IdLabelText"
-    )}
+    private data class ElementTypeParams(
+        val elementType: String,
+        val elementTableName: String,
+        val elementIdColumn: String,
+        val elementCodeColumn: String,
+        val elementInherentLabelColumn: String,
+        val parentCodeStatement: String,
+        val parentTableJoin: String,
+        val elementTableSliceCriteria: String
+    )
 
-        FROM (
+    override val query = run {
 
-        ${composeDictionaryElementQueryFragment(
-        "Domain",
-        "mDomain",
-        "DomainID",
-        "mDomain.DomainCode"
-    )}
+        val elementTypes = listOf(
+            ElementTypeParams(
+                elementType = "Domain",
+                elementTableName = "mDomain",
+                elementIdColumn = "DomainID",
+                elementCodeColumn = "DomainCode",
+                elementInherentLabelColumn = "DomainLabel",
+                parentCodeStatement = "NULL",
+                parentTableJoin = "",
+                elementTableSliceCriteria = ""
+            ),
 
-        UNION ALL
+            ElementTypeParams(
+                elementType = "Member",
+                elementTableName = "mMember",
+                elementIdColumn = "MemberID",
+                elementCodeColumn = "MemberCode",
+                elementInherentLabelColumn = "MemberLabel",
+                parentCodeStatement = "mDomain.DomainCode",
+                parentTableJoin = "LEFT JOIN mDomain ON mDomain.DomainID = mMember.DomainID",
+                elementTableSliceCriteria = "AND mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)"
+            ),
 
-        ${composeDictionaryElementQueryFragment(
-        "Member",
-        "mMember",
-        "MemberID",
-        "mMember.MemberCode",
-        "",
-        "AND mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)"
-    )}
+            ElementTypeParams(
+                elementType = "Metric",
+                elementTableName = "mMember",
+                elementIdColumn = "MemberID",
+                elementCodeColumn = "MemberCode",
+                elementInherentLabelColumn = "MemberLabel",
+                parentCodeStatement = "mDomain.DomainCode",
+                parentTableJoin = "LEFT JOIN mDomain ON mDomain.DomainID = mMember.DomainID",
+                elementTableSliceCriteria = "AND mMember.MemberID IN (SELECT CorrespondingMemberID FROM mMetric)"
+            ),
 
-        UNION ALL
+            ElementTypeParams(
+                elementType = "Dimension",
+                elementTableName = "mDimension",
+                elementIdColumn = "DimensionID",
+                elementCodeColumn = "DimensionCode",
+                elementInherentLabelColumn = "DimensionLabel",
+                parentCodeStatement = "mDomain.DomainCode",
+                parentTableJoin = "LEFT JOIN mDomain ON mDomain.DomainID = mDimension.DomainID",
+                elementTableSliceCriteria = ""
+            ),
 
-        ${composeDictionaryElementQueryFragment(
-        "Metric",
-        "mMember",
-        "MemberID",
-        "mMember.MemberCode",
-        "",
-        "AND mMember.MemberID IN (SELECT CorrespondingMemberID FROM mMetric)"
-    )}
-
-        UNION ALL
-
-        ${composeDictionaryElementQueryFragment(
-        "Dimension",
-        "mDimension",
-        "DimensionID",
-        "mDimension.DimensionCode"
-    )}
-
-        UNION ALL
-
-        ${composeDictionaryElementQueryFragment(
-        "Hierarchy",
-        "mHierarchy",
-        "HierarchyID",
-        "mDomain.DomainCode || ':' || mHierarchy.HierarchyCode",
-        "JOIN mDomain on mDomain.DomainID = mHierarchy.DomainID"
-    )}
+            ElementTypeParams(
+                elementType = "Hierarchy",
+                elementTableName = "mHierarchy",
+                elementIdColumn = "HierarchyID",
+                elementCodeColumn = "HierarchyCode",
+                elementInherentLabelColumn = "HierarchyLabel",
+                parentCodeStatement = "mDomain.DomainCode",
+                parentTableJoin = "JOIN mDomain on mDomain.DomainID = mHierarchy.DomainID",
+                elementTableSliceCriteria = ""
+            )
         )
 
-        GROUP BY ElementType, ElementID
+        val query =
+            """
+            SELECT
+            ElementId AS 'ElementId'
+            ,ElementInherentLabel AS 'ElementInherentLabel'
+            ,ElementType AS 'ElementType'
+            ,ElementCode AS 'ElementCode'
+            ,ParentElementCode AS 'ParentElementCode'
+            ${composeIdentificationLabelQueryFragment(
+                criteriaLangColumn = "IdLabelIsoCode",
+                sourceTextColumn = "IdLabelText"
+            )}
 
-    """.trimLineStartsAndConsequentBlankLines()
+            FROM (
+                ${elementTypes.map(::elementQueryFragment).joinToString("\nUNION ALL\n")}
+            )
 
-    override val queryPrimaryTables = listOf("mDomain", "mMember", "mDimension", "mHierarchy")
+            GROUP BY ElementTable, ElementId
 
-    override val columnNames = mapOf(
-        "ElementCode" to dictionaryElementCode,
-        "ElementType" to dictionaryElementType,
+            ORDER BY ElementType, ParentElementCode, ElementCode
+            """
+
+        query.trimLineStartsAndConsequentBlankLines()
+    }
+
+    override val primaryTables = listOf("mDomain", "mMember", "mDimension", "mHierarchy")
+
+    override val queryColumnMapping = mapOf(
+        "ElementId" to elementId,
+        "ElementInherentLabel" to elementInherentLabel,
+        "ElementType" to elementType,
+        "ElementCode" to elementCode,
+        "ParentElementCode" to parentElementCode,
         *composeIdentificationLabelColumnNames()
     )
 
-    private fun composeDictionaryElementQueryFragment(
-        elementType: String,
-        elementTableName: String,
-        elementIdColumnName: String,
-        elementCodeStatement: String,
-        additionalJoin: String = "",
-        additionalWhereCriteria: String = ""
+    private fun elementQueryFragment(
+        params: ElementTypeParams
     ): String {
-        return """
-        SELECT
-        '$elementType' AS 'ElementType'
-        ,$elementTableName.$elementIdColumnName AS 'ElementID'
-        ,$elementCodeStatement AS 'ElementCode'
-        ,mLanguage.IsoCode AS 'IdLabelIsoCode'
-        ,mConceptTranslation.Text AS 'IdLabelText'
 
-        FROM
-        $elementTableName
+        return with(params) {
+            """
+            SELECT
+            '$elementTableName' AS 'ElementTable'
+            ,'$elementType' AS 'ElementType'
+            ,$elementTableName.$elementIdColumn AS 'ElementId'
+            ,$elementTableName.$elementInherentLabelColumn AS 'ElementInherentLabel'
+            ,$elementTableName.$elementCodeColumn AS 'ElementCode'
+            ,$parentCodeStatement AS 'ParentElementCode'
+            ,mLanguage.IsoCode AS 'IdLabelIsoCode'
+            ,mConceptTranslation.Text AS 'IdLabelText'
 
-        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = $elementTableName.ConceptID
-        LEFT JOIN mLanguage ON mLanguage.LanguageID = mConceptTranslation.LanguageID
-        $additionalJoin
+            FROM
+            $elementTableName
 
-        WHERE
-        (mConceptTranslation.Role = 'label' OR mConceptTranslation.Role IS NULL)
-        $additionalWhereCriteria
-    """
+            LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = $elementTableName.ConceptID
+            LEFT JOIN mLanguage ON mLanguage.LanguageID = mConceptTranslation.LanguageID
+            $parentTableJoin
+
+            WHERE
+            (mConceptTranslation.Role = 'label' OR mConceptTranslation.Role IS NULL)
+            $elementTableSliceCriteria
+            """
+        }
     }
 }

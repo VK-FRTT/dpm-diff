@@ -7,6 +7,8 @@ import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.model.SourceRecord
+import fi.vm.dpm.diff.model.thisShouldNeverHappen
+import java.sql.ResultSet
 
 open class SectionBase(
     private val generationContext: GenerationContext
@@ -15,7 +17,12 @@ open class SectionBase(
 
     protected val differenceKind = FieldDescriptor(
         fieldKind = FieldKind.DIFFERENCE_KIND,
-        fieldName = "change"
+        fieldName = "Change"
+    )
+
+    protected val note = FieldDescriptor(
+        fieldKind = FieldKind.NOTE,
+        fieldName = "Notes"
     )
 
     protected open val sectionDescriptor: SectionDescriptor = SectionDescriptor(
@@ -27,23 +34,19 @@ open class SectionBase(
 
     protected open val query: String = ""
 
-    protected open val queryPrimaryTables: List<String> = emptyList()
+    protected open val primaryTables: List<Any> = emptyList()
 
-    protected open val columnNames: Map<String, FieldDescriptor> = emptyMap()
+    protected open val queryColumnMapping: Map<String, FieldDescriptor> = emptyMap()
 
-    private val fieldsToColumnNames by lazy {
-        columnNames.entries.associate { (columnMame, field) -> field to columnMame }
-    }
-
-    fun composeIdentificationLabels(
-        nameCompose: (String) -> String
+    fun composeIdentificationLabelFields(
+        composeName: (String) -> String
     ): Array<FieldDescriptor> {
 
         return generationContext.identificationLabelLangCodes.map { langCode ->
 
             FieldDescriptor(
                 fieldKind = FieldKind.IDENTIFICATION_LABEL,
-                fieldName = nameCompose(langCode)
+                fieldName = composeName(langCode)
             )
         }.toTypedArray()
     }
@@ -58,11 +61,12 @@ open class SectionBase(
     }
 
     fun composeIdentificationLabelQueryFragment(
-        isoCodeColumnName: String,
-        textColumnName: String
+        criteriaLangColumn: String,
+        sourceTextColumn: String
     ): String {
+
         return generationContext.identificationLabelLangCodes.map { langCode ->
-            ",MAX(CASE WHEN $isoCodeColumnName = '$langCode' THEN $textColumnName END) AS 'IdLabel_$langCode'"
+            ",MAX(CASE WHEN $criteriaLangColumn = '$langCode' THEN $sourceTextColumn END) AS 'IdLabel_$langCode'"
         }.joinToString(
             separator = "\n"
         )
@@ -70,6 +74,7 @@ open class SectionBase(
 
     fun generateSection(): ReportSection {
         generationContext.diagnostic.info("Section: ${sectionDescriptor.sectionTitle}")
+        sanityCheckSectionFieldsConfig()
 
         val baselineRecords = loadSourceRecords(generationContext.baselineConnection)
         val actualRecords = loadSourceRecords(generationContext.actualConnection)
@@ -88,21 +93,19 @@ open class SectionBase(
     private fun loadSourceRecords(
         dbConnection: DbConnection
     ): Map<String, SourceRecord> {
-        val sourceRecords = mutableSetOf<SourceRecord>()
+        val sourceRecords = mutableListOf<SourceRecord>()
 
         dbConnection.executeQuery(query) { resultSet ->
+            sanityCheckResultSetColumnLabels(resultSet)
+
             while (resultSet.next()) {
 
-                val loadedFields = sectionDescriptor.sectionFields.map { sectionField ->
-                    val columnName = fieldsToColumnNames[sectionField]
-                    if (columnName == null) {
-                        sectionField to null
-                    } else {
-                        sectionField to resultSet.getString(columnName)
-                    }
+                val loadedFields = queryColumnMapping.map { (column, field) ->
+                    field to resultSet.getString(column)
                 }.toMap()
 
                 val sourceRecord = SourceRecord(
+                    sectionFields = sectionDescriptor.sectionFields,
                     fields = loadedFields
                 )
 
@@ -110,7 +113,7 @@ open class SectionBase(
             }
         }
 
-        sanityCheckSourceRecordsCount(
+        sanityCheckLoadedSourceRecordsCount(
             sourceRecords,
             dbConnection
         )
@@ -120,64 +123,41 @@ open class SectionBase(
         }.toMap()
     }
 
-    private fun sanityCheckSourceRecordsCount(
-        sourceRecords: Set<SourceRecord>,
-        dbConnection: DbConnection
-    ) {
-        val primaryTablesRowCountQuery = """
-            SELECT SUM(Count) As TotalCount FROM (
-            ${queryPrimaryTables.map { "SELECT COUNT(*) AS Count FROM $it" }.joinToString(separator = "\nUNION ALL\n")}
-            )
-        """.trimLineStartsAndConsequentBlankLines()
-
-        val totalRowCount = dbConnection.executeQuery(primaryTablesRowCountQuery) { resultSet ->
-            resultSet.next()
-            resultSet.getInt("TotalCount")
-        }
-
-        if (sourceRecords.size != totalRowCount) {
-            generationContext.diagnostic.fatal(
-                "Count mismatch: SourceRecords ${sourceRecords.size}, PrimaryTables total rows $totalRowCount. " +
-                    "Section: ${sectionDescriptor.sectionTitle}, Database: ${dbConnection.dbPath}"
-            )
-        }
-    }
-
     private fun resolveDifferences(
         baselineRecords: Map<String, SourceRecord>,
         actualRecords: Map<String, SourceRecord>
     ): List<DifferenceRecord> {
 
-        val added = actualRecords
-            .filterRecordsHavingNoCorrelationIn(baselineRecords)
-            .map { it.toAddedDifference() }
-
         val removed = baselineRecords
-            .filterRecordsHavingNoCorrelationIn(actualRecords)
+            .filterRecordsWithoutCorrelationIn(actualRecords)
             .map { it.toRemovedDifference() }
 
+        val added = actualRecords
+            .filterRecordsWithoutCorrelationIn(baselineRecords)
+            .map { it.toAddedDifference() }
+
         val changed = actualRecords
-            .filterCorrelatingRecords(baselineRecords)
+            .filterAndMapCorrelatingRecords(baselineRecords)
             .mapNotNull { (actualRecord, baselineRecord) ->
-                actualRecord.toChangedDifferenceOrNull(baselineRecord)
+                actualRecord.toChangedDifferenceOrNullFromBaseline(baselineRecord)
             }
 
-        return added + removed + changed
+        return removed + added + changed
     }
 
-    private fun Map<String, SourceRecord>.filterRecordsHavingNoCorrelationIn(
+    private fun Map<String, SourceRecord>.filterRecordsWithoutCorrelationIn(
         otherRecords: Map<String, SourceRecord>
     ): List<SourceRecord> {
-        return mapNotNull { (correlationKey, record) ->
+        return mapNotNull { (correlationKey, primaryRecord) ->
             if (otherRecords.containsKey(correlationKey)) {
                 null
             } else {
-                record
+                primaryRecord
             }
         }
     }
 
-    private fun Map<String, SourceRecord>.filterCorrelatingRecords(
+    private fun Map<String, SourceRecord>.filterAndMapCorrelatingRecords(
         otherRecords: Map<String, SourceRecord>
     ): List<Pair<SourceRecord, SourceRecord>> {
         return mapNotNull { (correlationKey, primaryRecord) ->
@@ -188,6 +168,82 @@ open class SectionBase(
             } else {
                 Pair(primaryRecord, correlatingRecord)
             }
+        }
+    }
+
+    private fun sanityCheckSectionFieldsConfig() {
+        // TODO
+        // Max counts per restricted FieldKind
+        // Fallback fields refer only to Fallback kinds
+        // Fallbacks are used only in CorrelationKeys
+    }
+
+    private fun sanityCheckResultSetColumnLabels(resultSet: ResultSet) {
+        val resultSetColumnLabels =
+            (1..resultSet.metaData.columnCount)
+                .map { resultSet.metaData.getColumnLabel(it) }
+                .toTypedArray()
+
+        val mappingColumnLabels =
+            queryColumnMapping
+                .map { (columnLabel, _) -> columnLabel }
+                .toTypedArray()
+
+        if (!(resultSetColumnLabels contentDeepEquals mappingColumnLabels)) {
+            generationContext.diagnostic.fatal(
+                """
+                ResultSet and ColumnMapping mismatch.
+                ResultSet columns: ${resultSetColumnLabels.toList()}
+                ColumnMapping columns: ${mappingColumnLabels.toList()}
+                """.trimLineStartsAndConsequentBlankLines()
+            )
+        }
+    }
+
+    private fun sanityCheckLoadedSourceRecordsCount(
+        loadedRecords: List<SourceRecord>,
+        dbConnection: DbConnection
+    ) {
+        val rowCountQueries = primaryTables.map {
+            when (it) {
+                is String -> {
+                    """
+                    SELECT COUNT(*) AS Count
+                    FROM $it
+                    """.trimLineStartsAndConsequentBlankLines()
+                }
+
+                is Pair<*, *> -> {
+                    """
+                    SELECT COUNT(*) AS Count
+                    FROM ${it.first}
+                    WHERE ${it.second}
+                    """.trimLineStartsAndConsequentBlankLines()
+                }
+
+                else -> thisShouldNeverHappen("Unsupported PrimaryTables")
+            }
+        }
+
+        val primaryTablesRowCountQuery = """
+            SELECT SUM(Count) As TotalCount FROM (
+            ${rowCountQueries.joinToString(separator = "\nUNION ALL\n")}
+            )
+        """.trimLineStartsAndConsequentBlankLines()
+
+        val totalRowCount = dbConnection.executeQuery(primaryTablesRowCountQuery) { resultSet ->
+            resultSet.next()
+            resultSet.getInt("TotalCount")
+        }
+
+        if (loadedRecords.size != totalRowCount) {
+            generationContext.diagnostic.fatal(
+                """
+                Count mismatch in ${sectionDescriptor.sectionTitle}, database: ${dbConnection.dbPath}".
+                SourceRecords: ${loadedRecords.size}
+                PrimaryTables total rows: $totalRowCount
+                """.trimLineStartsAndConsequentBlankLines()
+            )
         }
     }
 }

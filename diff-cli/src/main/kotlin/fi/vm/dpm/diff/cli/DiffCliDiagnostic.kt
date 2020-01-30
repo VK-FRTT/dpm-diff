@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+import fi.vm.dpm.diff.model.throwHalt
 import java.io.PrintWriter
 
 class DiffCliDiagnostic(

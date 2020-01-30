@@ -12,53 +12,82 @@ class DomainSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val domainCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_ID,
-        fieldName = "domain code"
+    private val domainId = FieldDescriptor(
+        fieldKind = FieldKind.FALLBACK_VALUE,
+        fieldName = "DomainId"
     )
 
-    override val identificationLabels = composeIdentificationLabels {
-        "domain label $it"
+    private val domainInherentLabel = FieldDescriptor(
+        fieldKind = FieldKind.FALLBACK_VALUE,
+        fieldName = "DomainLabel"
+    )
+
+    private val domainCode = FieldDescriptor(
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Domain code",
+        fallbackCorrelationKey = domainInherentLabel,
+        fallbackCorrelationNote = listOf(domainId, domainInherentLabel)
+    )
+
+    override val identificationLabels = composeIdentificationLabelFields {
+        "Domain label $it"
     }
 
     private val dataType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "data type"
+        fieldName = "Data type"
+    )
+
+    private val isTypedDomain = FieldDescriptor(
+        fieldKind = FieldKind.ATOM,
+        fieldName = "Is typed domain"
     )
 
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Domains",
         sectionTitle = "Domains",
-        sectionDescription = "Domains: DataType changes",
+        sectionDescription = "Domains: data type changes (in TypedDomains) and domain kind changes (TypedDomain/ExplicitDomain)",
         sectionFields = listOf(
+            domainId,
+            domainInherentLabel,
             domainCode,
             *identificationLabels,
             differenceKind,
-            dataType
+            dataType,
+            isTypedDomain,
+            note
         )
     )
 
     override val query = """
         SELECT
-        mDomain.DomainCode AS 'DomainCode'
-        ,mDomain.DataType AS 'DataType'
+        mDomain.DomainID AS 'DomainId'
+        ,mDomain.DomainLabel AS 'DomainInherentLabel'
+        ,mDomain.DomainCode AS 'DomainCode'
         ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ,mDomain.DataType AS 'DataType'
+        ,mDomain.IsTypedDomain AS 'IsTypedDomain'
 
         FROM mDomain
-        LEFT JOIN mConceptTranslation on mConceptTranslation.ConceptID = mDomain.ConceptID
-        LEFT JOIN mLanguage on mConceptTranslation.LanguageID = mLanguage.LanguageID
+        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mDomain.ConceptID
+        LEFT JOIN mLanguage ON mLanguage.LanguageID = mConceptTranslation.LanguageID
 
         WHERE
         mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL
 
-        GROUP BY mDomain.DomainCode
+        GROUP BY mDomain.DomainID
+
+        ORDER BY mDomain.DomainCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val queryPrimaryTables = listOf("mDomain")
+    override val primaryTables = listOf("mDomain")
 
-    override val columnNames = mapOf(
+    override val queryColumnMapping = mapOf(
+        "DomainId" to domainId,
+        "DomainInherentLabel" to domainInherentLabel,
         "DomainCode" to domainCode,
         *composeIdentificationLabelColumnNames(),
-        "DataType" to dataType
+        "DataType" to dataType,
+        "IsTypedDomain" to isTypedDomain
     )
 }

@@ -12,23 +12,37 @@ class MemberSection(
 ) : SectionBase(
     generationContext
 ) {
+    private val memberId = FieldDescriptor(
+        fieldKind = FieldKind.FALLBACK_VALUE,
+        fieldName = "MemberId"
+    )
+
+    private val memberInherentLabel = FieldDescriptor(
+        fieldKind = FieldKind.FALLBACK_VALUE,
+        fieldName = "MemberLabel"
+    )
+
     private val domainCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_ID,
-        fieldName = "domain code"
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Domain code",
+        fallbackCorrelationKey = memberInherentLabel,
+        fallbackCorrelationNote = listOf(memberId, memberInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_ID,
-        fieldName = "member code"
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Member code",
+        fallbackCorrelationKey = memberInherentLabel,
+        fallbackCorrelationNote = listOf(memberId, memberInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabels {
-        "member label $it"
+    override val identificationLabels = composeIdentificationLabelFields {
+        "Member label $it"
     }
 
     private val isDefaultMember = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "is default member"
+        fieldName = "Is default member"
     )
 
     override val sectionDescriptor = SectionDescriptor(
@@ -36,35 +50,46 @@ class MemberSection(
         sectionTitle = "Members",
         sectionDescription = "Members: DefaultMember assignment changes",
         sectionFields = listOf(
+            memberId,
+            memberInherentLabel,
             domainCode,
             memberCode,
             *identificationLabels,
             differenceKind,
-            isDefaultMember
+            isDefaultMember,
+            note
         )
     )
 
     override val query = """
         SELECT
-        mDomain.DomainCode AS 'DomainCode'
+        mMember.MemberID AS 'MemberId'
+        ,mMember.MemberLabel AS 'MemberInherentLabel'
+        ,mDomain.DomainCode AS 'DomainCode'
         ,mMember.MemberCode AS 'MemberCode'
-        ,mMember.IsDefaultMember AS 'IsDefaultMember'
         ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ,mMember.IsDefaultMember AS 'IsDefaultMember'
 
         FROM mMember
-        LEFT JOIN mDomain on mDomain.DomainID = mMember.DomainID
-        LEFT JOIN mConceptTranslation on mConceptTranslation.ConceptID = mMember.ConceptID
-        LEFT JOIN mLanguage on mConceptTranslation.LanguageID = mLanguage.LanguageID
+        LEFT JOIN mDomain ON mDomain.DomainID = mMember.DomainID
+        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mMember.ConceptID
+        LEFT JOIN mLanguage ON mConceptTranslation.LanguageID = mLanguage.LanguageID
 
         WHERE
-        mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL
+        (mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL)
+        AND mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)
 
-        GROUP BY mDomain.DomainCode, mMember.MemberCode
+        GROUP BY mMember.MemberID
+
+        ORDER BY  mDomain.DomainCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val queryPrimaryTables = listOf("mMember")
+    override val primaryTables =
+        listOf(Pair("mMember", "mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)"))
 
-    override val columnNames = mapOf(
+    override val queryColumnMapping = mapOf(
+        "MemberId" to memberId,
+        "MemberInherentLabel" to memberInherentLabel,
         "DomainCode" to domainCode,
         "MemberCode" to memberCode,
         *composeIdentificationLabelColumnNames(),

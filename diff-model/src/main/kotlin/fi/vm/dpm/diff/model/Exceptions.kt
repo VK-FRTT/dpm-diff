@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.cli
+package fi.vm.dpm.diff.model
 
 class HaltException : RuntimeException()
 class FailException(message: String) : RuntimeException(message)

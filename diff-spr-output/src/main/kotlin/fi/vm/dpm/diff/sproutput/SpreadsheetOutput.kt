@@ -3,7 +3,7 @@ package fi.vm.dpm.diff.model
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.sproutput.CellStyles
 import fi.vm.dpm.diff.sproutput.ColumnDescriptor
-import fi.vm.dpm.diff.sproutput.ColumnKind
+import fi.vm.dpm.diff.sproutput.FieldSpecifier
 import fi.vm.dpm.diff.sproutput.SheetWriter
 import java.io.Closeable
 import java.io.FileOutputStream
@@ -150,36 +150,46 @@ class SpreadsheetOutput(
         return reportSection.sectionDescriptor.sectionFields.flatMap { field ->
 
             when (field.fieldKind) {
-                FieldKind.CORRELATION_ID -> listOf(
+
+                FieldKind.CORRELATION_KEY -> listOf(
                     ColumnDescriptor(
-                        ColumnKind.CORRELATION_ID,
-                        field
+                        field,
+                        FieldSpecifier.NONE
                     )
                 )
 
+                FieldKind.FALLBACK_VALUE -> emptyList()
+
                 FieldKind.IDENTIFICATION_LABEL -> listOf(
                     ColumnDescriptor(
-                        ColumnKind.CORRELATION_ID,
-                        field
+                        field,
+                        FieldSpecifier.NONE
                     )
                 )
 
                 FieldKind.DIFFERENCE_KIND -> listOf(
                     ColumnDescriptor(
-                        ColumnKind.CORRELATION_ID,
-                        field
+                        field,
+                        FieldSpecifier.NONE
                     )
                 )
 
                 FieldKind.ATOM -> listOf(
                     ColumnDescriptor(
-                        ColumnKind.CHANGE_ACTUAL,
-                        field
+                        field,
+                        FieldSpecifier.CHANGE_ACTUAL
                     ),
 
                     ColumnDescriptor(
-                        ColumnKind.CHANGE_BASELINE,
-                        field
+                        field,
+                        FieldSpecifier.CHANGE_BASELINE
+                    )
+                )
+
+                FieldKind.NOTE -> listOf(
+                    ColumnDescriptor(
+                        field,
+                        FieldSpecifier.NONE
                     )
                 )
             }
@@ -200,13 +210,19 @@ class SpreadsheetOutput(
         val defaultCharWidth = SheetUtil.getDefaultCharWidth(sheetWriter.sheet.workbook)
         val row = sheetWriter.sheet.getRow(0)
 
-        columns.forEachIndexed { colIndex, _ ->
+        columns.forEachIndexed { colIndex, column ->
             val cell = row.getCell(colIndex)
 
-            val cellWidth = SheetUtil.getCellWidth(cell, defaultCharWidth, formatter, false)
-                .let { it * 256 + 800 }
-                .toInt()
-                .coerceIn(0..256 * 256)
+            val cellWidth = when (column.field.fieldKind) {
+                FieldKind.NOTE -> 10000
+
+                else -> {
+                    SheetUtil.getCellWidth(cell, defaultCharWidth, formatter, false)
+                        .let { it * 256 + 800 }
+                        .toInt()
+                        .coerceIn(0..256 * 256)
+                }
+            }
 
             sheetWriter.sheet.setColumnWidth(colIndex, cellWidth)
         }
@@ -214,6 +230,8 @@ class SpreadsheetOutput(
         sheetWriter.sheet.setAutoFilter(
             CellRangeAddress(0, 0, 0, columns.size - 1)
         )
+
+        sheetWriter.sheet.createFreezePane(0, 1)
     }
 
     private fun addSectionValueRows(
@@ -230,16 +248,14 @@ class SpreadsheetOutput(
                 if (differenceValue == null) {
                     null
                 } else {
-                    when (column.columnKind) {
-                        ColumnKind.CORRELATION_ID -> differenceValue.toString()
-                        ColumnKind.IDENTIFICATION_LABEL -> differenceValue.toString()
-                        ColumnKind.DIFFERENCE_KIND -> differenceValue.toString()
+                    when (column.fieldSpecifier) {
+                        FieldSpecifier.NONE -> differenceValue.toString()
 
-                        ColumnKind.CHANGE_ACTUAL -> {
+                        FieldSpecifier.CHANGE_ACTUAL -> {
                             val change = differenceValue as ChangeValue
                             change.actualValue
                         }
-                        ColumnKind.CHANGE_BASELINE -> {
+                        FieldSpecifier.CHANGE_BASELINE -> {
                             val change = differenceValue as ChangeValue
                             change.baselineValue
                         }

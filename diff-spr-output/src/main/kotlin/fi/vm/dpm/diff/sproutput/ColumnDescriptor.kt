@@ -1,19 +1,27 @@
 package fi.vm.dpm.diff.sproutput
 
 import fi.vm.dpm.diff.model.FieldDescriptor
+import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.thisShouldNeverHappen
 
 data class ColumnDescriptor(
-    val columnKind: ColumnKind,
-    val field: FieldDescriptor
-
+    val field: FieldDescriptor,
+    val fieldSpecifier: FieldSpecifier
 ) {
     fun title(): String {
-        return when (columnKind) {
-            ColumnKind.CORRELATION_ID -> field.fieldName
-            ColumnKind.IDENTIFICATION_LABEL -> field.fieldName
-            ColumnKind.DIFFERENCE_KIND -> field.fieldName
-            ColumnKind.CHANGE_ACTUAL -> field.fieldName
-            ColumnKind.CHANGE_BASELINE -> "${field.fieldName} (baseline)"
+        return when (field.fieldKind) {
+            FieldKind.FALLBACK_VALUE -> thisShouldNeverHappen("No column for fallback fields")
+            FieldKind.CORRELATION_KEY -> field.fieldName
+            FieldKind.IDENTIFICATION_LABEL -> field.fieldName
+            FieldKind.DIFFERENCE_KIND -> field.fieldName
+            FieldKind.ATOM -> {
+                if (fieldSpecifier == FieldSpecifier.CHANGE_BASELINE) {
+                    "${field.fieldName} (baseline)"
+                } else {
+                    field.fieldName
+                }
+            }
+            FieldKind.NOTE -> field.fieldName
         }.toUpperCase()
     }
 }

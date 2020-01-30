@@ -43,17 +43,20 @@ class DpmDiffReportGenerator(
             diagnostic = diagnostic
         )
 
-        val sections = emptyList<ReportSection>() +
-            DictionaryElementsSection(generationContext).generateSection() +
-            MemberSection(generationContext).generateSection() +
-            DomainSection(generationContext).generateSection() +
-            DimensionSection(generationContext).generateSection()
+        val sections = listOf(
+            DictionaryElementsSection(generationContext),
+            DomainSection(generationContext),
+            MemberSection(generationContext),
+            DimensionSection(generationContext)
+        )
+
+        val generatedSections = sections.map { it.generateSection() }
 
         return DifferenceReport(
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
             actualDpmDbFileName = actualDpmDbPath.fileName.toString(),
-            sections = sections
+            sections = generatedSections
         )
     }
 }
