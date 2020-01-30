@@ -25,18 +25,20 @@ class MetricSection(
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "Domain code",
-        fallbackCorrelationKey = metricInherentLabel,
-        fallbackCorrelationNote = listOf(metricId, metricInherentLabel)
+        correlationKeyFallback = metricInherentLabel,
+        noteFallback = listOf(metricId, metricInherentLabel)
     )
 
     private val metricCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "Metric code",
-        fallbackCorrelationKey = metricInherentLabel,
-        fallbackCorrelationNote = listOf(metricId, metricInherentLabel)
+        correlationKeyFallback = metricInherentLabel,
+        noteFallback = listOf(metricId, metricInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields {
+    override val identificationLabels = composeIdentificationLabelFields(
+        noteFallback = metricInherentLabel
+    ) {
         "Metric label $it"
     }
 

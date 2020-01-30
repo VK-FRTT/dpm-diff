@@ -39,6 +39,7 @@ open class SectionBase(
     protected open val queryColumnMapping: Map<String, FieldDescriptor> = emptyMap()
 
     fun composeIdentificationLabelFields(
+        noteFallback: FieldDescriptor,
         composeName: (String) -> String
     ): Array<FieldDescriptor> {
 
@@ -46,7 +47,8 @@ open class SectionBase(
 
             FieldDescriptor(
                 fieldKind = FieldKind.IDENTIFICATION_LABEL,
-                fieldName = composeName(langCode)
+                fieldName = composeName(langCode),
+                noteFallback = listOf(noteFallback)
             )
         }.toTypedArray()
     }

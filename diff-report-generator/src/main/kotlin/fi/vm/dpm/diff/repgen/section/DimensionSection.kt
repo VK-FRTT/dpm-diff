@@ -25,11 +25,13 @@ class DimensionSection(
     private val dimensionCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "Dimension code",
-        fallbackCorrelationKey = dimensionInherentLabel,
-        fallbackCorrelationNote = listOf(dimensionId, dimensionInherentLabel)
+        correlationKeyFallback = dimensionInherentLabel,
+        noteFallback = listOf(dimensionId, dimensionInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields {
+    override val identificationLabels = composeIdentificationLabelFields(
+        noteFallback = dimensionInherentLabel
+    ) {
         "Dimension label $it"
     }
 
