@@ -63,6 +63,15 @@ class MemberSection(
         )
     )
 
+    override val queryColumnMapping = mapOf(
+        "MemberId" to memberId,
+        "MemberInherentLabel" to memberInherentLabel,
+        "DomainCode" to domainCode,
+        "MemberCode" to memberCode,
+        *composeIdentificationLabelColumnNames(),
+        "IsDefaultMember" to isDefaultMember
+    )
+
     override val query = """
         SELECT
         mMember.MemberID AS 'MemberId'
@@ -83,18 +92,10 @@ class MemberSection(
 
         GROUP BY mMember.MemberID
 
-        ORDER BY  mDomain.DomainCode ASC, mMember.MemberCode ASC
+        ORDER BY mDomain.DomainCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables =
-        listOf(Pair("mMember", "mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)"))
-
-    override val queryColumnMapping = mapOf(
-        "MemberId" to memberId,
-        "MemberInherentLabel" to memberInherentLabel,
-        "DomainCode" to domainCode,
-        "MemberCode" to memberCode,
-        *composeIdentificationLabelColumnNames(),
-        "IsDefaultMember" to isDefaultMember
+    override val primaryTables = listOf(
+        Pair("mMember", "mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)")
     )
 }

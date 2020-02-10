@@ -61,6 +61,15 @@ class DictionaryElementsSection(
         )
     )
 
+    override val queryColumnMapping = mapOf(
+        "ElementId" to elementId,
+        "ElementInherentLabel" to elementInherentLabel,
+        "ElementType" to elementType,
+        "ElementCode" to elementCode,
+        "ParentElementCode" to parentElementCode,
+        *composeIdentificationLabelColumnNames()
+    )
+
     private data class ElementTypeParams(
         val elementType: String,
         val elementTableName: String,
@@ -156,15 +165,11 @@ class DictionaryElementsSection(
         query.trimLineStartsAndConsequentBlankLines()
     }
 
-    override val primaryTables = listOf("mDomain", "mMember", "mDimension", "mHierarchy")
-
-    override val queryColumnMapping = mapOf(
-        "ElementId" to elementId,
-        "ElementInherentLabel" to elementInherentLabel,
-        "ElementType" to elementType,
-        "ElementCode" to elementCode,
-        "ParentElementCode" to parentElementCode,
-        *composeIdentificationLabelColumnNames()
+    override val primaryTables = listOf(
+        "mDomain",
+        "mMember",
+        "mDimension",
+        "mHierarchy"
     )
 
     private fun elementQueryFragment(

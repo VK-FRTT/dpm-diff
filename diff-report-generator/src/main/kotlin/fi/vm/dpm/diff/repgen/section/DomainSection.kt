@@ -61,6 +61,15 @@ class DomainSection(
         )
     )
 
+    override val queryColumnMapping = mapOf(
+        "DomainId" to domainId,
+        "DomainInherentLabel" to domainInherentLabel,
+        "DomainCode" to domainCode,
+        *composeIdentificationLabelColumnNames(),
+        "DataType" to dataType,
+        "IsTypedDomain" to isTypedDomain
+    )
+
     override val query = """
         SELECT
         mDomain.DomainID AS 'DomainId'
@@ -82,14 +91,7 @@ class DomainSection(
         ORDER BY mDomain.DomainCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf("mDomain")
-
-    override val queryColumnMapping = mapOf(
-        "DomainId" to domainId,
-        "DomainInherentLabel" to domainInherentLabel,
-        "DomainCode" to domainCode,
-        *composeIdentificationLabelColumnNames(),
-        "DataType" to dataType,
-        "IsTypedDomain" to isTypedDomain
+    override val primaryTables = listOf(
+        "mDomain"
     )
 }

@@ -61,6 +61,15 @@ class DimensionSection(
         )
     )
 
+    override val queryColumnMapping = mapOf(
+        "DimensionId" to dimensionId,
+        "DimensionInherentLabel" to dimensionInherentLabel,
+        "DimensionCode" to dimensionCode,
+        *composeIdentificationLabelColumnNames(),
+        "DomainCode" to referencedDomainCode,
+        "IsTypedDimension" to isTypedDimension
+    )
+
     override val query = """
         SELECT
         mDimension.DimensionID AS 'DimensionId'
@@ -83,14 +92,7 @@ class DimensionSection(
         ORDER BY mDomain.DomainCode ASC, mDimension.DimensionCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf("mDimension")
-
-    override val queryColumnMapping = mapOf(
-        "DimensionId" to dimensionId,
-        "DimensionInherentLabel" to dimensionInherentLabel,
-        "DimensionCode" to dimensionCode,
-        *composeIdentificationLabelColumnNames(),
-        "DomainCode" to referencedDomainCode,
-        "IsTypedDimension" to isTypedDimension
+    override val primaryTables = listOf(
+        "mDimension"
     )
 }

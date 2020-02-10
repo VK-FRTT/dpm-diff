@@ -32,11 +32,11 @@ open class SectionBase(
         sectionFields = emptyList()
     )
 
+    protected open val queryColumnMapping: Map<String, FieldDescriptor> = emptyMap()
+
     protected open val query: String = ""
 
     protected open val primaryTables: List<Any> = emptyList()
-
-    protected open val queryColumnMapping: Map<String, FieldDescriptor> = emptyMap()
 
     fun composeIdentificationLabelFields(
         noteFallback: FieldDescriptor,

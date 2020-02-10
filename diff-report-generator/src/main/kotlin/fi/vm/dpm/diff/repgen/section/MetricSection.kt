@@ -93,6 +93,20 @@ class MetricSection(
         )
     )
 
+    override val queryColumnMapping = mapOf(
+        "MetricID" to metricId,
+        "MetricInherentLabel" to metricInherentLabel,
+        "DomainCode" to domainCode,
+        "MetricCode" to metricCode,
+        *composeIdentificationLabelColumnNames(),
+        "DataType" to dataType,
+        "FlowType" to flowType,
+        "BalanceType" to balanceType,
+        "ReferencedDomainCode" to referencedDomainCode,
+        "ReferencedHierarchyCode" to referencedHierarchyCode,
+        "HierarchyStartingMemberCode" to hierarchyStartingMemberCode
+    )
+
     override val query = """
         SELECT
         mMetric.MetricID AS 'MetricID'
@@ -121,23 +135,10 @@ class MetricSection(
 
         GROUP BY mMetric.MetricID
 
-        ORDER BY  mDomain.DomainCode ASC, mMember.MemberCode ASC
+        ORDER BY mDomain.DomainCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables =
-        listOf("mMetric")
-
-    override val queryColumnMapping = mapOf(
-        "MetricID" to metricId,
-        "MetricInherentLabel" to metricInherentLabel,
-        "DomainCode" to domainCode,
-        "MetricCode" to metricCode,
-        *composeIdentificationLabelColumnNames(),
-        "DataType" to dataType,
-        "FlowType" to flowType,
-        "BalanceType" to balanceType,
-        "ReferencedDomainCode" to referencedDomainCode,
-        "ReferencedHierarchyCode" to referencedHierarchyCode,
-        "HierarchyStartingMemberCode" to hierarchyStartingMemberCode
+    override val primaryTables = listOf(
+        "mMetric"
     )
 }

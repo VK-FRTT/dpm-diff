@@ -57,6 +57,14 @@ class HierarchySection(
         )
     )
 
+    override val queryColumnMapping = mapOf(
+        "HierarchyId" to hierarchyId,
+        "HierarchyInherentLabel" to hierarchyInherentLabel,
+        "DomainCode" to domainCode,
+        "HierarchyCode" to hierarchyCode,
+        *composeIdentificationLabelColumnNames()
+    )
+
     override val query = """
         SELECT
         mHierarchy.HierarchyID AS 'HierarchyId'
@@ -78,13 +86,7 @@ class HierarchySection(
         ORDER BY mDomain.DomainCode ASC, mHierarchy.HierarchyCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf("mHierarchy")
-
-    override val queryColumnMapping = mapOf(
-        "HierarchyId" to hierarchyId,
-        "HierarchyInherentLabel" to hierarchyInherentLabel,
-        "DomainCode" to domainCode,
-        "HierarchyCode" to hierarchyCode,
-        *composeIdentificationLabelColumnNames()
+    override val primaryTables = listOf(
+        "mHierarchy"
     )
 }
