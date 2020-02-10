@@ -3,11 +3,11 @@ package ext.kotlin
 fun String.trimLineStartsAndConsequentBlankLines(): String {
     return lines()
         .map { it.trim() }
-        .filterTwoNot { current, next -> current.isBlank() && next?.isBlank() ?: true }
+        .filterNotByCurrentAndNext { current, next -> current.isBlank() && next?.isBlank() ?: true }
         .joinToString(separator = "\n")
 }
 
-private fun List<String>.filterTwoNot(predicate: (String, String?) -> Boolean): List<String> {
+private fun List<String>.filterNotByCurrentAndNext(predicate: (String, String?) -> Boolean): List<String> {
     val destination = mutableListOf<String>()
 
     for (index in 1 until size) {

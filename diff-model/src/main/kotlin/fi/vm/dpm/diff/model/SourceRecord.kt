@@ -1,16 +1,18 @@
 package fi.vm.dpm.diff.model
 
-private val ADD_REMOVE_FIELD_KINDS = listOf(
-    FieldKind.CORRELATION_KEY,
-    FieldKind.IDENTIFICATION_LABEL,
-    FieldKind.DIFFERENCE_KIND,
-    FieldKind.NOTE
-)
-
 data class SourceRecord(
     val sectionFields: List<FieldDescriptor>,
     val fields: Map<FieldDescriptor, String?>
 ) {
+    companion object {
+        private val ADD_REMOVE_FIELD_KINDS = listOf(
+            FieldKind.CORRELATION_KEY,
+            FieldKind.IDENTIFICATION_LABEL,
+            FieldKind.DIFFERENCE_KIND,
+            FieldKind.NOTE
+        )
+    }
+
     fun correlationKey(): String {
         val key = fields
             .filter { it.key.fieldKind == FieldKind.CORRELATION_KEY }
