@@ -126,10 +126,38 @@ open class SectionBase(
     }
 
     private fun sanityCheckSectionFieldsConfig() {
-        // TODO
-        // Max counts per restricted FieldKind
-        // Fallback fields refer only to Fallback kinds
-        // Fallbacks are used only in CorrelationKeys
+        with(sectionDescriptor.sectionFields) {
+
+            // Field amounts are restricted per field kind
+            check(count { it.fieldKind == FieldKind.CORRELATION_KEY } > 0)
+            check(count { it.fieldKind == FieldKind.IDENTIFICATION_LABEL } > 0)
+            check(count { it.fieldKind == FieldKind.DIFFERENCE_KIND } == 1)
+            check(count { it.fieldKind == FieldKind.NOTE } == 1)
+
+            // Fallbacks are restricted for certain field kinds only
+            forEach { sectionField ->
+
+                if (sectionField.correlationKeyFallback != null) {
+                    check(sectionField.fieldKind == FieldKind.CORRELATION_KEY)
+                }
+
+                if (sectionField.noteFallback.any()) {
+                    check(sectionField.fieldKind in listOf(FieldKind.CORRELATION_KEY, FieldKind.IDENTIFICATION_LABEL))
+                }
+            }
+
+            // Fallbacks can refer only fields with fallback kind
+            forEach { sectionField ->
+
+                with(sectionField.correlationKeyFallback) {
+                    check(this == null || this.fieldKind == FieldKind.FALLBACK_VALUE)
+                }
+
+                sectionField.noteFallback.forEach { noteFallbackField ->
+                    check(noteFallbackField.fieldKind == FieldKind.FALLBACK_VALUE)
+                }
+            }
+        }
     }
 
     private fun sanityCheckResultSetColumnLabels(resultSet: ResultSet) {
