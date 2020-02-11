@@ -27,14 +27,14 @@ class MemberSection(
 
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Domain code",
+        fieldName = "DomainCode",
         correlationKeyFallback = memberInherentLabel,
         noteFallback = listOf(memberId, memberInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Member code",
+        fieldName = "MemberCode",
         correlationKeyFallback = memberInherentLabel,
         noteFallback = listOf(memberId, memberInherentLabel)
     )
@@ -42,16 +42,16 @@ class MemberSection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = memberInherentLabel
     ) {
-        "Member label $it"
+        "MemberLabel$it"
     }
 
     private val isDefaultMember = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Is default member"
+        fieldName = "IsDefaultMember"
     )
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "Members",
+        sectionShortTitle = "Member",
         sectionTitle = "Members",
         sectionDescription = "Members: DefaultMember assignment changes",
         sectionFields = listOf(
@@ -101,4 +101,8 @@ class MemberSection(
     override val primaryTables = listOf(
         Pair("mMember", "mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)")
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }

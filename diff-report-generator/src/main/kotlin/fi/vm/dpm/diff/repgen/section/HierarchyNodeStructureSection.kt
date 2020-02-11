@@ -32,14 +32,14 @@ class HierarchyNodeStructureSection(
 
     private val hierarchyCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Hierarchy code",
+        fieldName = "HierarchyCode",
         correlationKeyFallback = hierarchyNodeInherentLabel,
         noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Member code",
+        fieldName = "MemberCode",
         correlationKeyFallback = hierarchyNodeInherentLabel,
         noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
@@ -47,12 +47,12 @@ class HierarchyNodeStructureSection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = hierarchyNodeInherentLabel
     ) {
-        "Hierarchy node label $it"
+        "HierarchyNodeLabel$it"
     }
 
     private val parentMemberCode = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Parent member code"
+        fieldName = "ParentMemberCode"
     )
 
     private val order = FieldDescriptor(
@@ -66,7 +66,7 @@ class HierarchyNodeStructureSection(
     )
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "HierNode structure",
+        sectionShortTitle = "HierNodeStructure",
         sectionTitle = "HierarchyNodes structure",
         sectionDescription = "HierarchyNodes: Parent Member, Order and Level changes",
         sectionFields = listOf(
@@ -126,4 +126,8 @@ class HierarchyNodeStructureSection(
     override val primaryTables = listOf(
         "mHierarchyNode"
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }

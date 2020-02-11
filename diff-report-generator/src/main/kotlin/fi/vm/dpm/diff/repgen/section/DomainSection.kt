@@ -27,7 +27,7 @@ class DomainSection(
 
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Domain code",
+        fieldName = "DomainCode",
         correlationKeyFallback = domainInherentLabel,
         noteFallback = listOf(domainId, domainInherentLabel)
     )
@@ -35,21 +35,21 @@ class DomainSection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = domainInherentLabel
     ) {
-        "Domain label $it"
+        "DomainLabel$it"
     }
 
     private val dataType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Data type"
+        fieldName = "DataType"
     )
 
     private val isTypedDomain = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Is typed domain"
+        fieldName = "IsTypedDomain"
     )
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "Domains",
+        sectionShortTitle = "Domain",
         sectionTitle = "Domains",
         sectionDescription = "Domains: data type changes (in TypedDomains) and domain kind changes (TypedDomain/ExplicitDomain)",
         sectionFields = listOf(
@@ -97,4 +97,8 @@ class DomainSection(
     override val primaryTables = listOf(
         "mDomain"
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }

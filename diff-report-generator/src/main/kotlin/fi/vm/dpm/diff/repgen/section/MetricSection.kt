@@ -27,14 +27,14 @@ class MetricSection(
 
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Domain code",
+        fieldName = "DomainCode",
         correlationKeyFallback = metricInherentLabel,
         noteFallback = listOf(metricId, metricInherentLabel)
     )
 
     private val metricCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Metric code",
+        fieldName = "MetricCode",
         correlationKeyFallback = metricInherentLabel,
         noteFallback = listOf(metricId, metricInherentLabel)
     )
@@ -42,41 +42,41 @@ class MetricSection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = metricInherentLabel
     ) {
-        "Metric label $it"
+        "MetricLabel$it"
     }
 
     private val dataType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Data type"
+        fieldName = "DataType"
     )
 
     private val flowType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Flow type"
+        fieldName = "FlowType"
     )
 
     private val balanceType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Balance type"
+        fieldName = "BalanceType"
     )
 
     private val referencedDomainCode = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Referenced domain"
+        fieldName = "ReferencedDomain"
     )
 
     private val referencedHierarchyCode = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Referenced hierarchy"
+        fieldName = "ReferencedHierarchy"
     )
 
     private val hierarchyStartingMemberCode = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Hierarchy starting member"
+        fieldName = "HierarchyStartingMember"
     )
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "Metrics",
+        sectionShortTitle = "Metric",
         sectionTitle = "Metrics",
         sectionDescription = "Metrics: DataType, FlowType, BalanceType, Domain reference and Hierarchy reference changes",
         sectionFields = listOf(
@@ -144,4 +144,8 @@ class MetricSection(
     override val primaryTables = listOf(
         "mMetric"
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }

@@ -14,6 +14,10 @@ import java.sql.ResultSet
 open class SectionBase(
     private val generationContext: GenerationContext
 ) {
+    fun sanityCheckSectionConfig() {
+        sectionDescriptor.sanityCheck()
+    }
+
     protected open val includedDifferenceKinds: Array<DifferenceKind> = emptyArray()
 
     protected open val identificationLabels: Array<FieldDescriptor> = emptyArray()
@@ -50,7 +54,7 @@ open class SectionBase(
 
             FieldDescriptor(
                 fieldKind = FieldKind.IDENTIFICATION_LABEL,
-                fieldName = composeName(langCode),
+                fieldName = composeName(langCode.toUpperCase()),
                 noteFallback = listOf(noteFallback)
             )
         }.toTypedArray()
@@ -79,7 +83,7 @@ open class SectionBase(
 
     fun generateSection(): ReportSection {
         generationContext.diagnostic.info("Section: ${sectionDescriptor.sectionTitle}")
-        sanityCheckSectionFieldsConfig()
+        sectionDescriptor.sanityCheck()
 
         val baselineRecords = loadSourceRecords(generationContext.baselineConnection)
         val actualRecords = loadSourceRecords(generationContext.actualConnection)
@@ -127,41 +131,6 @@ open class SectionBase(
         return sourceRecords.map {
             it.correlationKey() to it
         }.toMap()
-    }
-
-    private fun sanityCheckSectionFieldsConfig() {
-        with(sectionDescriptor.sectionFields) {
-
-            // Field amounts are restricted per field kind
-            check(count { it.fieldKind == FieldKind.CORRELATION_KEY } > 0)
-            check(count { it.fieldKind == FieldKind.IDENTIFICATION_LABEL } > 0)
-            check(count { it.fieldKind == FieldKind.DIFFERENCE_KIND } == 1)
-            check(count { it.fieldKind == FieldKind.NOTE } == 1)
-
-            // Fallbacks are restricted for certain field kinds only
-            forEach { sectionField ->
-
-                if (sectionField.correlationKeyFallback != null) {
-                    check(sectionField.fieldKind == FieldKind.CORRELATION_KEY)
-                }
-
-                if (sectionField.noteFallback.any()) {
-                    check(sectionField.fieldKind in listOf(FieldKind.CORRELATION_KEY, FieldKind.IDENTIFICATION_LABEL))
-                }
-            }
-
-            // Fallbacks can refer only fields with fallback kind
-            forEach { sectionField ->
-
-                with(sectionField.correlationKeyFallback) {
-                    check(this == null || this.fieldKind == FieldKind.FALLBACK_VALUE)
-                }
-
-                sectionField.noteFallback.forEach { noteFallbackField ->
-                    check(noteFallbackField.fieldKind == FieldKind.FALLBACK_VALUE)
-                }
-            }
-        }
     }
 
     private fun sanityCheckResultSetColumnLabels(resultSet: ResultSet) {

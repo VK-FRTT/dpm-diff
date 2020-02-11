@@ -27,7 +27,7 @@ class DimensionSection(
 
     private val dimensionCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Dimension code",
+        fieldName = "DimensionCode",
         correlationKeyFallback = dimensionInherentLabel,
         noteFallback = listOf(dimensionId, dimensionInherentLabel)
     )
@@ -35,21 +35,21 @@ class DimensionSection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = dimensionInherentLabel
     ) {
-        "Dimension label $it"
+        "DimensionLabel$it"
     }
 
     private val referencedDomainCode = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Referenced domain code"
+        fieldName = "ReferencedDomainCode"
     )
 
     private val isTypedDimension = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Is typed dimension"
+        fieldName = "IsTypedDimension"
     )
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "Dimensions",
+        sectionShortTitle = "Dimension",
         sectionTitle = "Dimensions",
         sectionDescription = "Dimensions: Domain reference and dimension kind changes",
         sectionFields = listOf(
@@ -98,4 +98,8 @@ class DimensionSection(
     override val primaryTables = listOf(
         "mDimension"
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }

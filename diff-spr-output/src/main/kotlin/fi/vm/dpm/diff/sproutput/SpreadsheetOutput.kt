@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.model
 
+import ext.kotlin.replaceCamelCase
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.sproutput.CellStyles
 import fi.vm.dpm.diff.sproutput.ColumnDescriptor
@@ -271,6 +272,6 @@ class SpreadsheetOutput(
         sectionDescriptor: SectionDescriptor,
         sectionIndex: Int
     ): String {
-        return "${String.format("%02d", sectionIndex + 1)}_${sectionDescriptor.sectionShortTitle}".replace(" ", "_")
+        return "${String.format("%02d", sectionIndex + 1)}_${sectionDescriptor.sectionShortTitle.replaceCamelCase("_")}"
     }
 }

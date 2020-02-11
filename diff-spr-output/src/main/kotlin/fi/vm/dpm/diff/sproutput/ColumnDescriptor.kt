@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.sproutput
 
+import ext.kotlin.replaceCamelCase
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
@@ -22,6 +23,6 @@ data class ColumnDescriptor(
                 }
             }
             FieldKind.NOTE -> field.fieldName
-        }.toUpperCase()
+        }.replaceCamelCase().toUpperCase()
     }
 }

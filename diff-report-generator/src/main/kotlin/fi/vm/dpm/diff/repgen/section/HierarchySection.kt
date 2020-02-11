@@ -27,14 +27,14 @@ class HierarchySection(
 
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Domain code",
+        fieldName = "DomainCode",
         correlationKeyFallback = hierarchyInherentLabel,
         noteFallback = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
     private val hierarchyCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Hierarchy code",
+        fieldName = "HierarchyCode",
         correlationKeyFallback = hierarchyInherentLabel,
         noteFallback = listOf(hierarchyId, hierarchyInherentLabel)
     )
@@ -42,11 +42,11 @@ class HierarchySection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = hierarchyInherentLabel
     ) {
-        "Hierarchy label $it"
+        "HierarchyLabel$it"
     }
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "Hierarchies",
+        sectionShortTitle = "Hierarchy",
         sectionTitle = "Hierarchies",
         sectionDescription = "Hierarchies: Domain reference changes",
         sectionFields = listOf(
@@ -92,4 +92,8 @@ class HierarchySection(
     override val primaryTables = listOf(
         "mHierarchy"
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }

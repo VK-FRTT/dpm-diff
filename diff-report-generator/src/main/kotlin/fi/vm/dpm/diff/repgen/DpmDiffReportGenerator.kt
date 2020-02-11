@@ -3,7 +3,7 @@ package fi.vm.dpm.diff.model
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.repgen.DbConnection
 import fi.vm.dpm.diff.repgen.GenerationContext
-import fi.vm.dpm.diff.repgen.section.DictionaryElementsSection
+import fi.vm.dpm.diff.repgen.section.DictionaryElementOverviewSection
 import fi.vm.dpm.diff.repgen.section.DimensionSection
 import fi.vm.dpm.diff.repgen.section.DomainSection
 import fi.vm.dpm.diff.repgen.section.HierarchyNodeSection
@@ -48,7 +48,7 @@ class DpmDiffReportGenerator(
         )
 
         val sections = listOf(
-            DictionaryElementsSection(generationContext),
+            DictionaryElementOverviewSection(generationContext),
             DomainSection(generationContext),
             MemberSection(generationContext),
             MetricSection(generationContext),

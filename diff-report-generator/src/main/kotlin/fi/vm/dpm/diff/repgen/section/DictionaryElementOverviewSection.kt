@@ -8,7 +8,7 @@ import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
 
-class DictionaryElementsSection(
+class DictionaryElementOverviewSection(
     generationContext: GenerationContext
 ) : SectionBase(
     generationContext
@@ -30,29 +30,29 @@ class DictionaryElementsSection(
 
     private val elementType = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Element type"
+        fieldName = "ElementType"
     )
 
     private val elementCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Element code",
+        fieldName = "ElementCode",
         correlationKeyFallback = elementInherentLabel,
         noteFallback = listOf(elementId, elementInherentLabel)
     )
 
     private val parentElementCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Parent element code"
+        fieldName = "ParentElementCode"
     )
 
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = elementInherentLabel
     ) {
-        "Element label $it"
+        "ElementLabel$it"
     }
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "Dict Elem Overview",
+        sectionShortTitle = "DictElemOverview",
         sectionTitle = "Dictionary elements overview",
         sectionDescription = "Dictionary elements: added and removed Domains, Members, Metrics, Dimensions and Hierarchies",
         sectionFields = listOf(
@@ -206,5 +206,9 @@ class DictionaryElementsSection(
             $elementTableSliceCriteria
             """
         }
+    }
+
+    init {
+        sanityCheckSectionConfig()
     }
 }

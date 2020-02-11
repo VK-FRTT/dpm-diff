@@ -32,14 +32,14 @@ class HierarchyNodeSection(
 
     private val hierarchyCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Hierarchy code",
+        fieldName = "HierarchyCode",
         correlationKeyFallback = hierarchyNodeInherentLabel,
         noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "Member code",
+        fieldName = "MemberCode",
         correlationKeyFallback = hierarchyNodeInherentLabel,
         noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
@@ -47,22 +47,22 @@ class HierarchyNodeSection(
     override val identificationLabels = composeIdentificationLabelFields(
         noteFallback = hierarchyNodeInherentLabel
     ) {
-        "Hierarchy node label $it"
+        "HierarchyNodeLabel$it"
     }
 
     private val isAbstract = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Is abstract"
+        fieldName = "IsAbstract"
     )
 
     private val comparisonOperator = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Comparison operator"
+        fieldName = "ComparisonOperator"
     )
 
     private val unaryOperator = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Unary operator"
+        fieldName = "UnaryOperator"
     )
 
     override val sectionDescriptor = SectionDescriptor(
@@ -125,4 +125,8 @@ class HierarchyNodeSection(
     override val primaryTables = listOf(
         "mHierarchyNode"
     )
+
+    init {
+        sanityCheckSectionConfig()
+    }
 }
