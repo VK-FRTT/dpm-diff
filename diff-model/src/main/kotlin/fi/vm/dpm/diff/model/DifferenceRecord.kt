@@ -4,26 +4,38 @@ data class DifferenceRecord(
     val fields: Map<FieldDescriptor, Any?>
 ) {
     companion object {
+
         fun resolveDifferences(
             baselineRecords: Map<String, SourceRecord>,
-            actualRecords: Map<String, SourceRecord>
+            actualRecords: Map<String, SourceRecord>,
+            includedDifferenceKinds: Array<DifferenceKind>
         ): List<DifferenceRecord> {
 
-            val removed = baselineRecords
+            fun removed() = baselineRecords
                 .filterRecordsWithoutCorrelationIn(actualRecords)
                 .map { it.toRemovedDifference() }
 
-            val added = actualRecords
+            fun added() = actualRecords
                 .filterRecordsWithoutCorrelationIn(baselineRecords)
                 .map { it.toAddedDifference() }
 
-            val changed = actualRecords
+            fun changed() = actualRecords
                 .filterAndMapCorrelatingRecords(baselineRecords)
                 .mapNotNull { (actualRecord, baselineRecord) ->
                     actualRecord.toChangedDifferenceOrNullFromBaseline(baselineRecord)
                 }
 
-            return removed + added + changed
+            val differencies = includedDifferenceKinds
+                .sorted()
+                .flatMap { differenceKind ->
+                    when (differenceKind) {
+                        DifferenceKind.REMOVED -> removed()
+                        DifferenceKind.ADDED -> added()
+                        DifferenceKind.CHANGED -> changed()
+                    }
+                }
+
+            return differencies
         }
 
         private fun Map<String, SourceRecord>.filterRecordsWithoutCorrelationIn(

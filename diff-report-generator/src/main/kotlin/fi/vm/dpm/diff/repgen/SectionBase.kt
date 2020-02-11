@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.repgen
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.DifferenceKind
 import fi.vm.dpm.diff.model.DifferenceRecord
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
@@ -13,6 +14,8 @@ import java.sql.ResultSet
 open class SectionBase(
     private val generationContext: GenerationContext
 ) {
+    protected open val includedDifferenceKinds: Array<DifferenceKind> = emptyArray()
+
     protected open val identificationLabels: Array<FieldDescriptor> = emptyArray()
 
     protected val differenceKind = FieldDescriptor(
@@ -83,7 +86,8 @@ open class SectionBase(
 
         val differences = DifferenceRecord.resolveDifferences(
             baselineRecords = baselineRecords,
-            actualRecords = actualRecords
+            actualRecords = actualRecords,
+            includedDifferenceKinds = includedDifferenceKinds
         )
 
         return ReportSection(

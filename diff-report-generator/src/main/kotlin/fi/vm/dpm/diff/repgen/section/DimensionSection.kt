@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.DifferenceKind
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -12,6 +13,8 @@ class DimensionSection(
 ) : SectionBase(
     generationContext
 ) {
+    override val includedDifferenceKinds: Array<DifferenceKind> = DifferenceKind.values()
+
     private val dimensionId = FieldDescriptor(
         fieldKind = FieldKind.FALLBACK_VALUE,
         fieldName = "DimensionId"

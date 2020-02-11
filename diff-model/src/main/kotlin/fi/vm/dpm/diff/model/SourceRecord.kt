@@ -144,15 +144,20 @@ private fun synthesizeNotesForFields(
 private fun MutableMap<FieldDescriptor, Any?>.compareAndTransformAtomValuesFromBaseline(
     baselineFields: Map<FieldDescriptor, String?>
 ) {
-    val transformedAtoms = filter { (field, _) -> field.fieldKind == FieldKind.ATOM }
+    val transformedAtoms = this
+        .filter { (field, _) ->
+            field.fieldKind == FieldKind.ATOM
+        }
         .map { (field, value) ->
+            value as String?
+
             val baselineValue = baselineFields[field]
 
             if (value == baselineValue) {
                 field to null
             } else {
                 field to ChangeValue(
-                    actualValue = value.toString(),
+                    actualValue = value,
                     baselineValue = baselineValue
                 )
             }

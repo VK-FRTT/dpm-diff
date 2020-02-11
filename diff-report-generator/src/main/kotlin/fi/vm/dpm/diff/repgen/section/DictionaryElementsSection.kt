@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.DifferenceKind
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -12,6 +13,11 @@ class DictionaryElementsSection(
 ) : SectionBase(
     generationContext
 ) {
+    override val includedDifferenceKinds: Array<DifferenceKind> = arrayOf(
+        DifferenceKind.REMOVED,
+        DifferenceKind.ADDED
+    )
+
     private val elementId = FieldDescriptor(
         fieldKind = FieldKind.FALLBACK_VALUE,
         fieldName = "ElementId"
