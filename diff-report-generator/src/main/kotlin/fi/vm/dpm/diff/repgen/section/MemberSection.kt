@@ -39,11 +39,10 @@ class MemberSection(
         noteFallback = listOf(memberId, memberInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields(
+    override val identificationLabels = idLabelFields(
+        fieldNameBase = "MemberLabel",
         noteFallback = memberInherentLabel
-    ) {
-        "MemberLabel$it"
-    }
+    )
 
     private val isDefaultMember = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
@@ -71,7 +70,7 @@ class MemberSection(
         "MemberInherentLabel" to memberInherentLabel,
         "DomainCode" to domainCode,
         "MemberCode" to memberCode,
-        *composeIdentificationLabelColumnNames(),
+        *idLabelColumnMapping(),
         "IsDefaultMember" to isDefaultMember
     )
 
@@ -81,7 +80,7 @@ class MemberSection(
         ,mMember.MemberLabel AS 'MemberInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mMember.MemberCode AS 'MemberCode'
-        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ${idLabelAggregateFragment()}
         ,mMember.IsDefaultMember AS 'IsDefaultMember'
 
         FROM mMember
@@ -98,8 +97,11 @@ class MemberSection(
         ORDER BY mDomain.DomainCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf(
-        Pair("mMember", "mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)")
+    override val sourceTableDescriptors = listOf(
+        SourceTableDescriptor(
+            table = "mMember",
+            where = "mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)"
+        )
     )
 
     init {

@@ -39,11 +39,10 @@ class MetricSection(
         noteFallback = listOf(metricId, metricInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields(
+    override val identificationLabels = idLabelFields(
+        fieldNameBase = "MetricLabel",
         noteFallback = metricInherentLabel
-    ) {
-        "MetricLabel$it"
-    }
+    )
 
     private val dataType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
@@ -101,7 +100,7 @@ class MetricSection(
         "MetricInherentLabel" to metricInherentLabel,
         "DomainCode" to domainCode,
         "MetricCode" to metricCode,
-        *composeIdentificationLabelColumnNames(),
+        *idLabelColumnMapping(),
         "DataType" to dataType,
         "FlowType" to flowType,
         "BalanceType" to balanceType,
@@ -116,7 +115,7 @@ class MetricSection(
         ,mMember.MemberLabel AS 'MetricInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mMember.MemberCode AS 'MetricCode'
-        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ${idLabelAggregateFragment()}
         ,mMetric.DataType AS 'DataType'
         ,mMetric.FlowType AS 'FlowType'
         ,mMetric.BalanceType AS 'BalanceType'
@@ -141,7 +140,7 @@ class MetricSection(
         ORDER BY mDomain.DomainCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf(
+    override val sourceTableDescriptors = listOf(
         "mMetric"
     )
 

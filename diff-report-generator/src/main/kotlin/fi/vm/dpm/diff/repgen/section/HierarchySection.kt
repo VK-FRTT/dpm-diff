@@ -39,11 +39,10 @@ class HierarchySection(
         noteFallback = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields(
+    override val identificationLabels = idLabelFields(
+        fieldNameBase = "HierarchyLabel",
         noteFallback = hierarchyInherentLabel
-    ) {
-        "HierarchyLabel$it"
-    }
+    )
 
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Hierarchy",
@@ -65,7 +64,7 @@ class HierarchySection(
         "HierarchyInherentLabel" to hierarchyInherentLabel,
         "DomainCode" to domainCode,
         "HierarchyCode" to hierarchyCode,
-        *composeIdentificationLabelColumnNames()
+        *idLabelColumnMapping()
     )
 
     override val query = """
@@ -74,7 +73,7 @@ class HierarchySection(
         ,mHierarchy.HierarchyLabel AS 'HierarchyInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mHierarchy.HierarchyCode AS 'HierarchyCode'
-        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ${idLabelAggregateFragment()}
 
         FROM mHierarchy
         LEFT JOIN mDomain on mDomain.DomainID = mHierarchy.DomainID
@@ -89,7 +88,7 @@ class HierarchySection(
         ORDER BY mDomain.DomainCode ASC, mHierarchy.HierarchyCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf(
+    override val sourceTableDescriptors = listOf(
         "mHierarchy"
     )
 

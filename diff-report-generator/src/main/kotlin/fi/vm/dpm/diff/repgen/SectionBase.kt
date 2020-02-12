@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
+import fi.vm.dpm.diff.repgen.section.SourceTableDescriptor
 import java.sql.ResultSet
 
 open class SectionBase(
@@ -43,42 +44,49 @@ open class SectionBase(
 
     protected open val query: String = ""
 
-    protected open val primaryTables: List<Any> = emptyList()
+    protected open val sourceTableDescriptors: List<Any> = emptyList()
 
-    fun composeIdentificationLabelFields(
-        noteFallback: FieldDescriptor,
-        composeName: (String) -> String
+    fun idLabelFields(
+        fieldNameBase: String,
+        noteFallback: FieldDescriptor
     ): Array<FieldDescriptor> {
-
         return generationContext.identificationLabelLangCodes.map { langCode ->
-
             FieldDescriptor(
                 fieldKind = FieldKind.IDENTIFICATION_LABEL,
-                fieldName = composeName(langCode.toUpperCase()),
+                fieldName = "$fieldNameBase${langCode.toUpperCase()}",
                 noteFallback = listOf(noteFallback)
             )
         }.toTypedArray()
     }
 
-    fun composeIdentificationLabelColumnNames(): Array<Pair<String, FieldDescriptor>> {
-
+    fun idLabelColumnMapping(): Array<Pair<String, FieldDescriptor>> {
         return generationContext.identificationLabelLangCodes.mapIndexed { index, langCode ->
-
             val field = identificationLabels[index]
-            Pair("IdLabel_$langCode", field)
+            val columnName = idLabelColumnName(langCode)
+            Pair(columnName, field)
         }.toTypedArray()
     }
 
-    fun composeIdentificationLabelQueryFragment(
-        criteriaLangColumn: String,
-        sourceTextColumn: String
-    ): String {
-
+    fun idLabelColumnNamesFragment(): String {
         return generationContext.identificationLabelLangCodes.map { langCode ->
-            ",MAX(CASE WHEN $criteriaLangColumn = '$langCode' THEN $sourceTextColumn END) AS 'IdLabel_$langCode'"
+            """
+             ,${idLabelColumnName(langCode)} AS '${idLabelColumnName(langCode)}'
+            """.trimLineStartsAndConsequentBlankLines()
         }.joinToString(
             separator = "\n"
         )
+    }
+
+    fun idLabelAggregateFragment(): String {
+        return generationContext.identificationLabelLangCodes.map { langCode ->
+            """
+            ,MAX(CASE WHEN mLanguage.IsoCode = '$langCode' THEN mConceptTranslation.Text END) AS ${idLabelColumnName(langCode)}
+            """.trimLineStartsAndConsequentBlankLines()
+        }.joinToString(separator = "\n")
+    }
+
+    private fun idLabelColumnName(langCode: String): String {
+        return "IdLabel${langCode.toUpperCase()}"
     }
 
     fun generateSection(): ReportSection {
@@ -159,34 +167,41 @@ open class SectionBase(
         loadedRecords: List<SourceRecord>,
         dbConnection: DbConnection
     ) {
-        val rowCountQueries = primaryTables.map {
+        val tableRowCountQueries = sourceTableDescriptors.map {
+            val sb = StringBuilder()
+            sb.append("SELECT COUNT(*) AS Count")
+
             when (it) {
                 is String -> {
-                    """
-                    SELECT COUNT(*) AS Count
-                    FROM $it
-                    """.trimLineStartsAndConsequentBlankLines()
+                    sb.append("\nFROM $it")
                 }
 
-                is Pair<*, *> -> {
-                    """
-                    SELECT COUNT(*) AS Count
-                    FROM ${it.first}
-                    WHERE ${it.second}
-                    """.trimLineStartsAndConsequentBlankLines()
+                is SourceTableDescriptor -> {
+                    sb.append("\nFROM ${it.table}")
+
+                    if (it.where != null) {
+                        sb.append("\nWHERE ${it.where}")
+                    }
+
+                    if (it.join != null) {
+                        sb.append("\nLEFT JOIN ${it.join}")
+                    }
                 }
 
-                else -> thisShouldNeverHappen("Unsupported PrimaryTables")
+                else -> thisShouldNeverHappen("Unsupported SourceTable in ${this::class.simpleName}")
             }
+
+            sb.toString()
         }
 
-        val primaryTablesRowCountQuery = """
-            SELECT SUM(Count) As TotalCount FROM (
-            ${rowCountQueries.joinToString(separator = "\nUNION ALL\n")}
+        val totalRowCountQuery = """
+            SELECT SUM(Count) As TotalCount
+            FROM (
+            ${tableRowCountQueries.joinToString(separator = "\nUNION ALL\n")}
             )
         """.trimLineStartsAndConsequentBlankLines()
 
-        val totalRowCount = dbConnection.executeQuery(primaryTablesRowCountQuery) { resultSet ->
+        val totalRowCount = dbConnection.executeQuery(totalRowCountQuery) { resultSet ->
             resultSet.next()
             resultSet.getInt("TotalCount")
         }
@@ -196,7 +211,7 @@ open class SectionBase(
                 """
                 Count mismatch in ${sectionDescriptor.sectionTitle}, database: ${dbConnection.dbPath}".
                 SourceRecords: ${loadedRecords.size}
-                PrimaryTables total rows: $totalRowCount
+                SourceTables total rows: $totalRowCount
                 """.trimLineStartsAndConsequentBlankLines()
             )
         }

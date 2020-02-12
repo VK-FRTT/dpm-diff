@@ -32,11 +32,10 @@ class DomainSection(
         noteFallback = listOf(domainId, domainInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields(
+    override val identificationLabels = idLabelFields(
+        fieldNameBase = "DomainLabel",
         noteFallback = domainInherentLabel
-    ) {
-        "DomainLabel$it"
-    }
+    )
 
     private val dataType = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
@@ -68,7 +67,7 @@ class DomainSection(
         "DomainId" to domainId,
         "DomainInherentLabel" to domainInherentLabel,
         "DomainCode" to domainCode,
-        *composeIdentificationLabelColumnNames(),
+        *idLabelColumnMapping(),
         "DataType" to dataType,
         "IsTypedDomain" to isTypedDomain
     )
@@ -78,7 +77,7 @@ class DomainSection(
         mDomain.DomainID AS 'DomainId'
         ,mDomain.DomainLabel AS 'DomainInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
-        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ${idLabelAggregateFragment()}
         ,mDomain.DataType AS 'DataType'
         ,mDomain.IsTypedDomain AS 'IsTypedDomain'
 
@@ -94,7 +93,7 @@ class DomainSection(
         ORDER BY mDomain.DomainCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf(
+    override val sourceTableDescriptors = listOf(
         "mDomain"
     )
 

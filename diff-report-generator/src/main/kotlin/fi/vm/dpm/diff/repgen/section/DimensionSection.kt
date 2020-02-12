@@ -32,11 +32,10 @@ class DimensionSection(
         noteFallback = listOf(dimensionId, dimensionInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields(
+    override val identificationLabels = idLabelFields(
+        fieldNameBase = "DimensionLabel",
         noteFallback = dimensionInherentLabel
-    ) {
-        "DimensionLabel$it"
-    }
+    )
 
     private val referencedDomainCode = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
@@ -68,7 +67,7 @@ class DimensionSection(
         "DimensionId" to dimensionId,
         "DimensionInherentLabel" to dimensionInherentLabel,
         "DimensionCode" to dimensionCode,
-        *composeIdentificationLabelColumnNames(),
+        *idLabelColumnMapping(),
         "DomainCode" to referencedDomainCode,
         "IsTypedDimension" to isTypedDimension
     )
@@ -78,7 +77,7 @@ class DimensionSection(
         mDimension.DimensionID AS 'DimensionId'
         ,mDimension.DimensionLabel AS 'DimensionInherentLabel'
         ,mDimension.DimensionCode AS 'DimensionCode'
-        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ${idLabelAggregateFragment()}
         ,mDomain.DomainCode AS 'DomainCode'
         ,mDimension.IsTypedDimension AS 'IsTypedDimension'
 
@@ -95,7 +94,7 @@ class DimensionSection(
         ORDER BY mDomain.DomainCode ASC, mDimension.DimensionCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf(
+    override val sourceTableDescriptors = listOf(
         "mDimension"
     )
 

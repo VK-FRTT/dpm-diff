@@ -44,11 +44,10 @@ class HierarchyNodeSection(
         noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
-    override val identificationLabels = composeIdentificationLabelFields(
+    override val identificationLabels = idLabelFields(
+        fieldNameBase = "HierarchyNodeLabel",
         noteFallback = hierarchyNodeInherentLabel
-    ) {
-        "HierarchyNodeLabel$it"
-    }
+    )
 
     private val isAbstract = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
@@ -90,7 +89,7 @@ class HierarchyNodeSection(
         "HierarchyNodeInherentLabel" to hierarchyNodeInherentLabel,
         "HierarchyCode" to hierarchyCode,
         "MemberCode" to memberCode,
-        *composeIdentificationLabelColumnNames(),
+        *idLabelColumnMapping(),
         "IsAbstract" to isAbstract,
         "ComparisonOperator" to comparisonOperator,
         "UnaryOperator" to unaryOperator
@@ -103,7 +102,7 @@ class HierarchyNodeSection(
         ,mHierarchyNode.HierarchyNodeLabel AS 'HierarchyNodeInherentLabel'
         ,mHierarchy.HierarchyCode AS 'HierarchyCode'
         ,mMember.MemberCode AS 'MemberCode'
-        ${composeIdentificationLabelQueryFragment("mLanguage.IsoCode", "mConceptTranslation.Text")}
+        ${idLabelAggregateFragment()}
         ,mHierarchyNode.IsAbstract AS 'IsAbstract'
         ,mHierarchyNode.ComparisonOperator AS 'ComparisonOperator'
         ,mHierarchyNode.UnaryOperator AS 'UnaryOperator'
@@ -122,7 +121,7 @@ class HierarchyNodeSection(
         ORDER BY mHierarchy.HierarchyCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
-    override val primaryTables = listOf(
+    override val sourceTableDescriptors = listOf(
         "mHierarchyNode"
     )
 
