@@ -29,19 +29,19 @@ class HierarchySection(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DomainCode",
         correlationKeyFallback = hierarchyInherentLabel,
-        noteFallback = listOf(hierarchyId, hierarchyInherentLabel)
+        noteFields = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
     private val hierarchyCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "HierarchyCode",
         correlationKeyFallback = hierarchyInherentLabel,
-        noteFallback = listOf(hierarchyId, hierarchyInherentLabel)
+        noteFields = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "HierarchyLabel",
-        noteFallback = hierarchyInherentLabel
+        noteField = hierarchyInherentLabel
     )
 
     override val sectionDescriptor = SectionDescriptor(

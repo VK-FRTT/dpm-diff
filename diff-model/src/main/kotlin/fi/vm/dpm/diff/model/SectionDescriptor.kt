@@ -1,5 +1,7 @@
 package fi.vm.dpm.diff.model
 
+import ext.kotlin.isNotHavingWhitespace
+
 data class SectionDescriptor(
     val sectionShortTitle: String,
     val sectionTitle: String,
@@ -9,7 +11,7 @@ data class SectionDescriptor(
     fun sanityCheck() {
         with(sectionShortTitle) {
             check(isNotBlank())
-            check(!contains(" "))
+            check(isNotHavingWhitespace())
         }
 
         with(sectionTitle) {
@@ -25,44 +27,44 @@ data class SectionDescriptor(
             check(isNotEmpty())
 
             // Field amounts are restricted per field kind
-            check(count { it.fieldKind == fi.vm.dpm.diff.model.FieldKind.CORRELATION_KEY } > 0)
-            check(count { it.fieldKind == fi.vm.dpm.diff.model.FieldKind.IDENTIFICATION_LABEL } > 0)
-            check(count { it.fieldKind == fi.vm.dpm.diff.model.FieldKind.DIFFERENCE_KIND } == 1)
-            check(count { it.fieldKind == fi.vm.dpm.diff.model.FieldKind.NOTE } == 1)
+            check(count { it.fieldKind == FieldKind.CORRELATION_KEY } > 0)
+            check(count { it.fieldKind == FieldKind.IDENTIFICATION_LABEL } > 0)
+            check(count { it.fieldKind == FieldKind.DIFFERENCE_KIND } == 1)
+            check(count { it.fieldKind == FieldKind.NOTE } == 1)
 
             // Fallbacks are restricted for certain field kinds only
-            forEach { sectionField ->
+            forEach { field ->
 
-                if (sectionField.correlationKeyFallback != null) {
-                    check(sectionField.fieldKind == fi.vm.dpm.diff.model.FieldKind.CORRELATION_KEY)
+                if (field.correlationKeyFallback != null) {
+                    check(field.fieldKind == FieldKind.CORRELATION_KEY)
                 }
 
-                if (sectionField.noteFallback.any()) {
+                if (field.noteFields.any()) {
                     check(
-                        sectionField.fieldKind in listOf(
-                            fi.vm.dpm.diff.model.FieldKind.CORRELATION_KEY,
-                            fi.vm.dpm.diff.model.FieldKind.IDENTIFICATION_LABEL
+                        field.fieldKind in listOf(
+                            FieldKind.CORRELATION_KEY,
+                            FieldKind.IDENTIFICATION_LABEL
                         )
                     )
                 }
             }
 
             // Fallbacks can refer only fields with fallback kind
-            forEach { sectionField ->
+            forEach { field ->
 
-                with(sectionField.correlationKeyFallback) {
-                    check(this == null || this.fieldKind == fi.vm.dpm.diff.model.FieldKind.FALLBACK_VALUE)
+                with(field.correlationKeyFallback) {
+                    check(this == null || this.fieldKind == FieldKind.FALLBACK_VALUE)
                 }
 
-                sectionField.noteFallback.forEach { noteFallbackField ->
-                    check(noteFallbackField.fieldKind == fi.vm.dpm.diff.model.FieldKind.FALLBACK_VALUE)
+                field.noteFields.forEach { noteField ->
+                    check(noteField.fieldKind == FieldKind.FALLBACK_VALUE)
                 }
             }
 
-            // Field name should not be empty nor contain space (i.e. it should be in CamelCase)
-            forEach { sectionField ->
-                check(sectionField.fieldName.isNotBlank())
-                check(!sectionField.fieldName.contains(" "))
+            // Field name should not be empty nor contain whitespace (i.e. it should be in CamelCase)
+            forEach { field ->
+                check(field.fieldName.isNotBlank())
+                check(field.fieldName.isNotHavingWhitespace())
             }
         }
     }

@@ -29,12 +29,12 @@ class DimensionSection(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DimensionCode",
         correlationKeyFallback = dimensionInherentLabel,
-        noteFallback = listOf(dimensionId, dimensionInherentLabel)
+        noteFields = listOf(dimensionId, dimensionInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "DimensionLabel",
-        noteFallback = dimensionInherentLabel
+        noteField = dimensionInherentLabel
     )
 
     private val referencedDomainCode = FieldDescriptor(

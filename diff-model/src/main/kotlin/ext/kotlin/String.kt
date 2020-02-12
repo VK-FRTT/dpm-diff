@@ -37,3 +37,7 @@ private val CAMEL_CASE_SPLIT_PATTERN =
     |
     (?<=[A-Za-z])(?=[^A-Za-z])
     """.trimIndent().toRegex(RegexOption.COMMENTS)
+
+fun String.isNotHavingWhitespace(): Boolean {
+    return all { !it.isWhitespace() }
+}

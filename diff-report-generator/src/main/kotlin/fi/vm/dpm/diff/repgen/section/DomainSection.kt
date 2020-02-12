@@ -29,12 +29,12 @@ class DomainSection(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DomainCode",
         correlationKeyFallback = domainInherentLabel,
-        noteFallback = listOf(domainId, domainInherentLabel)
+        noteFields = listOf(domainId, domainInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "DomainLabel",
-        noteFallback = domainInherentLabel
+        noteField = domainInherentLabel
     )
 
     private val dataType = FieldDescriptor(

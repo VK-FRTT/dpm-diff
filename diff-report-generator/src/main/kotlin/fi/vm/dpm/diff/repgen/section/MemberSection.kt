@@ -29,19 +29,19 @@ class MemberSection(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DomainCode",
         correlationKeyFallback = memberInherentLabel,
-        noteFallback = listOf(memberId, memberInherentLabel)
+        noteFields = listOf(memberId, memberInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "MemberCode",
         correlationKeyFallback = memberInherentLabel,
-        noteFallback = listOf(memberId, memberInherentLabel)
+        noteFields = listOf(memberId, memberInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "MemberLabel",
-        noteFallback = memberInherentLabel
+        noteField = memberInherentLabel
     )
 
     private val isDefaultMember = FieldDescriptor(

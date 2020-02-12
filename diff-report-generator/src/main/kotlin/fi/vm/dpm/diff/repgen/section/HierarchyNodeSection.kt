@@ -34,19 +34,19 @@ class HierarchyNodeSection(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "HierarchyCode",
         correlationKeyFallback = hierarchyNodeInherentLabel,
-        noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+        noteFields = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "MemberCode",
         correlationKeyFallback = hierarchyNodeInherentLabel,
-        noteFallback = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+        noteFields = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "HierarchyNodeLabel",
-        noteFallback = hierarchyNodeInherentLabel
+        noteField = hierarchyNodeInherentLabel
     )
 
     private val isAbstract = FieldDescriptor(

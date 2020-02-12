@@ -32,7 +32,7 @@ data class SourceRecord(
         val differenceFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
 
         differenceFields.setDifferenceKindTo(DifferenceKind.ADDED, sectionFields)
-        differenceFields.synthesizeNoteContent(sectionFields)
+        differenceFields.synthesizeNoteField(sectionFields)
         differenceFields.discardFieldKindsOtherThan(ADD_REMOVE_FIELD_KINDS)
 
         return DifferenceRecord(
@@ -44,7 +44,7 @@ data class SourceRecord(
         val differenceFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
 
         differenceFields.setDifferenceKindTo(DifferenceKind.REMOVED, sectionFields)
-        differenceFields.synthesizeNoteContent(sectionFields)
+        differenceFields.synthesizeNoteField(sectionFields)
         differenceFields.discardFieldKindsOtherThan(ADD_REMOVE_FIELD_KINDS)
 
         return DifferenceRecord(
@@ -56,7 +56,7 @@ data class SourceRecord(
         val differenceFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
 
         differenceFields.setDifferenceKindTo(DifferenceKind.CHANGED, sectionFields)
-        differenceFields.synthesizeNoteContent(sectionFields)
+        differenceFields.synthesizeNoteField(sectionFields)
         differenceFields.compareAndTransformAtomValuesFromBaseline(baselineRecord.fields)
 
         val hasAtoms = differenceFields.any { (field, _) -> field.fieldKind == FieldKind.ATOM }
@@ -82,63 +82,60 @@ private fun MutableMap<FieldDescriptor, Any?>.discardFieldKindsOtherThan(accepte
     obsoleteFields.forEach { remove(it) }
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.synthesizeNoteContent(
+private fun MutableMap<FieldDescriptor, Any?>.synthesizeNoteField(
     knownFields: List<FieldDescriptor>
 ) {
     val noteField = knownFields.firstOrNull { it.fieldKind == FieldKind.NOTE } ?: return
 
-    val notes = synthesizeNullCorrelationKeyNotes(this) +
-        synthesizeNullIdentificationLabelNotes(this)
+    val noteValues = composeNoteValuesForNullCorrelationKey(this) +
+        composeNoteValuesForBlankIdentificationLabels(this)
 
-    if (notes.isEmpty()) return
+    if (noteValues.isEmpty()) return
 
-    val noteValue = notes.distinct().joinToString(separator = "\n")
+    val noteValue = noteValues.distinct().joinToString(separator = "\n")
 
     this[noteField] = noteValue
 }
 
-private fun synthesizeNullCorrelationKeyNotes(
+private fun composeNoteValuesForNullCorrelationKey(
     fields: Map<FieldDescriptor, Any?>
 ): List<String> {
 
     val nullCorrelationKeyFields = fields.filter { (field, value) ->
-        field.fieldKind == FieldKind.CORRELATION_KEY &&
-            value == null
+        (field.fieldKind == FieldKind.CORRELATION_KEY) && (value == null)
     }
 
-    val notes = synthesizeNotesForFields(nullCorrelationKeyFields.keys, fields)
-
-    return notes
+    return composeNoteValues(nullCorrelationKeyFields.keys, fields)
 }
 
-private fun synthesizeNullIdentificationLabelNotes(
+private fun composeNoteValuesForBlankIdentificationLabels(
     fields: Map<FieldDescriptor, Any?>
 ): List<String> {
 
     val identificationLabels = fields.filter { (field, _) ->
-        field.fieldKind == FieldKind.CORRELATION_KEY
+        field.fieldKind == FieldKind.IDENTIFICATION_LABEL
     }
 
-    val synthesizeNotes = identificationLabels.all { (_, value) ->
+    val allIdLabelsNullOrBlank = identificationLabels.all { (_, value) ->
         value == null || value.toString().isBlank()
     }
 
-    if (!synthesizeNotes) return emptyList()
-
-    val notes = synthesizeNotesForFields(identificationLabels.keys, fields)
-
-    return notes
+    return if (allIdLabelsNullOrBlank) {
+        composeNoteValues(identificationLabels.keys, fields)
+    } else {
+        emptyList()
+    }
 }
 
-private fun synthesizeNotesForFields(
-    synthesizeFields: Set<FieldDescriptor>,
+private fun composeNoteValues(
+    composeFields: Set<FieldDescriptor>,
     fields: Map<FieldDescriptor, Any?>
 ): List<String> {
-    val notes = synthesizeFields.flatMap {
-        it.noteFallback.map { "${it.fieldName}: ${fields[it]}" }
+    val noteValues = composeFields.flatMap { composeField ->
+        composeField.noteFields.map { noteField -> "${noteField.fieldName}: ${fields[noteField]}" }
     }
 
-    return notes
+    return noteValues
 }
 
 private fun MutableMap<FieldDescriptor, Any?>.compareAndTransformAtomValuesFromBaseline(

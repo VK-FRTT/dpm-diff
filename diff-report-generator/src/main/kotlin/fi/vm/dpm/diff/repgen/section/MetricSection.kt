@@ -29,19 +29,19 @@ class MetricSection(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DomainCode",
         correlationKeyFallback = metricInherentLabel,
-        noteFallback = listOf(metricId, metricInherentLabel)
+        noteFields = listOf(metricId, metricInherentLabel)
     )
 
     private val metricCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "MetricCode",
         correlationKeyFallback = metricInherentLabel,
-        noteFallback = listOf(metricId, metricInherentLabel)
+        noteFields = listOf(metricId, metricInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "MetricLabel",
-        noteFallback = metricInherentLabel
+        noteField = metricInherentLabel
     )
 
     private val dataType = FieldDescriptor(

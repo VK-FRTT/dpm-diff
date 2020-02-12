@@ -11,7 +11,7 @@ data class ColumnDescriptor(
 ) {
     fun title(): String {
         return when (field.fieldKind) {
-            FieldKind.FALLBACK_VALUE -> thisShouldNeverHappen("No column for fallback fields")
+            FieldKind.FALLBACK_VALUE -> thisShouldNeverHappen("Fallback value fields should get filtered earlier")
             FieldKind.CORRELATION_KEY -> field.fieldName
             FieldKind.IDENTIFICATION_LABEL -> field.fieldName
             FieldKind.DIFFERENCE_KIND -> field.fieldName

@@ -48,13 +48,13 @@ open class SectionBase(
 
     fun idLabelFields(
         fieldNameBase: String,
-        noteFallback: FieldDescriptor
+        noteField: FieldDescriptor
     ): Array<FieldDescriptor> {
         return generationContext.identificationLabelLangCodes.map { langCode ->
             FieldDescriptor(
                 fieldKind = FieldKind.IDENTIFICATION_LABEL,
                 fieldName = "$fieldNameBase${langCode.toUpperCase()}",
-                noteFallback = listOf(noteFallback)
+                noteFields = listOf(noteField)
             )
         }.toTypedArray()
     }

@@ -30,7 +30,7 @@ open class DictionarySectionBase(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "ElementCode",
         correlationKeyFallback = elementInherentLabel,
-        noteFallback = listOf(elementId, elementInherentLabel)
+        noteFields = listOf(elementId, elementInherentLabel)
     )
 
     protected val parentElementCode = FieldDescriptor(
@@ -40,7 +40,7 @@ open class DictionarySectionBase(
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "ElementLabel",
-        noteFallback = elementInherentLabel
+        noteField = elementInherentLabel
     )
 
     protected val elementQueryDescriptors: List<ElementQueryDescriptor> =
