@@ -1,12 +1,13 @@
 package fi.vm.dpm.diff.repgen
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.DifferenceKind
-import fi.vm.dpm.diff.model.DifferenceRecord
+import fi.vm.dpm.diff.model.ChangeRecord
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
+import fi.vm.dpm.diff.model.SourceBundle
 import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import fi.vm.dpm.diff.repgen.section.SourceTableDescriptor
@@ -19,12 +20,10 @@ open class SectionBase(
         sectionDescriptor.sanityCheck()
     }
 
-    protected open val includedDifferenceKinds: Array<DifferenceKind> = emptyArray()
-
     protected open val identificationLabels: Array<FieldDescriptor> = emptyArray()
 
-    protected val differenceKind = FieldDescriptor(
-        fieldKind = FieldKind.DIFFERENCE_KIND,
+    protected val changeKind = FieldDescriptor(
+        fieldKind = FieldKind.CHANGE_KIND,
         fieldName = "Change"
     )
 
@@ -37,7 +36,9 @@ open class SectionBase(
         sectionShortTitle = "",
         sectionTitle = "",
         sectionDescription = "",
-        sectionFields = emptyList()
+        sectionFields = emptyList(),
+        correlationMode = CorrelationMode.UNINITIALIZED,
+        includedChanges = emptySet()
     )
 
     protected open val queryColumnMapping: Map<String, FieldDescriptor> = emptyMap()
@@ -80,7 +81,9 @@ open class SectionBase(
     fun idLabelAggregateFragment(): String {
         return generationContext.identificationLabelLangCodes.map { langCode ->
             """
-            ,MAX(CASE WHEN mLanguage.IsoCode = '$langCode' THEN mConceptTranslation.Text END) AS ${idLabelColumnName(langCode)}
+            ,MAX(CASE WHEN mLanguage.IsoCode = '$langCode' THEN mConceptTranslation.Text END) AS ${idLabelColumnName(
+                langCode
+            )}
             """.trimLineStartsAndConsequentBlankLines()
         }.joinToString(separator = "\n")
     }
@@ -93,24 +96,31 @@ open class SectionBase(
         generationContext.diagnostic.info("Section: ${sectionDescriptor.sectionTitle}")
         sectionDescriptor.sanityCheck()
 
-        val baselineRecords = loadSourceRecords(generationContext.baselineConnection)
-        val actualRecords = loadSourceRecords(generationContext.actualConnection)
+        val baselineBundle = SourceBundle(
+            sectionDescriptor,
+            loadSourceRecords(generationContext.baselineConnection)
+        )
 
-        val differences = DifferenceRecord.resolveDifferences(
-            baselineRecords = baselineRecords,
-            actualRecords = actualRecords,
-            includedDifferenceKinds = includedDifferenceKinds
+        val actualBundle = SourceBundle(
+            sectionDescriptor,
+            loadSourceRecords(generationContext.actualConnection)
+        )
+
+        val changes = ChangeRecord.resolveChanges(
+            sectionDescriptor = sectionDescriptor,
+            baselineBundle = baselineBundle,
+            actualBundle = actualBundle
         )
 
         return ReportSection(
             sectionDescriptor = sectionDescriptor,
-            differences = differences
+            changes = changes
         )
     }
 
     private fun loadSourceRecords(
         dbConnection: DbConnection
-    ): Map<String, SourceRecord> {
+    ): List<SourceRecord> {
         val sourceRecords = mutableListOf<SourceRecord>()
 
         dbConnection.executeQuery(query) { resultSet ->
@@ -123,7 +133,7 @@ open class SectionBase(
                 }.toMap()
 
                 val sourceRecord = SourceRecord(
-                    sectionFields = sectionDescriptor.sectionFields,
+                    sectionDescriptor = sectionDescriptor,
                     fields = loadedFields
                 )
 
@@ -136,9 +146,7 @@ open class SectionBase(
             dbConnection
         )
 
-        return sourceRecords.map {
-            it.correlationKey() to it
-        }.toMap()
+        return sourceRecords
     }
 
     private fun sanityCheckResultSetColumnLabels(resultSet: ResultSet) {

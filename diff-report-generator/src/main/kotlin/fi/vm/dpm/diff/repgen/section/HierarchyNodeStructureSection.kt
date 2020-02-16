@@ -1,7 +1,9 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.DifferenceKind
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyKind
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -13,8 +15,6 @@ class HierarchyNodeStructureSection(
 ) : SectionBase(
     generationContext
 ) {
-    override val includedDifferenceKinds: Array<DifferenceKind> = DifferenceKind.values()
-
     private val hierarchyId = FieldDescriptor(
         fieldKind = FieldKind.FALLBACK_VALUE,
         fieldName = "HierarchyId"
@@ -33,14 +33,16 @@ class HierarchyNodeStructureSection(
     private val hierarchyCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "HierarchyCode",
-        correlationKeyFallback = hierarchyNodeInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = hierarchyNodeInherentLabel,
         noteFields = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "MemberCode",
-        correlationKeyFallback = hierarchyNodeInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = hierarchyNodeInherentLabel,
         noteFields = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
@@ -75,12 +77,14 @@ class HierarchyNodeStructureSection(
             hierarchyCode,
             memberCode,
             *identificationLabels,
-            differenceKind,
+            changeKind,
             parentMemberCode,
             order,
             level,
             note
-        )
+        ),
+        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
+        includedChanges = ChangeKind.allValues()
     )
 
     override val queryColumnMapping = mapOf(

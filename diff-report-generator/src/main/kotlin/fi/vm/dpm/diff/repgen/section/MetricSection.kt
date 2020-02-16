@@ -1,7 +1,9 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.DifferenceKind
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyKind
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -13,8 +15,6 @@ class MetricSection(
 ) : SectionBase(
     generationContext
 ) {
-    override val includedDifferenceKinds: Array<DifferenceKind> = DifferenceKind.values()
-
     private val metricId = FieldDescriptor(
         fieldKind = FieldKind.FALLBACK_VALUE,
         fieldName = "MetricId"
@@ -28,14 +28,16 @@ class MetricSection(
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DomainCode",
-        correlationKeyFallback = metricInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = metricInherentLabel,
         noteFields = listOf(metricId, metricInherentLabel)
     )
 
     private val metricCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "MetricCode",
-        correlationKeyFallback = metricInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = metricInherentLabel,
         noteFields = listOf(metricId, metricInherentLabel)
     )
 
@@ -84,7 +86,7 @@ class MetricSection(
             domainCode,
             metricCode,
             *identificationLabels,
-            differenceKind,
+            changeKind,
             dataType,
             flowType,
             balanceType,
@@ -92,7 +94,9 @@ class MetricSection(
             referencedHierarchyCode,
             hierarchyStartingMemberCode,
             note
-        )
+        ),
+        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
+        includedChanges = ChangeKind.allValues()
     )
 
     override val queryColumnMapping = mapOf(

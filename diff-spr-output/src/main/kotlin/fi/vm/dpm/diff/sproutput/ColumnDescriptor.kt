@@ -14,9 +14,9 @@ data class ColumnDescriptor(
             FieldKind.FALLBACK_VALUE -> thisShouldNeverHappen("Fallback value fields should get filtered earlier")
             FieldKind.CORRELATION_KEY -> field.fieldName
             FieldKind.IDENTIFICATION_LABEL -> field.fieldName
-            FieldKind.DIFFERENCE_KIND -> field.fieldName
+            FieldKind.CHANGE_KIND -> field.fieldName
             FieldKind.ATOM -> {
-                if (fieldSpecifier == FieldSpecifier.CHANGE_BASELINE) {
+                if (fieldSpecifier == FieldSpecifier.MODIFIED_BASELINE) {
                     "${field.fieldName} (baseline)"
                 } else {
                     field.fieldName

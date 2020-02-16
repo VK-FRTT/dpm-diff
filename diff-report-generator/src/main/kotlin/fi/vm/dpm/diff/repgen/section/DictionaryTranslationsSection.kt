@@ -1,0 +1,165 @@
+package fi.vm.dpm.diff.repgen.section
+
+import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyKind
+import fi.vm.dpm.diff.model.CorrelationMode
+import fi.vm.dpm.diff.model.FieldDescriptor
+import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.SectionDescriptor
+import fi.vm.dpm.diff.repgen.GenerationContext
+
+class DictionaryTranslationsSection(
+    generationContext: GenerationContext
+) : DictionarySectionBase(
+    generationContext
+) {
+    private val translationRole = FieldDescriptor(
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "TranslationRole",
+        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY
+    )
+
+    private val translationLanguage = FieldDescriptor(
+        fieldKind = FieldKind.CORRELATION_KEY,
+        fieldName = "Language",
+        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY
+    )
+
+    private val translation = FieldDescriptor(
+        fieldKind = FieldKind.ATOM,
+        fieldName = "Translation"
+    )
+
+    override val sectionDescriptor = SectionDescriptor(
+        sectionShortTitle = "DictTranslations",
+        sectionTitle = "Dictionary Translations",
+        sectionDescription = "Dictionary: Label and Description changes",
+        sectionFields = listOf(
+            elementId,
+            elementInherentLabel,
+            elementType,
+            elementCode,
+            parentElementCode,
+            *identificationLabels,
+            translationRole,
+            translationLanguage,
+            changeKind,
+            translation,
+            note
+        ),
+        correlationMode = CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
+        includedChanges = ChangeKind.allValues()
+
+    )
+
+    override val queryColumnMapping = mapOf(
+        "ElementId" to elementId,
+        "ElementInherentLabel" to elementInherentLabel,
+        "ElementType" to elementType,
+        "ElementCode" to elementCode,
+        "ParentElementCode" to parentElementCode,
+        *idLabelColumnMapping(),
+        "TranslationRole" to translationRole,
+        "TranslationLanguage" to translationLanguage,
+        "Translation" to translation
+    )
+
+    override val query = run {
+
+        val query =
+            """
+            -- Shared sub-queries
+            WITH ${elementQueryDescriptors
+                .map {
+                    """
+                    ${elementEssentialsQueryExpression(it)},
+                    ${elementTranslationsQueryExpression(it)}
+                    """.trimLineStartsAndConsequentBlankLines()
+                }
+                .joinToString(",\n\n")
+            }
+
+            -- Main query
+            SELECT
+            ElementId AS ElementId
+            ,ElementInherentLabel AS ElementInherentLabel
+            ,ElementType AS ElementType
+            ,ElementCode AS ElementCode
+            ,ParentElementCode AS ParentElementCode
+            ${idLabelColumnNamesFragment()}
+            ,TranslationRole AS TranslationRole
+            ,TranslationLanguage AS TranslationLanguage
+            ,Translation AS Translation
+
+            FROM (
+                ${elementQueryDescriptors
+                .map { "SELECT * FROM ${elementTranslationsQueryName(it)}" }
+                .joinToString("\nUNION ALL\n")}
+            )
+
+            ORDER BY ElementType, ParentElementCode, ElementCode
+            """
+
+        query.trimLineStartsAndConsequentBlankLines()
+    }
+
+    private fun elementTranslationsQueryExpression(
+        elementQueryDescription: ElementQueryDescriptor
+    ): String {
+
+        val essentialsQueryName = elementEssentialsQueryName(elementQueryDescription)
+        val translationsQueryName = elementTranslationsQueryName(elementQueryDescription)
+
+        return """
+            $translationsQueryName AS (
+
+            SELECT
+            ElementType AS ElementType
+            ,ElementId AS ElementId
+            ,ElementInherentLabel AS ElementInherentLabel
+            ,ElementCode AS ElementCode
+            ,ParentElementCode AS ParentElementCode
+            ${idLabelColumnNamesFragment()}
+            ,mConceptTranslation.Role AS TranslationRole
+            ,mLanguage.IsoCode AS TranslationLanguage
+            ,mConceptTranslation.Text AS Translation
+
+            FROM
+            $essentialsQueryName
+
+            LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = ElementConceptId
+            LEFT JOIN mLanguage ON mLanguage.LanguageID = mConceptTranslation.LanguageID
+            )
+            """.trimLineStartsAndConsequentBlankLines()
+    }
+
+    private fun elementTranslationsQueryName(
+        elementQueryDescription: ElementQueryDescriptor
+    ): String {
+        return "${elementQueryDescription.elementType}Translations"
+    }
+
+    override val sourceTableDescriptors = listOf(
+        SourceTableDescriptor(
+            table = "mDomain",
+            join = "mConceptTranslation on mConceptTranslation.ConceptID = mDomain.ConceptID"
+        ),
+        SourceTableDescriptor(
+            table = "mMember",
+            join = "mConceptTranslation on mConceptTranslation.ConceptID = mMember.ConceptID"
+        ),
+        SourceTableDescriptor(
+            table = "mDimension",
+            join = "mConceptTranslation on mConceptTranslation.ConceptID = mDimension.ConceptID"
+        ),
+        SourceTableDescriptor(
+            table = "mHierarchy",
+            join = "mConceptTranslation on mConceptTranslation.ConceptID = mHierarchy.ConceptID"
+        )
+    )
+
+    init {
+        sanityCheckSectionConfig()
+    }
+}

@@ -1,7 +1,9 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.DifferenceKind
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyKind
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -13,8 +15,6 @@ class MemberSection(
 ) : SectionBase(
     generationContext
 ) {
-    override val includedDifferenceKinds: Array<DifferenceKind> = DifferenceKind.values()
-
     private val memberId = FieldDescriptor(
         fieldKind = FieldKind.FALLBACK_VALUE,
         fieldName = "MemberId"
@@ -28,14 +28,16 @@ class MemberSection(
     private val domainCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DomainCode",
-        correlationKeyFallback = memberInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = memberInherentLabel,
         noteFields = listOf(memberId, memberInherentLabel)
     )
 
     private val memberCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "MemberCode",
-        correlationKeyFallback = memberInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = memberInherentLabel,
         noteFields = listOf(memberId, memberInherentLabel)
     )
 
@@ -59,10 +61,12 @@ class MemberSection(
             domainCode,
             memberCode,
             *identificationLabels,
-            differenceKind,
+            changeKind,
             isDefaultMember,
             note
-        )
+        ),
+        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
+        includedChanges = ChangeKind.allValues()
     )
 
     override val queryColumnMapping = mapOf(

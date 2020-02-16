@@ -1,7 +1,9 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.DifferenceKind
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyKind
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -13,8 +15,6 @@ class DimensionSection(
 ) : SectionBase(
     generationContext
 ) {
-    override val includedDifferenceKinds: Array<DifferenceKind> = DifferenceKind.values()
-
     private val dimensionId = FieldDescriptor(
         fieldKind = FieldKind.FALLBACK_VALUE,
         fieldName = "DimensionId"
@@ -28,7 +28,8 @@ class DimensionSection(
     private val dimensionCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "DimensionCode",
-        correlationKeyFallback = dimensionInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = dimensionInherentLabel,
         noteFields = listOf(dimensionId, dimensionInherentLabel)
     )
 
@@ -56,11 +57,13 @@ class DimensionSection(
             dimensionInherentLabel,
             dimensionCode,
             *identificationLabels,
-            differenceKind,
+            changeKind,
             referencedDomainCode,
             isTypedDimension,
             note
-        )
+        ),
+        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
+        includedChanges = ChangeKind.allValues()
     )
 
     override val queryColumnMapping = mapOf(

@@ -1,7 +1,8 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.DifferenceKind
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 
@@ -10,15 +11,10 @@ class DictionaryElementOverviewSection(
 ) : DictionarySectionBase(
     generationContext
 ) {
-    override val includedDifferenceKinds: Array<DifferenceKind> = arrayOf(
-        DifferenceKind.REMOVED,
-        DifferenceKind.ADDED
-    )
-
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "DictElemOverview",
         sectionTitle = "Dictionary elements overview",
-        sectionDescription = "Dictionary elements: added and removed Domains, Members, Metrics, Dimensions and Hierarchies",
+        sectionDescription = "Dictionary elements: added and deleted Domains, Members, Metrics, Dimensions and Hierarchies",
         sectionFields = listOf(
             elementId,
             elementInherentLabel,
@@ -26,8 +22,13 @@ class DictionaryElementOverviewSection(
             elementCode,
             parentElementCode,
             *identificationLabels,
-            differenceKind,
+            changeKind,
             note
+        ),
+        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
+        includedChanges = setOf(
+            ChangeKind.ADDED,
+            ChangeKind.DELETED
         )
     )
 

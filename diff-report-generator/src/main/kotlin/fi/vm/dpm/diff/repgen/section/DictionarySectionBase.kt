@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.FieldDescriptor
 import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.repgen.GenerationContext
@@ -23,19 +24,22 @@ open class DictionarySectionBase(
 
     protected val elementType = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "ElementType"
+        fieldName = "ElementType",
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY
     )
 
     protected val elementCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
         fieldName = "ElementCode",
-        correlationKeyFallback = elementInherentLabel,
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = elementInherentLabel,
         noteFields = listOf(elementId, elementInherentLabel)
     )
 
     protected val parentElementCode = FieldDescriptor(
         fieldKind = FieldKind.CORRELATION_KEY,
-        fieldName = "ParentElementCode"
+        fieldName = "ParentElementCode",
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY
     )
 
     override val identificationLabels = idLabelFields(
@@ -106,6 +110,8 @@ open class DictionarySectionBase(
     ): String {
 
         val queryName = elementEssentialsQueryName(elementQueryDescription)
+
+        // TODO provide parent type as separate column + combine on Excel output level
 
         return with(elementQueryDescription) {
             """

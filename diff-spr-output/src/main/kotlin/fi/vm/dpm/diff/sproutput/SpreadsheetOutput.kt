@@ -28,13 +28,13 @@ class SpreadsheetOutput(
         workbook.dispose()
     }
 
-    fun renderOutput(diffReport: DifferenceReport) {
+    fun renderOutput(changeReport: ChangeReport) {
         with(diagnostic) {
             info("Writing spreadsheet...")
         }
 
-        addContentsSheet(diffReport)
-        addSectionSheets(diffReport)
+        addContentsSheet(changeReport)
+        addSectionSheets(changeReport)
 
         val out = FileOutputStream(outputFilePath.toFile())
         workbook.write(out)
@@ -83,24 +83,24 @@ class SpreadsheetOutput(
         )
     }
 
-    private fun addContentsSheet(diffReport: DifferenceReport) {
+    private fun addContentsSheet(changeReport: ChangeReport) {
         val sw = addSheet("Contents")
         val contentsSheetColumnCount = 3
         repeat(contentsSheetColumnCount) { sw.sheet.trackColumnForAutoSizing(it) }
 
-        sw.addHeaderRow("Data Point Model Difference Report")
+        sw.addHeaderRow("Data Point Model Change Report")
 
         sw.addEmptyRows(1)
 
-        sw.addRow("Created at", diffReport.createdAt)
-        sw.addRow("Baseline database", diffReport.baselineDpmDbFileName)
-        sw.addRow("Actual database", diffReport.actualDpmDbFileName)
+        sw.addRow("Created at", changeReport.createdAt)
+        sw.addRow("Baseline database", changeReport.baselineDpmDbFileName)
+        sw.addRow("Actual database", changeReport.actualDpmDbFileName)
 
         sw.addEmptyRows(3)
 
-        sw.addHeaderRow("Sheet", "Description", "Difference count")
+        sw.addHeaderRow("Sheet", "Description", "Change count")
 
-        diffReport.sections.forEachIndexed { index, section ->
+        changeReport.sections.forEachIndexed { index, section ->
 
             val sheetName = composeSheetName(
                 section.sectionDescriptor,
@@ -111,14 +111,14 @@ class SpreadsheetOutput(
                 section.sectionDescriptor.sectionTitle,
                 "'$sheetName'!A1",
                 section.sectionDescriptor.sectionDescription,
-                section.differences.size.toString()
+                section.changes.size.toString()
             )
         }
 
         repeat(contentsSheetColumnCount) { sw.sheet.autoSizeColumn(it) }
     }
 
-    private fun addSectionSheets(diffReport: DifferenceReport) {
+    private fun addSectionSheets(diffReport: ChangeReport) {
         diffReport.sections.forEachIndexed { index, section ->
             val sheetName = composeSheetName(
                 section.sectionDescriptor,
@@ -168,7 +168,7 @@ class SpreadsheetOutput(
                     )
                 )
 
-                FieldKind.DIFFERENCE_KIND -> listOf(
+                FieldKind.CHANGE_KIND -> listOf(
                     ColumnDescriptor(
                         field,
                         FieldSpecifier.NONE
@@ -178,12 +178,12 @@ class SpreadsheetOutput(
                 FieldKind.ATOM -> listOf(
                     ColumnDescriptor(
                         field,
-                        FieldSpecifier.CHANGE_ACTUAL
+                        FieldSpecifier.MODIFIED_ACTUAL
                     ),
 
                     ColumnDescriptor(
                         field,
-                        FieldSpecifier.CHANGE_BASELINE
+                        FieldSpecifier.MODIFIED_BASELINE
                     )
                 )
 
@@ -240,25 +240,25 @@ class SpreadsheetOutput(
         reportSection: ReportSection,
         sheetWriter: SheetWriter
     ) {
-        reportSection.differences.forEach { difference ->
+        reportSection.changes.forEach { change ->
 
             val columnValues = columns.map { column ->
 
-                val differenceValue = difference.fields[column.field]
+                val changeValue = change.fields[column.field]
 
-                if (differenceValue == null) {
+                if (changeValue == null) {
                     null
                 } else {
                     when (column.fieldSpecifier) {
-                        FieldSpecifier.NONE -> differenceValue.toString()
+                        FieldSpecifier.NONE -> changeValue.toString()
 
-                        FieldSpecifier.CHANGE_ACTUAL -> {
-                            val change = differenceValue as ChangeValue
-                            change.actualValue
+                        FieldSpecifier.MODIFIED_ACTUAL -> {
+                            val modifiedValue = changeValue as ModifiedValue
+                            modifiedValue.actualValue
                         }
-                        FieldSpecifier.CHANGE_BASELINE -> {
-                            val change = differenceValue as ChangeValue
-                            change.baselineValue
+                        FieldSpecifier.MODIFIED_BASELINE -> {
+                            val modifiedValue = changeValue as ModifiedValue
+                            modifiedValue.baselineValue
                         }
                     }
                 }

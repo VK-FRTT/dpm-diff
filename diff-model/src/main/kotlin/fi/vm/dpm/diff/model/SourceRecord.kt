@@ -1,80 +1,73 @@
 package fi.vm.dpm.diff.model
 
 data class SourceRecord(
-    val sectionFields: List<FieldDescriptor>,
+    val sectionDescriptor: SectionDescriptor,
     val fields: Map<FieldDescriptor, String?>
 ) {
     companion object {
         private val ADD_REMOVE_FIELD_KINDS = listOf(
             FieldKind.CORRELATION_KEY,
             FieldKind.IDENTIFICATION_LABEL,
-            FieldKind.DIFFERENCE_KIND,
+            FieldKind.CHANGE_KIND,
             FieldKind.NOTE
         )
     }
 
-    fun correlationKey(): String {
-        val key = fields
-            .filter { it.key.fieldKind == FieldKind.CORRELATION_KEY }
-            .map { (field, value) ->
-                if (value == null && field.correlationKeyFallback != null) {
-                    fields[field.correlationKeyFallback]
-                } else {
-                    value
-                }
-            }
-            .joinToString(separator = "|")
-
-        return key
+    val primaryKey: CorrelationKey by lazy {
+        CorrelationKey.primaryKey(this)
     }
 
-    fun toAddedDifference(): DifferenceRecord {
-        val differenceFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
+    val fullKey: CorrelationKey by lazy {
+        CorrelationKey.fullKey(this)
+    }
 
-        differenceFields.setDifferenceKindTo(DifferenceKind.ADDED, sectionFields)
-        differenceFields.synthesizeNoteField(sectionFields)
-        differenceFields.discardFieldKindsOtherThan(ADD_REMOVE_FIELD_KINDS)
+    fun toAddedChange(): ChangeRecord {
+        val changeFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
 
-        return DifferenceRecord(
-            fields = differenceFields
+        changeFields.setChangeKindTo(ChangeKind.ADDED, sectionDescriptor.sectionFields)
+        changeFields.synthesizeNoteField(sectionDescriptor.sectionFields)
+        changeFields.discardFieldKindsOtherThan(ADD_REMOVE_FIELD_KINDS)
+
+        return ChangeRecord(
+            fields = changeFields
         )
     }
 
-    fun toRemovedDifference(): DifferenceRecord {
-        val differenceFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
+    fun toDeletedChange(): ChangeRecord {
+        val changeFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
 
-        differenceFields.setDifferenceKindTo(DifferenceKind.REMOVED, sectionFields)
-        differenceFields.synthesizeNoteField(sectionFields)
-        differenceFields.discardFieldKindsOtherThan(ADD_REMOVE_FIELD_KINDS)
+        changeFields.setChangeKindTo(ChangeKind.DELETED, sectionDescriptor.sectionFields)
+        changeFields.synthesizeNoteField(sectionDescriptor.sectionFields)
+        changeFields.discardFieldKindsOtherThan(ADD_REMOVE_FIELD_KINDS)
 
-        return DifferenceRecord(
-            fields = differenceFields
+        return ChangeRecord(
+            fields = changeFields
         )
     }
 
-    fun toChangedDifferenceOrNullFromBaseline(baselineRecord: SourceRecord): DifferenceRecord? {
-        val differenceFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
+    fun toModifiedChangeOrNullFromBaseline(baselineRecord: SourceRecord): ChangeRecord? {
+        val changeFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
 
-        differenceFields.setDifferenceKindTo(DifferenceKind.CHANGED, sectionFields)
-        differenceFields.synthesizeNoteField(sectionFields)
-        differenceFields.compareAndTransformAtomValuesFromBaseline(baselineRecord.fields)
+        changeFields.setChangeKindTo(ChangeKind.MODIFIED, sectionDescriptor.sectionFields)
+        changeFields.synthesizeNoteField(sectionDescriptor.sectionFields)
+        changeFields.compareAndTransformAtomValuesFromBaseline(baselineRecord.fields)
 
-        val hasAtoms = differenceFields.any { (field, _) -> field.fieldKind == FieldKind.ATOM }
+        val hasAtoms = changeFields.any { (field, _) -> field.fieldKind == FieldKind.ATOM }
 
         return if (hasAtoms) {
-            DifferenceRecord(fields = differenceFields)
+            ChangeRecord(fields = changeFields)
         } else {
             null
         }
     }
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.setDifferenceKindTo(
-    differenceKind: DifferenceKind,
+private fun MutableMap<FieldDescriptor, Any?>.setChangeKindTo(
+    changeKind: ChangeKind,
     knownFields: List<FieldDescriptor>
 ) {
-    val differenceKindField = knownFields.first { it.fieldKind == FieldKind.DIFFERENCE_KIND }
-    this[differenceKindField] = differenceKind
+    val changeKindField = knownFields.first { it.fieldKind == FieldKind.CHANGE_KIND }
+    this[changeKindField] = changeKind
 }
 
 private fun MutableMap<FieldDescriptor, Any?>.discardFieldKindsOtherThan(acceptedFieldKinds: List<FieldKind>) {
@@ -153,7 +146,7 @@ private fun MutableMap<FieldDescriptor, Any?>.compareAndTransformAtomValuesFromB
             if (value == baselineValue) {
                 field to null
             } else {
-                field to ChangeValue(
+                field to ModifiedValue(
                     actualValue = value,
                     baselineValue = baselineValue
                 )

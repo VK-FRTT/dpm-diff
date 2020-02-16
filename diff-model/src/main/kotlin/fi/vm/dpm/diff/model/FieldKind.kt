@@ -4,7 +4,7 @@ enum class FieldKind {
     CORRELATION_KEY,
     FALLBACK_VALUE,
     IDENTIFICATION_LABEL,
-    DIFFERENCE_KIND,
+    CHANGE_KIND,
     ATOM,
     NOTE
 }

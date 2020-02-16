@@ -4,6 +4,7 @@ import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.repgen.DbConnection
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.DictionaryElementOverviewSection
+import fi.vm.dpm.diff.repgen.section.DictionaryTranslationsSection
 import fi.vm.dpm.diff.repgen.section.DimensionSection
 import fi.vm.dpm.diff.repgen.section.DomainSection
 import fi.vm.dpm.diff.repgen.section.HierarchyNodeSection
@@ -35,9 +36,9 @@ class DpmDiffReportGenerator(
         actualConnection.close()
     }
 
-    fun generateReport(): DifferenceReport {
+    fun generateReport(): ChangeReport {
         with(diagnostic) {
-            info("Finding differences...")
+            info("Finding changes...")
         }
 
         val generationContext = GenerationContext(
@@ -49,6 +50,7 @@ class DpmDiffReportGenerator(
 
         val sections = listOf(
             DictionaryElementOverviewSection(generationContext),
+            DictionaryTranslationsSection(generationContext),
             DomainSection(generationContext),
             MemberSection(generationContext),
             MetricSection(generationContext),
@@ -60,7 +62,7 @@ class DpmDiffReportGenerator(
 
         val generatedSections = sections.map { it.generateSection() }
 
-        return DifferenceReport(
+        return ChangeReport(
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
             actualDpmDbFileName = actualDpmDbPath.fileName.toString(),
