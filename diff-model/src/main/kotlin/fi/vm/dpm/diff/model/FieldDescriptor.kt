@@ -5,5 +5,6 @@ data class FieldDescriptor(
     val fieldName: String,
     val correlationKeyKind: CorrelationKeyKind = CorrelationKeyKind.UNINITIALIZED,
     val correlationFallback: FieldDescriptor? = null,
+    val atomOptions: AtomOption = AtomOption.NONE,
     val noteFields: List<FieldDescriptor> = emptyList()
 )

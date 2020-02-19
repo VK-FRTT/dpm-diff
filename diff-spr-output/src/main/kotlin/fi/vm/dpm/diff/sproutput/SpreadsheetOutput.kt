@@ -4,7 +4,6 @@ import ext.kotlin.replaceCamelCase
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.sproutput.CellStyles
 import fi.vm.dpm.diff.sproutput.ColumnDescriptor
-import fi.vm.dpm.diff.sproutput.FieldSpecifier
 import fi.vm.dpm.diff.sproutput.SheetWriter
 import java.io.Closeable
 import java.io.FileOutputStream
@@ -144,55 +143,76 @@ class SpreadsheetOutput(
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun composeSectionColumns(
         reportSection: ReportSection
     ): List<ColumnDescriptor> {
 
         return reportSection.sectionDescriptor.sectionFields.flatMap { field ->
 
-            when (field.fieldKind) {
+            val fieldColumns: Any? = when (field.fieldKind) {
 
-                FieldKind.CORRELATION_KEY -> listOf(
+                FieldKind.CORRELATION_KEY ->
                     ColumnDescriptor(
-                        field,
-                        FieldSpecifier.NONE
+                        field = field,
+                        columnTitle = field.fieldName,
+                        toColumnValue = { changeValue -> changeValue as String }
                     )
-                )
 
-                FieldKind.FALLBACK_VALUE -> emptyList()
+                FieldKind.FALLBACK_VALUE -> null
 
-                FieldKind.IDENTIFICATION_LABEL -> listOf(
+                FieldKind.IDENTIFICATION_LABEL ->
                     ColumnDescriptor(
-                        field,
-                        FieldSpecifier.NONE
+                        field = field,
+                        columnTitle = field.fieldName,
+                        toColumnValue = { changeValue -> changeValue as String }
                     )
-                )
 
-                FieldKind.CHANGE_KIND -> listOf(
+                FieldKind.CHANGE_KIND ->
                     ColumnDescriptor(
-                        field,
-                        FieldSpecifier.NONE
+                        field = field,
+                        columnTitle = field.fieldName,
+                        toColumnValue = { changeValue -> changeValue.toString() }
                     )
-                )
 
                 FieldKind.ATOM -> listOf(
                     ColumnDescriptor(
-                        field,
-                        FieldSpecifier.MODIFIED_ACTUAL
+                        field = field,
+                        columnTitle = field.fieldName,
+                        toColumnValue = { changeValue ->
+                            when (changeValue) {
+                                is AddedChangeAtomValue -> changeValue.value
+                                is ModifiedChangeAtomValue -> changeValue.actualValue
+                                else -> null
+                            }
+                        }
                     ),
 
                     ColumnDescriptor(
-                        field,
-                        FieldSpecifier.MODIFIED_BASELINE
+                        field = field,
+                        columnTitle = "${field.fieldName} (baseline)",
+                        toColumnValue = { changeValue ->
+                            when (changeValue) {
+                                is AddedChangeAtomValue -> null
+                                is ModifiedChangeAtomValue -> changeValue.baselineValue
+                                else -> null
+                            }
+                        }
                     )
                 )
 
-                FieldKind.NOTE -> listOf(
+                FieldKind.NOTE ->
                     ColumnDescriptor(
-                        field,
-                        FieldSpecifier.NONE
+                        field = field,
+                        columnTitle = field.fieldName,
+                        toColumnValue = { changeValue -> changeValue as String }
                     )
-                )
+            }
+
+            when (fieldColumns) {
+                is ColumnDescriptor -> listOf(fieldColumns)
+                is List<*> -> fieldColumns as List<ColumnDescriptor>
+                else -> emptyList()
             }
         }
     }
@@ -202,7 +222,7 @@ class SpreadsheetOutput(
         sheetWriter: SheetWriter
     ) {
         val titles = columns
-            .map { it.title() }
+            .map { it.columnTitle.replaceCamelCase().toUpperCase() }
             .toTypedArray()
 
         sheetWriter.addHeaderRow(*titles)
@@ -249,18 +269,7 @@ class SpreadsheetOutput(
                 if (changeValue == null) {
                     null
                 } else {
-                    when (column.fieldSpecifier) {
-                        FieldSpecifier.NONE -> changeValue.toString()
-
-                        FieldSpecifier.MODIFIED_ACTUAL -> {
-                            val modifiedValue = changeValue as ModifiedValue
-                            modifiedValue.actualValue
-                        }
-                        FieldSpecifier.MODIFIED_BASELINE -> {
-                            val modifiedValue = changeValue as ModifiedValue
-                            modifiedValue.baselineValue
-                        }
-                    }
+                    column.toColumnValue(changeValue)
                 }
             }
 

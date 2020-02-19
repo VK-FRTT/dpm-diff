@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomOption
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
@@ -28,7 +29,8 @@ class DictionaryTranslationsSection(
 
     private val translation = FieldDescriptor(
         fieldKind = FieldKind.ATOM,
-        fieldName = "Translation"
+        fieldName = "Translation",
+        atomOptions = AtomOption.OUTPUT_TO_ADDED_CHANGE
     )
 
     override val sectionDescriptor = SectionDescriptor(
