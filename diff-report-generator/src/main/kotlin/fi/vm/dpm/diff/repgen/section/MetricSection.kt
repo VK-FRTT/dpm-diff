@@ -1,11 +1,12 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -15,64 +16,54 @@ class MetricSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val metricId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val metricId = FallbackField(
         fieldName = "MetricId"
     )
 
-    private val metricInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val metricInherentLabel = FallbackField(
         fieldName = "MetricLabel"
     )
 
-    private val domainCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = metricInherentLabel,
-        noteFields = listOf(metricId, metricInherentLabel)
+        noteFallbacks = listOf(metricId, metricInherentLabel)
     )
 
-    private val metricCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val metricCode = CorrelationKeyField(
         fieldName = "MetricCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = metricInherentLabel,
-        noteFields = listOf(metricId, metricInherentLabel)
+        noteFallbacks = listOf(metricId, metricInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "MetricLabel",
-        noteField = metricInherentLabel
+        fallbackField = metricInherentLabel
     )
 
-    private val dataType = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val dataType = AtomField(
         fieldName = "DataType"
     )
 
-    private val flowType = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val flowType = AtomField(
         fieldName = "FlowType"
     )
 
-    private val balanceType = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val balanceType = AtomField(
         fieldName = "BalanceType"
     )
 
-    private val referencedDomainCode = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val referencedDomainCode = AtomField(
         fieldName = "ReferencedDomain"
     )
 
-    private val referencedHierarchyCode = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val referencedHierarchyCode = AtomField(
         fieldName = "ReferencedHierarchy"
     )
 
-    private val hierarchyStartingMemberCode = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val hierarchyStartingMemberCode = AtomField(
         fieldName = "HierarchyStartingMember"
     )
 

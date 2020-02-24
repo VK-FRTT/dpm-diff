@@ -1,7 +1,7 @@
 package fi.vm.dpm.diff.model
 
 data class ChangeRecord(
-    val fields: Map<FieldDescriptor, Any?>
+    val fields: Map<Field, Any?>
 ) {
     companion object {
 

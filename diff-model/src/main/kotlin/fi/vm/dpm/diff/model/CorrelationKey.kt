@@ -1,5 +1,7 @@
 package fi.vm.dpm.diff.model
 
+import ext.kotlin.filterFieldType
+
 data class CorrelationKey(
     private val key: String,
     private val type: Type
@@ -30,19 +32,20 @@ data class CorrelationKey(
         }
 
         private fun composeKey(
-            fields: Map<FieldDescriptor, String?>,
+            fields: Map<Field, String?>,
             type: Type
         ): CorrelationKey {
 
             val key = fields
+                .filterFieldType<Field, String?, CorrelationKeyField>()
                 .filter { (field, _) ->
-                    (field.fieldKind == FieldKind.CORRELATION_KEY) && (field.correlationKeyKind in type.relatedKeyKinds)
+                    (field.correlationKeyKind in type.relatedKeyKinds)
                 }
                 .map { (field, value) ->
-                    if (value == null && field.correlationFallback != null) {
+                    value ?: if (field.correlationFallback != null) {
                         fields[field.correlationFallback]
                     } else {
-                        value
+                        null
                     }
                 }
                 .joinToString(separator = "|")

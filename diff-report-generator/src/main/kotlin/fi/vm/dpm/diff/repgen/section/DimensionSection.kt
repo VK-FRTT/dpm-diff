@@ -1,11 +1,12 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -15,36 +16,31 @@ class DimensionSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val dimensionId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val dimensionId = FallbackField(
         fieldName = "DimensionId"
     )
 
-    private val dimensionInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val dimensionInherentLabel = FallbackField(
         fieldName = "DimensionLabel"
     )
 
-    private val dimensionCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val dimensionCode = CorrelationKeyField(
         fieldName = "DimensionCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = dimensionInherentLabel,
-        noteFields = listOf(dimensionId, dimensionInherentLabel)
+        noteFallbacks = listOf(dimensionId, dimensionInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "DimensionLabel",
-        noteField = dimensionInherentLabel
+        fallbackField = dimensionInherentLabel
     )
 
-    private val referencedDomainCode = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val referencedDomainCode = AtomField(
         fieldName = "ReferencedDomainCode"
     )
 
-    private val isTypedDimension = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val isTypedDimension = AtomField(
         fieldName = "IsTypedDimension"
     )
 

@@ -1,11 +1,12 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -15,36 +16,31 @@ class DomainSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val domainId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val domainId = FallbackField(
         fieldName = "DomainId"
     )
 
-    private val domainInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val domainInherentLabel = FallbackField(
         fieldName = "DomainLabel"
     )
 
-    private val domainCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = domainInherentLabel,
-        noteFields = listOf(domainId, domainInherentLabel)
+        noteFallbacks = listOf(domainId, domainInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "DomainLabel",
-        noteField = domainInherentLabel
+        fallbackField = domainInherentLabel
     )
 
-    private val dataType = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val dataType = AtomField(
         fieldName = "DataType"
     )
 
-    private val isTypedDomain = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val isTypedDomain = AtomField(
         fieldName = "IsTypedDomain"
     )
 

@@ -1,9 +1,9 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
 
@@ -12,39 +12,38 @@ open class DictionarySectionBase(
 ) : SectionBase(
     generationContext
 ) {
-    protected val elementId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    protected val elementId = FallbackField(
         fieldName = "ElementId"
     )
 
-    protected val elementInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    protected val elementInherentLabel = FallbackField(
         fieldName = "ElementLabel"
     )
 
-    protected val elementType = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    protected val elementType = CorrelationKeyField(
         fieldName = "ElementType",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = null,
+        noteFallbacks = emptyList()
     )
 
-    protected val elementCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    protected val elementCode = CorrelationKeyField(
         fieldName = "ElementCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = elementInherentLabel,
-        noteFields = listOf(elementId, elementInherentLabel)
+        noteFallbacks = listOf(elementId, elementInherentLabel)
     )
 
-    protected val parentElementCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    protected val parentElementCode = CorrelationKeyField(
         fieldName = "ParentElementCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = null,
+        noteFallbacks = emptyList()
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "ElementLabel",
-        noteField = elementInherentLabel
+        fallbackField = elementInherentLabel
     )
 
     protected val elementQueryDescriptors: List<ElementQueryDescriptor> =

@@ -1,11 +1,12 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -15,54 +16,46 @@ class HierarchyNodeStructureSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val hierarchyId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val hierarchyId = FallbackField(
         fieldName = "HierarchyId"
     )
 
-    private val memberId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val memberId = FallbackField(
         fieldName = "MemberId"
     )
 
-    private val hierarchyNodeInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val hierarchyNodeInherentLabel = FallbackField(
         fieldName = "HierarchyNodeLabel"
     )
 
-    private val hierarchyCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val hierarchyCode = CorrelationKeyField(
         fieldName = "HierarchyCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = hierarchyNodeInherentLabel,
-        noteFields = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+        noteFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
-    private val memberCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val memberCode = CorrelationKeyField(
         fieldName = "MemberCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = hierarchyNodeInherentLabel,
-        noteFields = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+        noteFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "HierarchyNodeLabel",
-        noteField = hierarchyNodeInherentLabel
+        fallbackField = hierarchyNodeInherentLabel
     )
 
-    private val parentMemberCode = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val parentMemberCode = AtomField(
         fieldName = "ParentMemberCode"
     )
 
-    private val order = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val order = AtomField(
         fieldName = "Order"
     )
 
-    private val level = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val level = AtomField(
         fieldName = "Level"
     )
 

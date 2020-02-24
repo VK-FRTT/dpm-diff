@@ -1,11 +1,12 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -15,39 +16,34 @@ class MemberSection(
 ) : SectionBase(
     generationContext
 ) {
-    private val memberId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val memberId = FallbackField(
         fieldName = "MemberId"
     )
 
-    private val memberInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val memberInherentLabel = FallbackField(
         fieldName = "MemberLabel"
     )
 
-    private val domainCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = memberInherentLabel,
-        noteFields = listOf(memberId, memberInherentLabel)
+        noteFallbacks = listOf(memberId, memberInherentLabel)
     )
 
-    private val memberCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val memberCode = CorrelationKeyField(
         fieldName = "MemberCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = memberInherentLabel,
-        noteFields = listOf(memberId, memberInherentLabel)
+        noteFallbacks = listOf(memberId, memberInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "MemberLabel",
-        noteField = memberInherentLabel
+        fallbackField = memberInherentLabel
     )
 
-    private val isDefaultMember = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val isDefaultMember = AtomField(
         fieldName = "IsDefaultMember"
     )
 

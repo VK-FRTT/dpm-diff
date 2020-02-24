@@ -1,8 +1,11 @@
 package fi.vm.dpm.diff.model
 
+import ext.kotlin.filterFieldType
+import kotlin.reflect.KClass
+
 data class SourceRecord(
     val sectionDescriptor: SectionDescriptor,
-    val fields: Map<FieldDescriptor, String?>
+    val fields: Map<Field, String?>
 ) {
     val primaryKey: CorrelationKey by lazy {
         CorrelationKey.primaryKey(this)
@@ -13,14 +16,14 @@ data class SourceRecord(
     }
 
     fun toAddedChange(): ChangeRecord {
-        val changeFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
+        val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
         changeFields.setChangeKindTo(ChangeKind.ADDED, sectionDescriptor.sectionFields)
         changeFields.generateNoteField(sectionDescriptor.sectionFields)
         changeFields.atomsToAddedChange()
         changeFields.discardFields(
             listOf(
-                FieldKind.FALLBACK_VALUE
+                FallbackField::class
             )
         )
 
@@ -30,14 +33,14 @@ data class SourceRecord(
     }
 
     fun toDeletedChange(): ChangeRecord {
-        val changeFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
+        val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
         changeFields.setChangeKindTo(ChangeKind.DELETED, sectionDescriptor.sectionFields)
         changeFields.generateNoteField(sectionDescriptor.sectionFields)
         changeFields.discardFields(
             listOf(
-                FieldKind.FALLBACK_VALUE,
-                FieldKind.ATOM
+                FallbackField::class,
+                AtomField::class
             )
         )
 
@@ -47,20 +50,20 @@ data class SourceRecord(
     }
 
     fun toModifiedChangeOrNullFromBaseline(baselineRecord: SourceRecord): ChangeRecord? {
-        val changeFields: MutableMap<FieldDescriptor, Any?> = fields.toMutableMap()
+        val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
         changeFields.setChangeKindTo(ChangeKind.MODIFIED, sectionDescriptor.sectionFields)
         changeFields.generateNoteField(sectionDescriptor.sectionFields)
         changeFields.atomsToModifiedChange(baselineRecord.fields)
         changeFields.discardFields(
             listOf(
-                FieldKind.FALLBACK_VALUE
+                FallbackField::class
             )
         )
 
-        val hasAtoms = changeFields.any { (field, _) -> field.fieldKind == FieldKind.ATOM }
+        val atoms = changeFields.filterFieldType<Field, Any?, AtomField>()
 
-        return if (hasAtoms) {
+        return if (atoms.isNotEmpty()) {
             ChangeRecord(fields = changeFields)
         } else {
             null
@@ -68,18 +71,18 @@ data class SourceRecord(
     }
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.setChangeKindTo(
+private fun MutableMap<Field, Any?>.setChangeKindTo(
     changeKind: ChangeKind,
-    knownFields: List<FieldDescriptor>
+    knownFields: List<Field>
 ) {
-    val changeKindField = knownFields.first { it.fieldKind == FieldKind.CHANGE_KIND }
+    val changeKindField = knownFields.filterFieldType<Field, ChangeKindField>().first()
     this[changeKindField] = changeKind
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.generateNoteField(
-    knownFields: List<FieldDescriptor>
+private fun MutableMap<Field, Any?>.generateNoteField(
+    knownFields: List<Field>
 ) {
-    val noteField = knownFields.firstOrNull { it.fieldKind == FieldKind.NOTE } ?: return
+    val noteField = knownFields.filterFieldType<Field, NoteField>().firstOrNull() ?: return
 
     val noteValues = composeNoteValuesForNullCorrelationKey(this) +
         composeNoteValuesForBlankIdentificationLabels(this)
@@ -92,23 +95,24 @@ private fun MutableMap<FieldDescriptor, Any?>.generateNoteField(
 }
 
 private fun composeNoteValuesForNullCorrelationKey(
-    fields: Map<FieldDescriptor, Any?>
+    fields: Map<Field, Any?>
 ): List<String> {
 
-    val nullCorrelationKeyFields = fields.filter { (field, value) ->
-        (field.fieldKind == FieldKind.CORRELATION_KEY) && (value == null)
-    }
+    val nullCorrelationKeyFields = fields
+        .filterFieldType<Field, Any?, CorrelationKeyField>()
+        .filter { (_, value) ->
+            value == null
+        }
 
     return composeNoteValues(nullCorrelationKeyFields.keys, fields)
 }
 
 private fun composeNoteValuesForBlankIdentificationLabels(
-    fields: Map<FieldDescriptor, Any?>
+    fields: Map<Field, Any?>
 ): List<String> {
 
-    val identificationLabels = fields.filter { (field, _) ->
-        field.fieldKind == FieldKind.IDENTIFICATION_LABEL
-    }
+    val identificationLabels = fields
+        .filterFieldType<Field, Any?, IdentificationLabelField>()
 
     val allIdLabelsNullOrBlank = identificationLabels.all { (_, value) ->
         value == null || value.toString().isBlank()
@@ -122,22 +126,28 @@ private fun composeNoteValuesForBlankIdentificationLabels(
 }
 
 private fun composeNoteValues(
-    composeFields: Set<FieldDescriptor>,
-    fields: Map<FieldDescriptor, Any?>
+    composeFields: Set<Field>,
+    fields: Map<Field, Any?>
 ): List<String> {
+    fun composeNoteForFallback(fallbackField: FallbackField) = "${fallbackField.fieldName}: ${fields[fallbackField]}"
+
     val noteValues = composeFields.flatMap { composeField ->
-        composeField.noteFields.map { noteField -> "${noteField.fieldName}: ${fields[noteField]}" }
+        when (composeField) {
+            is CorrelationKeyField -> composeField.noteFallbacks.map { composeNoteForFallback(it) }
+            is IdentificationLabelField -> composeField.noteFallbacks.map { composeNoteForFallback(it) }
+            else -> emptyList()
+        }
     }
 
     return noteValues
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.discardFields(discarded: List<FieldKind>) {
-    val obsoleteFields = filter { it.key.fieldKind in discarded }.keys
-    obsoleteFields.forEach { remove(it) }
+private fun MutableMap<Field, Any?>.discardFields(discarded: List<KClass<*>>) {
+    val discard = filter { it::class in discarded }.keys
+    discard.forEach { remove(it) }
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.atomsToAddedChange() {
+private fun MutableMap<Field, Any?>.atomsToAddedChange() {
     transformAtoms { field, value ->
 
         if (field.atomOptions == AtomOption.OUTPUT_TO_ADDED_CHANGE) {
@@ -150,8 +160,8 @@ private fun MutableMap<FieldDescriptor, Any?>.atomsToAddedChange() {
     }
 }
 
-private fun MutableMap<FieldDescriptor, Any?>.atomsToModifiedChange(
-    baselineFields: Map<FieldDescriptor, String?>
+private fun MutableMap<Field, Any?>.atomsToModifiedChange(
+    baselineFields: Map<Field, String?>
 ) {
     transformAtoms { field, value ->
         val baselineValue = baselineFields[field]
@@ -167,11 +177,9 @@ private fun MutableMap<FieldDescriptor, Any?>.atomsToModifiedChange(
     }
 }
 
-private fun <T> MutableMap<FieldDescriptor, Any?>.transformAtoms(transform: (FieldDescriptor, String?) -> T?) {
+private fun <T> MutableMap<Field, Any?>.transformAtoms(transform: (AtomField, String?) -> T?) {
     val atoms = this
-        .filter { (field, _) ->
-            field.fieldKind == FieldKind.ATOM
-        }
+        .filterFieldType<Field, Any?, AtomField>()
         .map { (field, value) ->
             value as String?
 

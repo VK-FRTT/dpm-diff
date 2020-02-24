@@ -1,12 +1,12 @@
 package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 
@@ -15,20 +15,21 @@ class DictionaryTranslationsSection(
 ) : DictionarySectionBase(
     generationContext
 ) {
-    private val translationRole = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val translationRole = CorrelationKeyField(
         fieldName = "TranslationRole",
-        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY
+        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY,
+        correlationFallback = null,
+        noteFallbacks = emptyList()
     )
 
-    private val translationLanguage = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val translationLanguage = CorrelationKeyField(
         fieldName = "Language",
-        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY
+        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY,
+        correlationFallback = null,
+        noteFallbacks = emptyList()
     )
 
-    private val translation = FieldDescriptor(
-        fieldKind = FieldKind.ATOM,
+    private val translation = AtomField(
         fieldName = "Translation",
         atomOptions = AtomOption.OUTPUT_TO_ADDED_CHANGE
     )

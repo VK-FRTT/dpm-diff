@@ -1,9 +1,9 @@
 package fi.vm.dpm.diff.sproutput
 
-import fi.vm.dpm.diff.model.FieldDescriptor
+import fi.vm.dpm.diff.model.Field
 
 data class ColumnDescriptor(
-    val field: FieldDescriptor,
+    val field: Field,
     val columnTitle: String,
     val toColumnValue: (Any) -> String?
 )

@@ -1,10 +1,13 @@
 package fi.vm.dpm.diff.repgen
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.ChangeRecord
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
+import fi.vm.dpm.diff.model.Field
+import fi.vm.dpm.diff.model.IdentificationLabelField
+import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.model.SourceBundle
@@ -20,15 +23,13 @@ open class SectionBase(
         sectionDescriptor.sanityCheck()
     }
 
-    protected open val identificationLabels: Array<FieldDescriptor> = emptyArray()
+    protected open val identificationLabels: Array<IdentificationLabelField> = emptyArray()
 
-    protected val changeKind = FieldDescriptor(
-        fieldKind = FieldKind.CHANGE_KIND,
+    protected val changeKind = ChangeKindField(
         fieldName = "Change"
     )
 
-    protected val note = FieldDescriptor(
-        fieldKind = FieldKind.NOTE,
+    protected val note = NoteField(
         fieldName = "Notes"
     )
 
@@ -41,7 +42,7 @@ open class SectionBase(
         includedChanges = emptySet()
     )
 
-    protected open val queryColumnMapping: Map<String, FieldDescriptor> = emptyMap()
+    protected open val queryColumnMapping: Map<String, Field> = emptyMap()
 
     protected open val query: String = ""
 
@@ -49,18 +50,17 @@ open class SectionBase(
 
     fun idLabelFields(
         fieldNameBase: String,
-        noteField: FieldDescriptor
-    ): Array<FieldDescriptor> {
+        fallbackField: FallbackField
+    ): Array<IdentificationLabelField> {
         return generationContext.identificationLabelLangCodes.map { langCode ->
-            FieldDescriptor(
-                fieldKind = FieldKind.IDENTIFICATION_LABEL,
+            IdentificationLabelField(
                 fieldName = "$fieldNameBase${langCode.toUpperCase()}",
-                noteFields = listOf(noteField)
+                noteFallbacks = listOf(fallbackField)
             )
         }.toTypedArray()
     }
 
-    fun idLabelColumnMapping(): Array<Pair<String, FieldDescriptor>> {
+    fun idLabelColumnMapping(): Array<Pair<String, Field>> {
         return generationContext.identificationLabelLangCodes.mapIndexed { index, langCode ->
             val field = identificationLabels[index]
             val columnName = idLabelColumnName(langCode)

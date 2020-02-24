@@ -2,10 +2,10 @@ package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FieldDescriptor
-import fi.vm.dpm.diff.model.FieldKind
+import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -15,35 +15,31 @@ class HierarchySection(
 ) : SectionBase(
     generationContext
 ) {
-    private val hierarchyId = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val hierarchyId = FallbackField(
         fieldName = "HierarchyId"
     )
 
-    private val hierarchyInherentLabel = FieldDescriptor(
-        fieldKind = FieldKind.FALLBACK_VALUE,
+    private val hierarchyInherentLabel = FallbackField(
         fieldName = "HierarchyLabel"
     )
 
-    private val domainCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = hierarchyInherentLabel,
-        noteFields = listOf(hierarchyId, hierarchyInherentLabel)
+        noteFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
-    private val hierarchyCode = FieldDescriptor(
-        fieldKind = FieldKind.CORRELATION_KEY,
+    private val hierarchyCode = CorrelationKeyField(
         fieldName = "HierarchyCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = hierarchyInherentLabel,
-        noteFields = listOf(hierarchyId, hierarchyInherentLabel)
+        noteFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
     override val identificationLabels = idLabelFields(
         fieldNameBase = "HierarchyLabel",
-        noteField = hierarchyInherentLabel
+        fallbackField = hierarchyInherentLabel
     )
 
     override val sectionDescriptor = SectionDescriptor(

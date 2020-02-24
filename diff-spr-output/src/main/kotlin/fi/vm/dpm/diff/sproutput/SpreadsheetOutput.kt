@@ -150,32 +150,32 @@ class SpreadsheetOutput(
 
         return reportSection.sectionDescriptor.sectionFields.flatMap { field ->
 
-            val fieldColumns: Any? = when (field.fieldKind) {
+            val fieldColumns: Any? = when (field) {
 
-                FieldKind.CORRELATION_KEY ->
+                is CorrelationKeyField ->
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
                         toColumnValue = { changeValue -> changeValue as String }
                     )
 
-                FieldKind.FALLBACK_VALUE -> null
+                is FallbackField -> null
 
-                FieldKind.IDENTIFICATION_LABEL ->
+                is IdentificationLabelField ->
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
                         toColumnValue = { changeValue -> changeValue as String }
                     )
 
-                FieldKind.CHANGE_KIND ->
+                is ChangeKindField ->
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
                         toColumnValue = { changeValue -> changeValue.toString() }
                     )
 
-                FieldKind.ATOM -> listOf(
+                is AtomField -> listOf(
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
@@ -201,7 +201,7 @@ class SpreadsheetOutput(
                     )
                 )
 
-                FieldKind.NOTE ->
+                is NoteField ->
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
@@ -234,8 +234,8 @@ class SpreadsheetOutput(
         columns.forEachIndexed { colIndex, column ->
             val cell = row.getCell(colIndex)
 
-            val cellWidth = when (column.field.fieldKind) {
-                FieldKind.NOTE -> 10000
+            val cellWidth = when (column.field) {
+                is NoteField -> 10000
 
                 else -> {
                     SheetUtil.getCellWidth(cell, defaultCharWidth, formatter, false)
