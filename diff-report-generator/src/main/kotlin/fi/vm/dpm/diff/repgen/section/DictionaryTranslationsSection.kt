@@ -7,6 +7,10 @@ import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
+import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.FixedDictionaryElementTypeSort
+import fi.vm.dpm.diff.model.FixedTranslationRoleSort
+import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 
@@ -42,8 +46,8 @@ class DictionaryTranslationsSection(
             elementId,
             elementInherentLabel,
             elementType,
-            elementCode,
             parentElementCode,
+            elementCode,
             *identificationLabels,
             translationRole,
             translationLanguage,
@@ -51,6 +55,15 @@ class DictionaryTranslationsSection(
             translation,
             note
         ),
+        sectionSortOrder = listOf(
+            FixedDictionaryElementTypeSort(elementType),
+            NumberAwareSort(parentElementCode),
+            NumberAwareSort(elementCode),
+            FixedChangeKindSort(changeKind),
+            FixedTranslationRoleSort(translationRole),
+            NumberAwareSort(translationLanguage)
+        ),
+
         correlationMode = CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
         includedChanges = ChangeKind.allValues()
 

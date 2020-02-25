@@ -38,6 +38,7 @@ open class SectionBase(
         sectionTitle = "",
         sectionDescription = "",
         sectionFields = emptyList(),
+        sectionSortOrder = emptyList(),
         correlationMode = CorrelationMode.UNINITIALIZED,
         includedChanges = emptySet()
     )

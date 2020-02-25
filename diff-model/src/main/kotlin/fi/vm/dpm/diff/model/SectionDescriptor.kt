@@ -8,6 +8,7 @@ data class SectionDescriptor(
     val sectionTitle: String,
     val sectionDescription: String,
     val sectionFields: List<Field>,
+    val sectionSortOrder: List<Sort>,
     val correlationMode: CorrelationMode,
     val includedChanges: Set<ChangeKind>
 ) {
@@ -44,6 +45,12 @@ data class SectionDescriptor(
                 check(field.fieldName.isNotBlank())
                 check(field.fieldName.isNotHavingWhitespace())
             }
+        }
+
+        // sectionSortOrder
+        check(sectionSortOrder.isNotEmpty())
+        sectionSortOrder.forEach { sort ->
+            check(sectionFields.contains(sort.field))
         }
 
         // correlationMode

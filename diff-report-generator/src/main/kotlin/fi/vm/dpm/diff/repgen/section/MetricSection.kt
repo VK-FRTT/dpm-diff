@@ -7,6 +7,8 @@ import fi.vm.dpm.diff.model.CorrelationKeyField
 import fi.vm.dpm.diff.model.CorrelationKeyKind
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
+import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
@@ -85,6 +87,11 @@ class MetricSection(
             referencedHierarchyCode,
             hierarchyStartingMemberCode,
             note
+        ),
+        sectionSortOrder = listOf(
+            NumberAwareSort(domainCode),
+            NumberAwareSort(metricCode),
+            FixedChangeKindSort(changeKind)
         ),
         correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
         includedChanges = ChangeKind.allValues()

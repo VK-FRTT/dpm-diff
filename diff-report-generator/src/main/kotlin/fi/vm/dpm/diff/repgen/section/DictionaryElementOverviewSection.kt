@@ -3,6 +3,9 @@ package fi.vm.dpm.diff.repgen.section
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.CorrelationMode
+import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.FixedDictionaryElementTypeSort
+import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 
@@ -19,11 +22,17 @@ class DictionaryElementOverviewSection(
             elementId,
             elementInherentLabel,
             elementType,
-            elementCode,
             parentElementCode,
+            elementCode,
             *identificationLabels,
             changeKind,
             note
+        ),
+        sectionSortOrder = listOf(
+            FixedDictionaryElementTypeSort(elementType),
+            NumberAwareSort(parentElementCode),
+            NumberAwareSort(elementCode),
+            FixedChangeKindSort(changeKind)
         ),
         correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
         includedChanges = setOf(

@@ -35,7 +35,8 @@ data class ChangeRecord(
                     }
                 }
 
-            return changeRecords
+            val comparator = ChangeRecordComparator(sectionDescriptor.sectionSortOrder)
+            return changeRecords.sortedWith(comparator)
         }
     }
 }
