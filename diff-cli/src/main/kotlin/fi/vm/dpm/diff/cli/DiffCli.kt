@@ -76,7 +76,7 @@ internal class DiffCli(
 
         val report = DpmDiffReportGenerator(
             baselineDpmDbPath = diffParams.baselineDpmDbPath,
-            actualDpmDbPath = diffParams.actualDpmDbPath,
+            currentDpmDbPath = diffParams.currentDpmDbPath,
             diagnostic = diagnostic
         ).use { generator ->
             generator.generateReport()

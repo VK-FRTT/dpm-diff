@@ -8,21 +8,21 @@ data class ChangeRecord(
         fun resolveChanges(
             sectionDescriptor: SectionDescriptor,
             baselineBundle: SourceBundle,
-            actualBundle: SourceBundle
+            currentBundle: SourceBundle
         ): List<ChangeRecord> {
 
             fun deleted() = baselineBundle
-                .findRecordsWithoutCorrelationIn(actualBundle)
+                .findRecordsWithoutCorrelationIn(currentBundle)
                 .map { it.toDeletedChange() }
 
-            fun added() = actualBundle
+            fun added() = currentBundle
                 .findRecordsWithoutCorrelationIn(baselineBundle)
                 .map { it.toAddedChange() }
 
-            fun modified() = actualBundle
+            fun modified() = currentBundle
                 .findAndPairRecordsWithCorrelationIn(baselineBundle)
-                .mapNotNull { (actualRecord, baselineRecord) ->
-                    actualRecord.toModifiedChangeOrNullFromBaseline(baselineRecord)
+                .mapNotNull { (currentRecord, baselineRecord) ->
+                    currentRecord.toModifiedChangeOrNullFromBaseline(baselineRecord)
                 }
 
             val changeRecords = sectionDescriptor.includedChanges

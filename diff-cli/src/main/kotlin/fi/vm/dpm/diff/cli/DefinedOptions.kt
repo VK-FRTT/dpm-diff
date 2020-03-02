@@ -15,7 +15,7 @@ import joptsimple.util.PathConverter
 
 enum class OptName(val nameString: String) {
     BASELINE_DPM_DB("baseline-dpm-db"),
-    ACTUAL_DPM_DB("actual-dpm-db"),
+    CURRENT_DPM_DB("current-dpm-db"),
     REPORT_CONFIG("report-config"),
     OUTPUT("output")
 }
@@ -27,7 +27,7 @@ class DefinedOptions {
     private val cmdShowVersion: OptionSpec<Void>
 
     private val baselineDpmDb: OptionSpec<Path>
-    private val actualDpmDb: OptionSpec<Path>
+    private val currentDpmDb: OptionSpec<Path>
 
     private val reportConfig: OptionSpec<Path>
 
@@ -57,9 +57,9 @@ class DefinedOptions {
             .withOptionalArg()
             .withValuesConvertedBy(PathConverter())
 
-        actualDpmDb = optionParser
+        currentDpmDb = optionParser
             .accepts(
-                OptName.ACTUAL_DPM_DB.nameString,
+                OptName.CURRENT_DPM_DB.nameString,
                 "DPM database to use as current in difference reporting"
             )
             .withRequiredArg()
@@ -127,7 +127,7 @@ class DefinedOptions {
             cmdShowHelp = optionSet.has(cmdShowHelp),
             cmdShowVersion = optionSet.has(cmdShowVersion),
             baselineDpmDbPath = optionSet.valueOf(baselineDpmDb),
-            actualDpmDbPath = optionSet.valueOf(actualDpmDb),
+            currentDpmDbPath = optionSet.valueOf(currentDpmDb),
             reportConfigPath = optionSet.valueOf(reportConfig),
             outputFilePath = optionSet.valueOf(output),
             forceOverwrite = optionSet.has(this.forceOverwrite),

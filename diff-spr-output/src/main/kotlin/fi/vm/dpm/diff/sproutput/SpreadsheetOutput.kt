@@ -93,7 +93,7 @@ class SpreadsheetOutput(
 
         sw.addRow("Created at", changeReport.createdAt)
         sw.addRow("Baseline database", changeReport.baselineDpmDbFileName)
-        sw.addRow("Actual database", changeReport.actualDpmDbFileName)
+        sw.addRow("Current database", changeReport.currentDpmDbFileName)
 
         sw.addEmptyRows(3)
 
@@ -182,7 +182,7 @@ class SpreadsheetOutput(
                         toColumnValue = { changeValue ->
                             when (changeValue) {
                                 is AddedChangeAtomValue -> changeValue.value
-                                is ModifiedChangeAtomValue -> changeValue.actualValue
+                                is ModifiedChangeAtomValue -> changeValue.currentValue
                                 else -> null
                             }
                         }

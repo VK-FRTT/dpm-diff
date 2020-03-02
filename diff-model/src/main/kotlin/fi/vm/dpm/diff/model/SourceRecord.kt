@@ -168,7 +168,7 @@ private fun MutableMap<Field, Any?>.atomsToModifiedChange(
 
         if (value != baselineValue) {
             ModifiedChangeAtomValue(
-                actualValue = value,
+                currentValue = value,
                 baselineValue = baselineValue
             )
         } else {

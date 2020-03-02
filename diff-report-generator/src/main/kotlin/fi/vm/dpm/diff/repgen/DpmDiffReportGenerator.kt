@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 
 class DpmDiffReportGenerator(
     private val baselineDpmDbPath: Path,
-    private val actualDpmDbPath: Path,
+    private val currentDpmDbPath: Path,
     private val diagnostic: Diagnostic
 ) : Closeable {
 
@@ -27,13 +27,13 @@ class DpmDiffReportGenerator(
         DbConnection(baselineDpmDbPath, diagnostic)
     }
 
-    private val actualConnection: DbConnection by lazy {
-        DbConnection(actualDpmDbPath, diagnostic)
+    private val currentConnection: DbConnection by lazy {
+        DbConnection(currentDpmDbPath, diagnostic)
     }
 
     override fun close() {
         baselineConnection.close()
-        actualConnection.close()
+        currentConnection.close()
     }
 
     fun generateReport(): ChangeReport {
@@ -43,7 +43,7 @@ class DpmDiffReportGenerator(
 
         val generationContext = GenerationContext(
             baselineConnection = baselineConnection,
-            actualConnection = actualConnection,
+            currentConnection = currentConnection,
             identificationLabelLangCodes = listOf("fi", "sv"), // TODO
             diagnostic = diagnostic
         )
@@ -65,7 +65,7 @@ class DpmDiffReportGenerator(
         return ChangeReport(
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
-            actualDpmDbFileName = actualDpmDbPath.fileName.toString(),
+            currentDpmDbFileName = currentDpmDbPath.fileName.toString(),
             sections = generatedSections
         )
     }

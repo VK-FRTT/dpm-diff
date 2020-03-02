@@ -7,7 +7,7 @@ data class DetectedOptions(
     val cmdShowHelp: Boolean,
     val cmdShowVersion: Boolean,
     val baselineDpmDbPath: Path?,
-    val actualDpmDbPath: Path?,
+    val currentDpmDbPath: Path?,
     val reportConfigPath: Path?,
     val outputFilePath: Path?,
     val forceOverwrite: Boolean,
@@ -23,9 +23,9 @@ data class DetectedOptions(
                 validationResults
             ),
 
-            actualDpmDbPath = PathOptions.checkExistingFile(
-                actualDpmDbPath,
-                OptName.ACTUAL_DPM_DB,
+            currentDpmDbPath = PathOptions.checkExistingFile(
+                currentDpmDbPath,
+                OptName.CURRENT_DPM_DB,
                 validationResults
             ),
 

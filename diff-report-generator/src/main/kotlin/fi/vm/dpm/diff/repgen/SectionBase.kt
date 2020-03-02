@@ -101,15 +101,15 @@ open class SectionBase(
             loadSourceRecords(generationContext.baselineConnection)
         )
 
-        val actualBundle = SourceBundle(
+        val currentBundle = SourceBundle(
             sectionDescriptor,
-            loadSourceRecords(generationContext.actualConnection)
+            loadSourceRecords(generationContext.currentConnection)
         )
 
         val changes = ChangeRecord.resolveChanges(
             sectionDescriptor = sectionDescriptor,
             baselineBundle = baselineBundle,
-            actualBundle = actualBundle
+            currentBundle = currentBundle
         )
 
         return ReportSection(
