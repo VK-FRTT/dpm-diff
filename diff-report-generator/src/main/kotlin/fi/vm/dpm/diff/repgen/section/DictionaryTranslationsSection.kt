@@ -13,6 +13,7 @@ import fi.vm.dpm.diff.model.FixedTranslationRoleSort
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
+import fi.vm.dpm.diff.repgen.SourceTableDescriptor
 
 class DictionaryTranslationsSection(
     generationContext: GenerationContext
@@ -45,8 +46,9 @@ class DictionaryTranslationsSection(
         sectionFields = listOf(
             elementId,
             elementInherentLabel,
-            elementType,
+            parentElementType,
             parentElementCode,
+            elementType,
             elementCode,
             *identificationLabels,
             translationRole,
@@ -56,14 +58,14 @@ class DictionaryTranslationsSection(
             note
         ),
         sectionSortOrder = listOf(
-            FixedDictionaryElementTypeSort(elementType),
+            FixedDictionaryElementTypeSort(parentElementType),
             NumberAwareSort(parentElementCode),
+            FixedDictionaryElementTypeSort(elementType),
             NumberAwareSort(elementCode),
-            FixedChangeKindSort(changeKind),
             FixedTranslationRoleSort(translationRole),
-            NumberAwareSort(translationLanguage)
+            NumberAwareSort(translationLanguage),
+            FixedChangeKindSort(changeKind)
         ),
-
         correlationMode = CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
         includedChanges = ChangeKind.allValues()
 
@@ -74,6 +76,7 @@ class DictionaryTranslationsSection(
         "ElementInherentLabel" to elementInherentLabel,
         "ElementType" to elementType,
         "ElementCode" to elementCode,
+        "ParentElementType" to parentElementType,
         "ParentElementCode" to parentElementCode,
         *idLabelColumnMapping(),
         "TranslationRole" to translationRole,
@@ -102,6 +105,7 @@ class DictionaryTranslationsSection(
             ,ElementInherentLabel AS ElementInherentLabel
             ,ElementType AS ElementType
             ,ElementCode AS ElementCode
+            ,ParentElementType AS ParentElementType
             ,ParentElementCode AS ParentElementCode
             ${idLabelColumnNamesFragment()}
             ,TranslationRole AS TranslationRole
@@ -135,6 +139,7 @@ class DictionaryTranslationsSection(
             ,ElementId AS ElementId
             ,ElementInherentLabel AS ElementInherentLabel
             ,ElementCode AS ElementCode
+            ,ParentElementType AS ParentElementType
             ,ParentElementCode AS ParentElementCode
             ${idLabelColumnNamesFragment()}
             ,mConceptTranslation.Role AS TranslationRole

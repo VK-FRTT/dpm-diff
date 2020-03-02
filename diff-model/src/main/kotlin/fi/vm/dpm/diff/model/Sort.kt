@@ -26,6 +26,7 @@ data class FixedChangeKindSort(
     companion object {
         private val comparator = NullsFirstComparator(
             FixedOrderComparator(
+                FixedOrderComparator.UnknownObjectMode.FAIL,
                 ChangeKind.DELETED,
                 ChangeKind.ADDED,
                 ChangeKind.MODIFIED
@@ -42,6 +43,8 @@ data class FixedDictionaryElementTypeSort(
     companion object {
         private val comparator = NullsFirstComparator(
             FixedOrderComparator(
+                FixedOrderComparator.UnknownObjectMode.FAIL,
+                "",
                 "Domain",
                 "Member",
                 "Metric",
@@ -60,6 +63,7 @@ data class FixedTranslationRoleSort(
     companion object {
         private val comparator = NullsFirstComparator(
             FixedOrderComparator(
+                FixedOrderComparator.UnknownObjectMode.AFTER,
                 "label",
                 "description"
             )

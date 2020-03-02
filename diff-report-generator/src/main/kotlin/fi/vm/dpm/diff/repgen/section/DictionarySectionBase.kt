@@ -20,6 +20,20 @@ open class DictionarySectionBase(
         fieldName = "ElementLabel"
     )
 
+    protected val parentElementType = CorrelationKeyField(
+        fieldName = "ParentElementType",
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = null,
+        noteFallbacks = emptyList()
+    )
+
+    protected val parentElementCode = CorrelationKeyField(
+        fieldName = "ParentElementCode",
+        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
+        correlationFallback = null,
+        noteFallbacks = emptyList()
+    )
+
     protected val elementType = CorrelationKeyField(
         fieldName = "ElementType",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
@@ -32,13 +46,6 @@ open class DictionarySectionBase(
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
         correlationFallback = elementInherentLabel,
         noteFallbacks = listOf(elementId, elementInherentLabel)
-    )
-
-    protected val parentElementCode = CorrelationKeyField(
-        fieldName = "ParentElementCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null,
-        noteFallbacks = emptyList()
     )
 
     override val identificationLabels = idLabelFields(
@@ -54,6 +61,7 @@ open class DictionarySectionBase(
                 elementIdColumn = "DomainID",
                 elementCodeColumn = "DomainCode",
                 elementInherentLabelColumn = "DomainLabel",
+                parentType = "",
                 parentCodeStatement = "NULL",
                 parentTableJoin = "",
                 elementTableSliceCriteria = ""
@@ -65,6 +73,7 @@ open class DictionarySectionBase(
                 elementIdColumn = "MemberID",
                 elementCodeColumn = "MemberCode",
                 elementInherentLabelColumn = "MemberLabel",
+                parentType = "Domain",
                 parentCodeStatement = "mDomain.DomainCode",
                 parentTableJoin = "LEFT JOIN mDomain ON mDomain.DomainID = mMember.DomainID",
                 elementTableSliceCriteria = "AND mMember.MemberID NOT IN (SELECT CorrespondingMemberID FROM mMetric)"
@@ -76,6 +85,7 @@ open class DictionarySectionBase(
                 elementIdColumn = "MemberID",
                 elementCodeColumn = "MemberCode",
                 elementInherentLabelColumn = "MemberLabel",
+                parentType = "Domain",
                 parentCodeStatement = "mDomain.DomainCode",
                 parentTableJoin = "LEFT JOIN mDomain ON mDomain.DomainID = mMember.DomainID",
                 elementTableSliceCriteria = "AND mMember.MemberID IN (SELECT CorrespondingMemberID FROM mMetric)"
@@ -87,6 +97,7 @@ open class DictionarySectionBase(
                 elementIdColumn = "DimensionID",
                 elementCodeColumn = "DimensionCode",
                 elementInherentLabelColumn = "DimensionLabel",
+                parentType = "Domain",
                 parentCodeStatement = "mDomain.DomainCode",
                 parentTableJoin = "LEFT JOIN mDomain ON mDomain.DomainID = mDimension.DomainID",
                 elementTableSliceCriteria = ""
@@ -98,6 +109,7 @@ open class DictionarySectionBase(
                 elementIdColumn = "HierarchyID",
                 elementCodeColumn = "HierarchyCode",
                 elementInherentLabelColumn = "HierarchyLabel",
+                parentType = "Domain",
                 parentCodeStatement = "mDomain.DomainCode",
                 parentTableJoin = "JOIN mDomain on mDomain.DomainID = mHierarchy.DomainID",
                 elementTableSliceCriteria = ""
@@ -110,8 +122,6 @@ open class DictionarySectionBase(
 
         val queryName = elementEssentialsQueryName(elementQueryDescription)
 
-        // TODO provide parent type as separate column + combine on Excel output level
-
         return with(elementQueryDescription) {
             """
             $queryName AS (
@@ -122,6 +132,7 @@ open class DictionarySectionBase(
             ,$elementTableName.ConceptID AS ElementConceptId
             ,$elementTableName.$elementInherentLabelColumn AS ElementInherentLabel
             ,$elementTableName.$elementCodeColumn AS ElementCode
+            ,'$parentType' AS ParentElementType
             ,$parentCodeStatement AS ParentElementCode
             ${idLabelAggregateFragment()}
 

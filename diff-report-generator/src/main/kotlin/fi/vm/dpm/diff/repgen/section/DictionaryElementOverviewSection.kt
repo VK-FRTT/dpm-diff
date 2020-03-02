@@ -21,16 +21,18 @@ class DictionaryElementOverviewSection(
         sectionFields = listOf(
             elementId,
             elementInherentLabel,
-            elementType,
+            parentElementType,
             parentElementCode,
+            elementType,
             elementCode,
             *identificationLabels,
             changeKind,
             note
         ),
         sectionSortOrder = listOf(
-            FixedDictionaryElementTypeSort(elementType),
+            FixedDictionaryElementTypeSort(parentElementType),
             NumberAwareSort(parentElementCode),
+            FixedDictionaryElementTypeSort(elementType),
             NumberAwareSort(elementCode),
             FixedChangeKindSort(changeKind)
         ),
@@ -46,6 +48,7 @@ class DictionaryElementOverviewSection(
         "ElementInherentLabel" to elementInherentLabel,
         "ElementType" to elementType,
         "ElementCode" to elementCode,
+        "ParentElementType" to parentElementType,
         "ParentElementCode" to parentElementCode,
         *idLabelColumnMapping()
     )
@@ -66,6 +69,7 @@ class DictionaryElementOverviewSection(
             ,ElementInherentLabel AS ElementInherentLabel
             ,ElementType AS ElementType
             ,ElementCode AS ElementCode
+            ,ParentElementType AS ParentElementType
             ,ParentElementCode AS ParentElementCode
             ${idLabelColumnNamesFragment()}
 

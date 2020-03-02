@@ -6,6 +6,7 @@ data class ElementQueryDescriptor(
     val elementIdColumn: String,
     val elementCodeColumn: String,
     val elementInherentLabelColumn: String,
+    val parentType: String,
     val parentCodeStatement: String,
     val parentTableJoin: String,
     val elementTableSliceCriteria: String

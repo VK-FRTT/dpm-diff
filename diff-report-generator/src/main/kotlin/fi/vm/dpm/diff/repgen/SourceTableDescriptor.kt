@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.repgen.section
+package fi.vm.dpm.diff.repgen
 
 data class SourceTableDescriptor(
     val table: String,

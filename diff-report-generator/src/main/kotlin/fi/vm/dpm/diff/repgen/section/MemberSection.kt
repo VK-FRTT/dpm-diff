@@ -12,6 +12,7 @@ import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SectionBase
+import fi.vm.dpm.diff.repgen.SourceTableDescriptor
 
 class MemberSection(
     generationContext: GenerationContext

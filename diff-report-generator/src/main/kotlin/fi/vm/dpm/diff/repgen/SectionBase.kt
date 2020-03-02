@@ -13,7 +13,6 @@ import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.model.SourceBundle
 import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
-import fi.vm.dpm.diff.repgen.section.SourceTableDescriptor
 import java.sql.ResultSet
 
 open class SectionBase(
