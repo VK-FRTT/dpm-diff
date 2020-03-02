@@ -39,7 +39,7 @@ class DomainSection(
     )
 
     private val dataType = AtomField(
-        fieldName = "DataType"
+        fieldName = "TypedDomainDataType"
     )
 
     private val isTypedDomain = AtomField(
@@ -56,8 +56,8 @@ class DomainSection(
             domainCode,
             *identificationLabels,
             changeKind,
-            dataType,
             isTypedDomain,
+            dataType,
             note
         ),
         sectionSortOrder = listOf(
