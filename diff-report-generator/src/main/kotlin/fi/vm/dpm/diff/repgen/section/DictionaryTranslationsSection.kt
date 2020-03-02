@@ -68,7 +68,6 @@ class DictionaryTranslationsSection(
         ),
         correlationMode = CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
         includedChanges = ChangeKind.allValues()
-
     )
 
     override val queryColumnMapping = mapOf(

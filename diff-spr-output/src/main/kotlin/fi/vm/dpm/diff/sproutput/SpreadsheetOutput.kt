@@ -4,6 +4,7 @@ import ext.kotlin.replaceCamelCase
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.sproutput.CellStyles
 import fi.vm.dpm.diff.sproutput.ColumnDescriptor
+import fi.vm.dpm.diff.sproutput.ColumnWidth
 import fi.vm.dpm.diff.sproutput.SheetWriter
 import java.io.Closeable
 import java.io.FileOutputStream
@@ -156,6 +157,7 @@ class SpreadsheetOutput(
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
+                        columnWidth = ColumnWidth.FIT_TITLE_CONTENT,
                         toColumnValue = { changeValue -> changeValue as String }
                     )
 
@@ -165,6 +167,7 @@ class SpreadsheetOutput(
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
+                        columnWidth = ColumnWidth.FIT_TITLE_CONTENT,
                         toColumnValue = { changeValue -> changeValue as String }
                     )
 
@@ -172,39 +175,51 @@ class SpreadsheetOutput(
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
+                        columnWidth = ColumnWidth.FIT_TITLE_CONTENT,
                         toColumnValue = { changeValue -> changeValue.toString() }
                     )
 
-                is AtomField -> listOf(
-                    ColumnDescriptor(
-                        field = field,
-                        columnTitle = field.fieldName,
-                        toColumnValue = { changeValue ->
-                            when (changeValue) {
-                                is AddedChangeAtomValue -> changeValue.value
-                                is ModifiedChangeAtomValue -> changeValue.currentValue
-                                else -> null
-                            }
-                        }
-                    ),
+                is AtomField -> {
+                    val columnWidth = if (field.fieldName.toLowerCase().contains("translation")) {
+                        ColumnWidth.FIXED_EXTRA_WIDE
+                    } else {
+                        ColumnWidth.FIT_TITLE_CONTENT
+                    }
 
-                    ColumnDescriptor(
-                        field = field,
-                        columnTitle = "${field.fieldName} (baseline)",
-                        toColumnValue = { changeValue ->
-                            when (changeValue) {
-                                is AddedChangeAtomValue -> null
-                                is ModifiedChangeAtomValue -> changeValue.baselineValue
-                                else -> null
+                    listOf(
+                        ColumnDescriptor(
+                            field = field,
+                            columnTitle = field.fieldName,
+                            columnWidth = columnWidth,
+                            toColumnValue = { changeValue ->
+                                when (changeValue) {
+                                    is AddedChangeAtomValue -> changeValue.value
+                                    is ModifiedChangeAtomValue -> changeValue.currentValue
+                                    else -> null
+                                }
                             }
-                        }
+                        ),
+
+                        ColumnDescriptor(
+                            field = field,
+                            columnTitle = "${field.fieldName} (baseline)",
+                            columnWidth = columnWidth,
+                            toColumnValue = { changeValue ->
+                                when (changeValue) {
+                                    is AddedChangeAtomValue -> null
+                                    is ModifiedChangeAtomValue -> changeValue.baselineValue
+                                    else -> null
+                                }
+                            }
+                        )
                     )
-                )
+                }
 
                 is NoteField ->
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
+                        columnWidth = ColumnWidth.FIXED_WIDE,
                         toColumnValue = { changeValue -> changeValue as String }
                     )
             }
@@ -234,15 +249,16 @@ class SpreadsheetOutput(
         columns.forEachIndexed { colIndex, column ->
             val cell = row.getCell(colIndex)
 
-            val cellWidth = when (column.field) {
-                is NoteField -> 10000
-
-                else -> {
+            val cellWidth = when (column.columnWidth) {
+                ColumnWidth.FIT_TITLE_CONTENT -> {
                     SheetUtil.getCellWidth(cell, defaultCharWidth, formatter, false)
-                        .let { it * 256 + 800 }
+                        .let { it * 256 + 400 }
                         .toInt()
                         .coerceIn(0..256 * 256)
                 }
+
+                ColumnWidth.FIXED_WIDE -> 7500
+                ColumnWidth.FIXED_EXTRA_WIDE -> 15000
             }
 
             sheetWriter.sheet.setColumnWidth(colIndex, cellWidth)
