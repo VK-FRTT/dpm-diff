@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.repgen
+package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKindField
@@ -13,6 +13,9 @@ import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.model.SourceBundle
 import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
+import fi.vm.dpm.diff.repgen.DbConnection
+import fi.vm.dpm.diff.repgen.GenerationContext
+import fi.vm.dpm.diff.repgen.SourceTableDescriptor
 import java.sql.ResultSet
 
 open class SectionBase(

@@ -3,15 +3,17 @@ package fi.vm.dpm.diff.model
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.repgen.DbConnection
 import fi.vm.dpm.diff.repgen.GenerationContext
-import fi.vm.dpm.diff.repgen.section.DictionaryElementOverviewSection
-import fi.vm.dpm.diff.repgen.section.DictionaryTranslationsSection
-import fi.vm.dpm.diff.repgen.section.DimensionSection
-import fi.vm.dpm.diff.repgen.section.DomainSection
-import fi.vm.dpm.diff.repgen.section.HierarchyNodeSection
-import fi.vm.dpm.diff.repgen.section.HierarchyNodeStructureSection
-import fi.vm.dpm.diff.repgen.section.HierarchySection
-import fi.vm.dpm.diff.repgen.section.MemberSection
-import fi.vm.dpm.diff.repgen.section.MetricSection
+import fi.vm.dpm.diff.repgen.section.dictionary.DictionaryOverviewSection
+import fi.vm.dpm.diff.repgen.section.dictionary.DictionaryTranslationSection
+import fi.vm.dpm.diff.repgen.section.dictionary.DimensionSection
+import fi.vm.dpm.diff.repgen.section.dictionary.DomainSection
+import fi.vm.dpm.diff.repgen.section.dictionary.HierarchyNodeSection
+import fi.vm.dpm.diff.repgen.section.dictionary.HierarchyNodeStructureSection
+import fi.vm.dpm.diff.repgen.section.dictionary.HierarchySection
+import fi.vm.dpm.diff.repgen.section.dictionary.MemberSection
+import fi.vm.dpm.diff.repgen.section.dictionary.MetricSection
+import fi.vm.dpm.diff.repgen.section.reportingframework.ReportingFrameworkOverviewSection
+import fi.vm.dpm.diff.repgen.section.reportingframework.ReportingFrameworkTranslationSection
 import java.io.Closeable
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -48,9 +50,9 @@ class DpmDiffReportGenerator(
             diagnostic = diagnostic
         )
 
-        val sections = listOf(
-            DictionaryElementOverviewSection(generationContext),
-            DictionaryTranslationsSection(generationContext),
+        val dictionarySections = listOf(
+            DictionaryOverviewSection(generationContext),
+            DictionaryTranslationSection(generationContext),
             DomainSection(generationContext),
             MemberSection(generationContext),
             MetricSection(generationContext),
@@ -60,7 +62,12 @@ class DpmDiffReportGenerator(
             HierarchyNodeStructureSection(generationContext)
         )
 
-        val generatedSections = sections.map { it.generateSection() }
+        val reportingFrameworkSections = listOf(
+            ReportingFrameworkOverviewSection(generationContext),
+            ReportingFrameworkTranslationSection(generationContext)
+        )
+
+        val generatedSections = (dictionarySections + reportingFrameworkSections).map { it.generateSection() }
 
         return ChangeReport(
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),

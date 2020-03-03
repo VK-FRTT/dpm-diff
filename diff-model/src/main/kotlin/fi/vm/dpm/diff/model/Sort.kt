@@ -37,7 +37,7 @@ data class FixedChangeKindSort(
     override fun comparator(): Comparator<Any?> = comparator
 }
 
-data class FixedDictionaryElementTypeSort(
+data class FixedElementTypeSort(
     override val field: Field
 ) : Sort(field) {
     companion object {
@@ -49,7 +49,11 @@ data class FixedDictionaryElementTypeSort(
                 "Member",
                 "Metric",
                 "Dimension",
-                "Hierarchy"
+                "Hierarchy",
+                "ReportingFramework",
+                "Taxonomy",
+                "Module",
+                "Table"
             )
         )
     }

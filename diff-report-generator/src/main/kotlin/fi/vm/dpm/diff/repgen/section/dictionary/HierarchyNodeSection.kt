@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.repgen.section
+package fi.vm.dpm.diff.repgen.section.dictionary
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
@@ -11,9 +11,9 @@ import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
-import fi.vm.dpm.diff.repgen.SectionBase
+import fi.vm.dpm.diff.repgen.section.SectionBase
 
-class HierarchyNodeStructureSection(
+class HierarchyNodeSection(
     generationContext: GenerationContext
 ) : SectionBase(
     generationContext
@@ -49,22 +49,22 @@ class HierarchyNodeStructureSection(
         fallbackField = hierarchyNodeInherentLabel
     )
 
-    private val parentMemberCode = AtomField(
-        fieldName = "ParentMemberCode"
+    private val isAbstract = AtomField(
+        fieldName = "IsAbstract"
     )
 
-    private val order = AtomField(
-        fieldName = "Order"
+    private val comparisonOperator = AtomField(
+        fieldName = "ComparisonOperator"
     )
 
-    private val level = AtomField(
-        fieldName = "Level"
+    private val unaryOperator = AtomField(
+        fieldName = "UnaryOperator"
     )
 
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "HierNodeStructure",
-        sectionTitle = "HierarchyNodes structure",
-        sectionDescription = "HierarchyNodes: Parent Member, Order and Level changes",
+        sectionShortTitle = "HierNode",
+        sectionTitle = "HierarchyNodes",
+        sectionDescription = "HierarchyNodes: ComparisonOperator, UnaryOperator and IsAbstract changes",
         sectionFields = listOf(
             hierarchyId,
             memberId,
@@ -73,9 +73,9 @@ class HierarchyNodeStructureSection(
             memberCode,
             *identificationLabels,
             changeKind,
-            parentMemberCode,
-            order,
-            level,
+            isAbstract,
+            comparisonOperator,
+            unaryOperator,
             note
         ),
         sectionSortOrder = listOf(
@@ -94,9 +94,9 @@ class HierarchyNodeStructureSection(
         "HierarchyCode" to hierarchyCode,
         "MemberCode" to memberCode,
         *idLabelColumnMapping(),
-        "ParentMemberCode" to parentMemberCode,
-        "Order" to order,
-        "Level" to level
+        "IsAbstract" to isAbstract,
+        "ComparisonOperator" to comparisonOperator,
+        "UnaryOperator" to unaryOperator
     )
 
     override val query = """
@@ -107,23 +107,22 @@ class HierarchyNodeStructureSection(
         ,mHierarchy.HierarchyCode AS 'HierarchyCode'
         ,mMember.MemberCode AS 'MemberCode'
         ${idLabelAggregateFragment()}
-        ,ParentMember.MemberCode AS 'ParentMemberCode'
-        ,mHierarchyNode.'Order' AS 'Order'
-        ,mHierarchyNode.Level AS 'Level'
+        ,mHierarchyNode.IsAbstract AS 'IsAbstract'
+        ,mHierarchyNode.ComparisonOperator AS 'ComparisonOperator'
+        ,mHierarchyNode.UnaryOperator AS 'UnaryOperator'
 
         FROM mHierarchyNode
         LEFT JOIN mHierarchy ON mHierarchy.HierarchyID = mHierarchyNode.HierarchyID
         LEFT JOIN mMember ON mMember.MemberID = mHierarchyNode.MemberID
         LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mHierarchyNode.ConceptID
         LEFT JOIN mLanguage ON mConceptTranslation.LanguageID = mLanguage.LanguageID
-        LEFT JOIN mMember AS ParentMember ON ParentMember.MemberID = mHierarchyNode.ParentMemberID
 
         WHERE
         (mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL)
 
         GROUP BY mHierarchyNode.HierarchyID, mHierarchyNode.MemberID
 
-        ORDER BY mHierarchy.HierarchyCode ASC, mHierarchyNode.'Order' ASC
+        ORDER BY mHierarchy.HierarchyCode ASC, mMember.MemberCode ASC
     """.trimLineStartsAndConsequentBlankLines()
 
     override val sourceTableDescriptors = listOf(

@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.repgen.section
+package fi.vm.dpm.diff.repgen.section.dictionary
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
@@ -11,7 +11,7 @@ import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
-import fi.vm.dpm.diff.repgen.SectionBase
+import fi.vm.dpm.diff.repgen.section.SectionBase
 
 class MetricSection(
     generationContext: GenerationContext
