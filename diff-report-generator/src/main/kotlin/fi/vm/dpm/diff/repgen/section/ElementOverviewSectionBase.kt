@@ -10,6 +10,7 @@ import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
 import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.RowIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 
@@ -26,37 +27,36 @@ open class ElementOverviewSectionBase(
         fieldName = "ElementLabel"
     )
 
+    protected val rowIdentityFallback = RowIdentityFallbackField(
+        rowIdentityFallbacks = listOf(elementId, elementInherentLabel)
+    )
+
     protected val parentElementType = CorrelationKeyField(
         fieldName = "ParentElementType",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null,
-        noteFallbacks = emptyList()
+        correlationFallback = null
     )
 
     protected val parentElementCode = CorrelationKeyField(
         fieldName = "ParentElementCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null,
-        noteFallbacks = emptyList()
+        correlationFallback = null
     )
 
     protected val elementType = CorrelationKeyField(
         fieldName = "ElementType",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null,
-        noteFallbacks = emptyList()
+        correlationFallback = null
     )
 
     protected val elementCode = CorrelationKeyField(
         fieldName = "ElementCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = elementInherentLabel,
-        noteFallbacks = listOf(elementId, elementInherentLabel)
+        correlationFallback = elementInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "ElementLabel",
-        fallbackField = elementInherentLabel
+        fieldNameBase = "ElementLabel"
     )
 
     protected fun elementOverviewSectionDescriptor(
@@ -71,6 +71,7 @@ open class ElementOverviewSectionBase(
             sectionFields = listOf(
                 elementId,
                 elementInherentLabel,
+                rowIdentityFallback,
                 parentElementType,
                 parentElementCode,
                 elementType,

@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.RowIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -26,16 +27,18 @@ class DimensionSection(
         fieldName = "DimensionLabel"
     )
 
+    private val rowIdentityFallback = RowIdentityFallbackField(
+        rowIdentityFallbacks = listOf(dimensionId, dimensionInherentLabel)
+    )
+
     private val dimensionCode = CorrelationKeyField(
         fieldName = "DimensionCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = dimensionInherentLabel,
-        noteFallbacks = listOf(dimensionId, dimensionInherentLabel)
+        correlationFallback = dimensionInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "DimensionLabel",
-        fallbackField = dimensionInherentLabel
+        fieldNameBase = "DimensionLabel"
     )
 
     private val referencedDomainCode = AtomField(
@@ -53,6 +56,7 @@ class DimensionSection(
         sectionFields = listOf(
             dimensionId,
             dimensionInherentLabel,
+            rowIdentityFallback,
             dimensionCode,
             *identificationLabels,
             changeKind,

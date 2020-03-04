@@ -8,6 +8,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.RowIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -25,23 +26,28 @@ class HierarchySection(
         fieldName = "HierarchyLabel"
     )
 
+    private val domainInherentLabel = FallbackField(
+        fieldName = "DomainLabel"
+    )
+
+    private val rowIdentityFallback = RowIdentityFallbackField(
+        rowIdentityFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
+    )
+
     private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = hierarchyInherentLabel,
-        noteFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
+        correlationFallback = domainInherentLabel
     )
 
     private val hierarchyCode = CorrelationKeyField(
         fieldName = "HierarchyCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = hierarchyInherentLabel,
-        noteFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
+        correlationFallback = hierarchyInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "HierarchyLabel",
-        fallbackField = hierarchyInherentLabel
+        fieldNameBase = "HierarchyLabel"
     )
 
     override val sectionDescriptor = SectionDescriptor(
@@ -51,6 +57,8 @@ class HierarchySection(
         sectionFields = listOf(
             hierarchyId,
             hierarchyInherentLabel,
+            rowIdentityFallback,
+            domainInherentLabel,
             domainCode,
             hierarchyCode,
             *identificationLabels,
@@ -69,6 +77,7 @@ class HierarchySection(
     override val queryColumnMapping = mapOf(
         "HierarchyId" to hierarchyId,
         "HierarchyInherentLabel" to hierarchyInherentLabel,
+        "DomainInherentLabel" to domainInherentLabel,
         "DomainCode" to domainCode,
         "HierarchyCode" to hierarchyCode,
         *idLabelColumnMapping()
@@ -78,6 +87,7 @@ class HierarchySection(
         SELECT
         mHierarchy.HierarchyID AS 'HierarchyId'
         ,mHierarchy.HierarchyLabel AS 'HierarchyInherentLabel'
+        ,mDomain.DomainLabel AS 'DomainInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mHierarchy.HierarchyCode AS 'HierarchyCode'
         ${idLabelAggregateFragment()}

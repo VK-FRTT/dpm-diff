@@ -4,13 +4,13 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.ChangeRecord
 import fi.vm.dpm.diff.model.CorrelationMode
-import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.IdentificationLabelField
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.model.SourceBundle
+import fi.vm.dpm.diff.model.SourceKind
 import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import fi.vm.dpm.diff.repgen.DbConnection
@@ -52,13 +52,11 @@ open class SectionBase(
     protected open val sourceTableDescriptors: List<Any> = emptyList()
 
     fun idLabelFields(
-        fieldNameBase: String,
-        fallbackField: FallbackField
+        fieldNameBase: String
     ): Array<IdentificationLabelField> {
         return generationContext.identificationLabelLangCodes.map { langCode ->
             IdentificationLabelField(
-                fieldName = "$fieldNameBase${langCode.toUpperCase()}",
-                noteFallbacks = listOf(fallbackField)
+                fieldName = "$fieldNameBase${langCode.toUpperCase()}"
             )
         }.toTypedArray()
     }
@@ -101,12 +99,18 @@ open class SectionBase(
 
         val baselineBundle = SourceBundle(
             sectionDescriptor,
-            loadSourceRecords(generationContext.baselineConnection)
+            loadSourceRecords(
+                generationContext.baselineConnection,
+                SourceKind.BASELINE
+            )
         )
 
         val currentBundle = SourceBundle(
             sectionDescriptor,
-            loadSourceRecords(generationContext.currentConnection)
+            loadSourceRecords(
+                generationContext.currentConnection,
+                SourceKind.CURRENT
+            )
         )
 
         val changes = ChangeRecord.resolveChanges(
@@ -122,7 +126,8 @@ open class SectionBase(
     }
 
     private fun loadSourceRecords(
-        dbConnection: DbConnection
+        dbConnection: DbConnection,
+        sourceKind: SourceKind
     ): List<SourceRecord> {
         val sourceRecords = mutableListOf<SourceRecord>()
 
@@ -137,6 +142,7 @@ open class SectionBase(
 
                 val sourceRecord = SourceRecord(
                     sectionDescriptor = sectionDescriptor,
+                    sourceKind = sourceKind,
                     fields = loadedFields
                 )
 

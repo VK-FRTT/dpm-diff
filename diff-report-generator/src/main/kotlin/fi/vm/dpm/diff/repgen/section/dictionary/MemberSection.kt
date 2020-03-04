@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.RowIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.SourceTableDescriptor
@@ -19,6 +20,10 @@ class MemberSection(
 ) : SectionBase(
     generationContext
 ) {
+    private val domainInherentLabel = FallbackField(
+        fieldName = "DomainLabel"
+    )
+
     private val memberId = FallbackField(
         fieldName = "MemberId"
     )
@@ -27,23 +32,24 @@ class MemberSection(
         fieldName = "MemberLabel"
     )
 
+    private val rowIdentityFallback = RowIdentityFallbackField(
+        rowIdentityFallbacks = listOf(memberId, memberInherentLabel)
+    )
+
     private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = memberInherentLabel,
-        noteFallbacks = listOf(memberId, memberInherentLabel)
+        correlationFallback = domainInherentLabel
     )
 
     private val memberCode = CorrelationKeyField(
         fieldName = "MemberCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = memberInherentLabel,
-        noteFallbacks = listOf(memberId, memberInherentLabel)
+        correlationFallback = memberInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "MemberLabel",
-        fallbackField = memberInherentLabel
+        fieldNameBase = "MemberLabel"
     )
 
     private val isDefaultMember = AtomField(
@@ -55,8 +61,10 @@ class MemberSection(
         sectionTitle = "Members",
         sectionDescription = "Members: DefaultMember assignment changes",
         sectionFields = listOf(
+            domainInherentLabel,
             memberId,
             memberInherentLabel,
+            rowIdentityFallback,
             domainCode,
             memberCode,
             *identificationLabels,
@@ -74,6 +82,7 @@ class MemberSection(
     )
 
     override val queryColumnMapping = mapOf(
+        "DomainInherentLabel" to domainInherentLabel,
         "MemberId" to memberId,
         "MemberInherentLabel" to memberInherentLabel,
         "DomainCode" to domainCode,
@@ -84,7 +93,8 @@ class MemberSection(
 
     override val query = """
         SELECT
-        mMember.MemberID AS 'MemberId'
+        mDomain.DomainLabel AS 'DomainInherentLabel'
+        ,mMember.MemberID AS 'MemberId'
         ,mMember.MemberLabel AS 'MemberInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mMember.MemberCode AS 'MemberCode'

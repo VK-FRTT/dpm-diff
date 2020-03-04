@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.RowIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -22,31 +23,40 @@ class HierarchyNodeStructureSection(
         fieldName = "HierarchyId"
     )
 
+    private val hierarchyInherentLabel = FallbackField(
+        fieldName = "HierarchyLabel"
+    )
+
     private val memberId = FallbackField(
         fieldName = "MemberId"
+    )
+
+    private val memberInherentLabel = FallbackField(
+        fieldName = "MemberLabel"
     )
 
     private val hierarchyNodeInherentLabel = FallbackField(
         fieldName = "HierarchyNodeLabel"
     )
 
+    private val rowIdentityFallback = RowIdentityFallbackField(
+        rowIdentityFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+    )
+
     private val hierarchyCode = CorrelationKeyField(
         fieldName = "HierarchyCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = hierarchyNodeInherentLabel,
-        noteFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+        correlationFallback = hierarchyInherentLabel
     )
 
     private val memberCode = CorrelationKeyField(
         fieldName = "MemberCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = hierarchyNodeInherentLabel,
-        noteFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
+        correlationFallback = memberInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "HierarchyNodeLabel",
-        fallbackField = hierarchyNodeInherentLabel
+        fieldNameBase = "HierarchyNodeLabel"
     )
 
     private val parentMemberCode = AtomField(
@@ -67,8 +77,11 @@ class HierarchyNodeStructureSection(
         sectionDescription = "HierarchyNodes: Parent Member, Order and Level changes",
         sectionFields = listOf(
             hierarchyId,
+            hierarchyInherentLabel,
             memberId,
+            memberInherentLabel,
             hierarchyNodeInherentLabel,
+            rowIdentityFallback,
             hierarchyCode,
             memberCode,
             *identificationLabels,
@@ -89,7 +102,9 @@ class HierarchyNodeStructureSection(
 
     override val queryColumnMapping = mapOf(
         "HierarchyId" to hierarchyId,
+        "HierarchyInherentLabel" to hierarchyInherentLabel,
         "MemberId" to memberId,
+        "MemberInherentLabel" to memberInherentLabel,
         "HierarchyNodeInherentLabel" to hierarchyNodeInherentLabel,
         "HierarchyCode" to hierarchyCode,
         "MemberCode" to memberCode,
@@ -102,7 +117,9 @@ class HierarchyNodeStructureSection(
     override val query = """
         SELECT
         mHierarchyNode.HierarchyID AS 'HierarchyId'
+        ,mHierarchy.HierarchyLabel AS 'HierarchyInherentLabel'
         ,mHierarchyNode.MemberID AS 'MemberId'
+        ,mMember.MemberLabel AS 'MemberInherentLabel'
         ,mHierarchyNode.HierarchyNodeLabel AS 'HierarchyNodeInherentLabel'
         ,mHierarchy.HierarchyCode AS 'HierarchyCode'
         ,mMember.MemberCode AS 'MemberCode'

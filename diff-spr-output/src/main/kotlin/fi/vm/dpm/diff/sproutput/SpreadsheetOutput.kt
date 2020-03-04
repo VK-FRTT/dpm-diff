@@ -153,6 +153,10 @@ class SpreadsheetOutput(
 
             val fieldColumns: Any? = when (field) {
 
+                is FallbackField -> null
+
+                is RowIdentityFallbackField -> null
+
                 is CorrelationKeyField ->
                     ColumnDescriptor(
                         field = field,
@@ -160,8 +164,6 @@ class SpreadsheetOutput(
                         columnWidth = ColumnWidth.FIT_TITLE_CONTENT,
                         toColumnValue = { changeValue -> changeValue as String }
                     )
-
-                is FallbackField -> null
 
                 is IdentificationLabelField ->
                     ColumnDescriptor(

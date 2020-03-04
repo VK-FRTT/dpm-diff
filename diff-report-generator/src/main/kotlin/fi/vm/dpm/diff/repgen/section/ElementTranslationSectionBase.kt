@@ -23,15 +23,13 @@ open class ElementTranslationSectionBase(
     private val translationRole = CorrelationKeyField(
         fieldName = "TranslationRole",
         correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY,
-        correlationFallback = null,
-        noteFallbacks = emptyList()
+        correlationFallback = null
     )
 
     private val translationLanguage = CorrelationKeyField(
         fieldName = "Language",
         correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY,
-        correlationFallback = null,
-        noteFallbacks = emptyList()
+        correlationFallback = null
     )
 
     private val translation = AtomField(
@@ -51,6 +49,7 @@ open class ElementTranslationSectionBase(
             sectionFields = listOf(
                 elementId,
                 elementInherentLabel,
+                rowIdentityFallback,
                 parentElementType,
                 parentElementCode,
                 elementType,

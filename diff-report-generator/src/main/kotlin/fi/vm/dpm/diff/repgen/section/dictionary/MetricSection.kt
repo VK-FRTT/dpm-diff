@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.RowIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -18,6 +19,10 @@ class MetricSection(
 ) : SectionBase(
     generationContext
 ) {
+    private val domainInherentLabel = FallbackField(
+        fieldName = "DomainLabel"
+    )
+
     private val metricId = FallbackField(
         fieldName = "MetricId"
     )
@@ -26,23 +31,24 @@ class MetricSection(
         fieldName = "MetricLabel"
     )
 
+    private val rowIdentityFallback = RowIdentityFallbackField(
+        rowIdentityFallbacks = listOf(metricId, metricInherentLabel)
+    )
+
     private val domainCode = CorrelationKeyField(
         fieldName = "DomainCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = metricInherentLabel,
-        noteFallbacks = listOf(metricId, metricInherentLabel)
+        correlationFallback = domainInherentLabel
     )
 
     private val metricCode = CorrelationKeyField(
         fieldName = "MetricCode",
         correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = metricInherentLabel,
-        noteFallbacks = listOf(metricId, metricInherentLabel)
+        correlationFallback = metricInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "MetricLabel",
-        fallbackField = metricInherentLabel
+        fieldNameBase = "MetricLabel"
     )
 
     private val dataType = AtomField(
@@ -74,8 +80,10 @@ class MetricSection(
         sectionTitle = "Metrics",
         sectionDescription = "Metrics: DataType, FlowType, BalanceType, Domain reference and Hierarchy reference changes",
         sectionFields = listOf(
+            domainInherentLabel,
             metricId,
             metricInherentLabel,
+            rowIdentityFallback,
             domainCode,
             metricCode,
             *identificationLabels,
@@ -98,6 +106,7 @@ class MetricSection(
     )
 
     override val queryColumnMapping = mapOf(
+        "DomainInherentLabel" to domainInherentLabel,
         "MetricID" to metricId,
         "MetricInherentLabel" to metricInherentLabel,
         "DomainCode" to domainCode,
@@ -113,7 +122,8 @@ class MetricSection(
 
     override val query = """
         SELECT
-        mMetric.MetricID AS 'MetricID'
+        mDomain.DomainLabel AS 'DomainInherentLabel'
+        ,mMetric.MetricID AS 'MetricID'
         ,mMember.MemberLabel AS 'MetricInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
         ,mMember.MemberCode AS 'MetricCode'

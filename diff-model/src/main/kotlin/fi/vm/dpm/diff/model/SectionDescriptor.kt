@@ -32,8 +32,9 @@ data class SectionDescriptor(
             check(isNotEmpty())
 
             // Field amounts per field kind
-            check(filterFieldType<Field, CorrelationKeyField>().size >= 1)
             check(filterFieldType<Field, FallbackField>().size >= 0)
+            check(filterFieldType<Field, RowIdentityFallbackField>().size == 1)
+            check(filterFieldType<Field, CorrelationKeyField>().size >= 1)
             check(filterFieldType<Field, IdentificationLabelField>().size >= 1)
             check(filterFieldType<Field, ChangeKindField>().size == 1)
             check(filterFieldType<Field, AtomField>().size >= 0)
@@ -45,13 +46,27 @@ data class SectionDescriptor(
                 check(field.fieldName.isNotBlank())
                 check(field.fieldName.isNotHavingWhitespace())
             }
+
+            // Field identity uniqueness
+            sectionFields
+                .groupBy { field -> field }
+                .forEach { (_, sameFields) ->
+                    check(sameFields.size == 1)
+                }
         }
 
         // sectionSortOrder
         check(sectionSortOrder.isNotEmpty())
+
         sectionSortOrder.forEach { sort ->
             check(sectionFields.contains(sort.field))
         }
+
+        sectionSortOrder
+            .groupBy { sort -> sort.field }
+            .forEach { (_, sortsHavingSameField) ->
+                check(sortsHavingSameField.size == 1)
+            }
 
         // correlationMode
         when (correlationMode) {
