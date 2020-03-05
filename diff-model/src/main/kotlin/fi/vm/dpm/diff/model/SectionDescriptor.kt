@@ -28,7 +28,6 @@ data class SectionDescriptor(
         }
 
         with(sectionFields) {
-
             check(isNotEmpty())
 
             // Field amounts per field kind

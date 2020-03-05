@@ -4,15 +4,15 @@ sealed class Field(
     open val fieldName: String
 )
 
-data class FallbackField(
+class FallbackField(
     override val fieldName: String
 ) : Field(fieldName)
 
-data class RowIdentityFallbackField(
+class RowIdentityFallbackField(
     val rowIdentityFallbacks: List<FallbackField>
 ) : Field("Row")
 
-data class CorrelationKeyField(
+class CorrelationKeyField(
     override val fieldName: String,
     val correlationKeyKind: CorrelationKeyKind,
     val correlationFallback: FallbackField?
@@ -22,7 +22,7 @@ data class CorrelationKeyField(
     }
 }
 
-data class IdentificationLabelField(
+class IdentificationLabelField(
     override val fieldName: String
 ) : Field(fieldName) {
     fun shouldOutputRowIdentityFallback(fieldValue: Any?): Boolean {
@@ -30,15 +30,11 @@ data class IdentificationLabelField(
     }
 }
 
-data class ChangeKindField(
-    override val fieldName: String
-) : Field(fieldName)
+class ChangeKindField : Field("Change")
 
-data class AtomField(
+class AtomField(
     override val fieldName: String,
     val atomOptions: AtomOption = AtomOption.NONE
 ) : Field(fieldName)
 
-data class NoteField(
-    override val fieldName: String
-) : Field(fieldName)
+class NoteField : Field("Notes")

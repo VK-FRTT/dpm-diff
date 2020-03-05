@@ -27,13 +27,9 @@ open class SectionBase(
 
     protected open val identificationLabels: Array<IdentificationLabelField> = emptyArray()
 
-    protected val changeKind = ChangeKindField(
-        fieldName = "Change"
-    )
+    protected val changeKind = ChangeKindField()
 
-    protected val note = NoteField(
-        fieldName = "Notes"
-    )
+    protected val note = NoteField()
 
     protected open val sectionDescriptor: SectionDescriptor = SectionDescriptor(
         sectionShortTitle = "",
