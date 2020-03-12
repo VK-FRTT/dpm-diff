@@ -9,7 +9,6 @@ data class SectionDescriptor(
     val sectionDescription: String,
     val sectionFields: List<Field>,
     val sectionSortOrder: List<Sort>,
-    val correlationMode: CorrelationMode,
     val includedChanges: Set<ChangeKind>
 ) {
 
@@ -31,13 +30,13 @@ data class SectionDescriptor(
             check(isNotEmpty())
 
             // Field amounts per field kind
-            check(filterFieldType<Field, FallbackField>().size >= 0)
-            check(filterFieldType<Field, RecordIdentityFallbackField>().size == 1)
-            check(filterFieldType<Field, CorrelationKeyField>().size >= 1)
-            check(filterFieldType<Field, IdentificationLabelField>().size >= 1)
-            check(filterFieldType<Field, ChangeKindField>().size == 1)
-            check(filterFieldType<Field, AtomField>().size >= 0)
-            check(filterFieldType<Field, NoteField>().size == 1)
+            check(filterFieldType<FallbackField>().size >= 0)
+            check(filterFieldType<RecordIdentityFallbackField>().size == 1)
+            check(filterFieldType<KeyField>().size >= 1)
+            check(filterFieldType<IdentificationLabelField>().size >= 1)
+            check(filterFieldType<ChangeKindField>().size == 1)
+            check(filterFieldType<AtomField>().size >= 0)
+            check(filterFieldType<NoteField>().size == 1)
 
             // FieldName:
             // - Should not be empty nor contain whitespace (i.e. it should be in CamelCase)
@@ -66,29 +65,6 @@ data class SectionDescriptor(
             .forEach { (_, sortsHavingSameField) ->
                 check(sortsHavingSameField.size == 1)
             }
-
-        // correlationMode
-        when (correlationMode) {
-            CorrelationMode.UNINITIALIZED -> {
-                check(false)
-            }
-
-            CorrelationMode.ONE_PHASE_BY_FULL_KEY -> {
-                check(sectionFields
-                    .filterFieldType<Field, CorrelationKeyField>()
-                    .all { field -> field.correlationKeyKind == CorrelationKeyKind.PRIMARY_KEY })
-            }
-
-            CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY -> {
-                check(sectionFields
-                    .filterFieldType<Field, CorrelationKeyField>()
-                    .any { field -> field.correlationKeyKind == CorrelationKeyKind.PRIMARY_KEY })
-
-                check(sectionFields
-                    .filterFieldType<Field, CorrelationKeyField>()
-                    .any { field -> field.correlationKeyKind == CorrelationKeyKind.SECONDARY_KEY })
-            }
-        }
 
         with(includedChanges) {
             check(isNotEmpty())

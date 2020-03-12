@@ -2,13 +2,12 @@ package fi.vm.dpm.diff.repgen.section
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationKeyField
-import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -31,28 +30,28 @@ open class ElementOverviewSectionBase(
         identityFallbacks = listOf(elementId, elementInherentLabel)
     )
 
-    protected val parentElementType = CorrelationKeyField(
+    protected val parentElementType = KeyField(
         fieldName = "ParentElementType",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = null
     )
 
-    protected val parentElementCode = CorrelationKeyField(
+    protected val parentElementCode = KeyField(
         fieldName = "ParentElementCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = null
     )
 
-    protected val elementType = CorrelationKeyField(
+    protected val elementType = KeyField(
         fieldName = "ElementType",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = null
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = null
     )
 
-    protected val elementCode = CorrelationKeyField(
+    protected val elementCode = KeyField(
         fieldName = "ElementCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = elementInherentLabel
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = elementInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
@@ -87,7 +86,6 @@ open class ElementOverviewSectionBase(
                 NumberAwareSort(elementCode),
                 FixedChangeKindSort(changeKind)
             ),
-            correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
             includedChanges = setOf(
                 ChangeKind.ADDED,
                 ChangeKind.DELETED

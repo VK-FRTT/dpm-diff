@@ -3,11 +3,10 @@ package fi.vm.dpm.diff.repgen.section.dictionary
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationKeyField
-import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -31,10 +30,10 @@ class DimensionSection(
         identityFallbacks = listOf(dimensionId, dimensionInherentLabel)
     )
 
-    private val dimensionCode = CorrelationKeyField(
+    private val dimensionCode = KeyField(
         fieldName = "DimensionCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = dimensionInherentLabel
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = dimensionInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
@@ -68,7 +67,6 @@ class DimensionSection(
             NumberAwareSort(dimensionCode),
             FixedChangeKindSort(changeKind)
         ),
-        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
         includedChanges = ChangeKind.allValues()
     )
 

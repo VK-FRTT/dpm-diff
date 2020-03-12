@@ -2,11 +2,10 @@ package fi.vm.dpm.diff.repgen.section.dictionary
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationKeyField
-import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -18,6 +17,17 @@ class HierarchySection(
 ) : SectionBase(
     generationContext
 ) {
+
+    private val domainInherentLabel = FallbackField(
+        fieldName = "DomainLabel"
+    )
+
+    private val domainCode = KeyField(
+        fieldName = "DomainCode",
+        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
+        keyFallback = domainInherentLabel
+    )
+
     private val hierarchyId = FallbackField(
         fieldName = "HierarchyId"
     )
@@ -26,24 +36,14 @@ class HierarchySection(
         fieldName = "HierarchyLabel"
     )
 
-    private val domainInherentLabel = FallbackField(
-        fieldName = "DomainLabel"
-    )
-
     private val recordIdentityFallback = RecordIdentityFallbackField(
         identityFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
-    private val domainCode = CorrelationKeyField(
-        fieldName = "DomainCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = domainInherentLabel
-    )
-
-    private val hierarchyCode = CorrelationKeyField(
+    private val hierarchyCode = KeyField(
         fieldName = "HierarchyCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = hierarchyInherentLabel
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = hierarchyInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
@@ -55,11 +55,11 @@ class HierarchySection(
         sectionTitle = "Hierarchies",
         sectionDescription = "Hierarchies: Domain reference changes",
         sectionFields = listOf(
+            domainInherentLabel,
+            domainCode,
             hierarchyId,
             hierarchyInherentLabel,
             recordIdentityFallback,
-            domainInherentLabel,
-            domainCode,
             hierarchyCode,
             *identificationLabels,
             changeKind,
@@ -70,25 +70,24 @@ class HierarchySection(
             NumberAwareSort(hierarchyCode),
             FixedChangeKindSort(changeKind)
         ),
-        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
         includedChanges = ChangeKind.allValues()
     )
 
     override val queryColumnMapping = mapOf(
-        "HierarchyId" to hierarchyId,
-        "HierarchyInherentLabel" to hierarchyInherentLabel,
         "DomainInherentLabel" to domainInherentLabel,
         "DomainCode" to domainCode,
+        "HierarchyId" to hierarchyId,
+        "HierarchyInherentLabel" to hierarchyInherentLabel,
         "HierarchyCode" to hierarchyCode,
         *idLabelColumnMapping()
     )
 
     override val query = """
         SELECT
-        mHierarchy.HierarchyID AS 'HierarchyId'
-        ,mHierarchy.HierarchyLabel AS 'HierarchyInherentLabel'
-        ,mDomain.DomainLabel AS 'DomainInherentLabel'
+        mDomain.DomainLabel AS 'DomainInherentLabel'
         ,mDomain.DomainCode AS 'DomainCode'
+        ,mHierarchy.HierarchyID AS 'HierarchyId'
+        ,mHierarchy.HierarchyLabel AS 'HierarchyInherentLabel'
         ,mHierarchy.HierarchyCode AS 'HierarchyCode'
         ${idLabelAggregateFragment()}
 

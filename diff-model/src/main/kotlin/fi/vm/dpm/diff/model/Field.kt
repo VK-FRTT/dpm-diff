@@ -12,13 +12,13 @@ class RecordIdentityFallbackField(
     val identityFallbacks: List<FallbackField>
 ) : Field("Row")
 
-class CorrelationKeyField(
+class KeyField(
     override val fieldName: String,
-    val correlationKeyKind: CorrelationKeyKind,
-    val correlationFallback: FallbackField?
+    val keyKind: KeyKind,
+    val keyFallback: FallbackField?
 ) : Field(fieldName) {
     fun shouldOutputRecordIdentityFallback(fieldValue: Any?): Boolean {
-        return (correlationFallback != null) && (fieldValue == null)
+        return (keyFallback != null) && (fieldValue == null)
     }
 }
 

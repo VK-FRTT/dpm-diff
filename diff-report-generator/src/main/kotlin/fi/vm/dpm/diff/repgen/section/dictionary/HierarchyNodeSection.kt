@@ -3,11 +3,10 @@ package fi.vm.dpm.diff.repgen.section.dictionary
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationKeyField
-import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -43,16 +42,16 @@ class HierarchyNodeSection(
         identityFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
-    private val hierarchyCode = CorrelationKeyField(
+    private val hierarchyCode = KeyField(
         fieldName = "HierarchyCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = hierarchyInherentLabel
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = hierarchyInherentLabel
     )
 
-    private val memberCode = CorrelationKeyField(
+    private val memberCode = KeyField(
         fieldName = "MemberCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = memberInherentLabel
+        keyKind = KeyKind.PRIMARY_KEY,
+        keyFallback = memberInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
@@ -96,7 +95,6 @@ class HierarchyNodeSection(
             NumberAwareSort(memberCode),
             FixedChangeKindSort(changeKind)
         ),
-        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
         includedChanges = ChangeKind.allValues()
     )
 

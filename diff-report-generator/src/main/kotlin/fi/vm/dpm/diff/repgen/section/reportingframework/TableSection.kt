@@ -3,11 +3,10 @@ package fi.vm.dpm.diff.repgen.section.reportingframework
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationKeyField
-import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -23,10 +22,10 @@ class TableSection(
         fieldName = "TaxonomyLabel"
     )
 
-    private val taxonomyCode = CorrelationKeyField(
+    private val taxonomyCode = KeyField(
         fieldName = "TaxonomyCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = taxonomyInherentLabel
+        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
+        keyFallback = taxonomyInherentLabel
     )
 
     private val tableId = FallbackField(
@@ -41,10 +40,10 @@ class TableSection(
         identityFallbacks = listOf(tableId, tableInherentLabel)
     )
 
-    private val tableCode = CorrelationKeyField(
+    private val tableCode = KeyField(
         fieldName = "TableCode",
-        correlationKeyKind = CorrelationKeyKind.PRIMARY_KEY,
-        correlationFallback = tableInherentLabel
+        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
+        keyFallback = tableInherentLabel
     )
 
     override val identificationLabels = idLabelFields(
@@ -76,7 +75,6 @@ class TableSection(
             NumberAwareSort(tableCode),
             FixedChangeKindSort(changeKind)
         ),
-        correlationMode = CorrelationMode.ONE_PHASE_BY_FULL_KEY,
         includedChanges = ChangeKind.allValues()
     )
 

@@ -73,7 +73,7 @@ data class SourceRecord(
             )
         )
 
-        val atoms = changeFields.filterFieldType<Field, Any?, AtomField>()
+        val atoms = changeFields.filterFieldType<AtomField, Any?>()
 
         return if (atoms.isNotEmpty()) {
             ChangeRecord(fields = changeFields)
@@ -120,7 +120,7 @@ data class SourceRecord(
 
     private fun <T> MutableMap<Field, Any?>.doTransformAtoms(transform: (AtomField, String?) -> T?) {
         val atoms = this
-            .filterFieldType<Field, Any?, AtomField>()
+            .filterFieldType<AtomField, Any?>()
             .map { (field, value) ->
                 value as String?
 
@@ -179,12 +179,12 @@ data class SourceRecord(
         fields: Map<Field, Any?>
     ): String? {
         fun outputRecordIdentityForCorrelationKeys() = fields
-            .filterFieldType<Field, Any?, CorrelationKeyField>()
+            .filterFieldType<KeyField, Any?>()
             .filter { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
             .any()
 
         fun outputRecordIdentityForIdentificationLabels() = fields
-            .filterFieldType<Field, Any?, IdentificationLabelField>()
+            .filterFieldType<IdentificationLabelField, Any?>()
             .all { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
 
         return if (outputRecordIdentityForCorrelationKeys() || outputRecordIdentityForIdentificationLabels()) {
@@ -208,7 +208,7 @@ data class SourceRecord(
     ): String? {
 
         val modifiedFieldItems = fields
-            .filterFieldType<Field, Any?, AtomField>()
+            .filterFieldType<AtomField, Any?>()
             .filter { (_, value) -> value is ModifiedChangeAtomValue }
             .map { (field, _) -> field.fieldName.replaceCamelCase() }
 

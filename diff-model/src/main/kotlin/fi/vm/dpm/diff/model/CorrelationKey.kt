@@ -2,21 +2,23 @@ package fi.vm.dpm.diff.model
 
 import ext.kotlin.filterFieldType
 
-data class CorrelationKey(
-    private val key: String,
-    private val type: Type
+class CorrelationKey private constructor(
+    private val keyValue: String,
+    private val correlationKeyType: CorrelationKeyType
 ) {
-    enum class Type(val relatedKeyKinds: List<CorrelationKeyKind>) {
+    private enum class CorrelationKeyType(val associatedKeyKinds: List<KeyKind>) {
         FULL_KEY(
             listOf(
-                CorrelationKeyKind.PRIMARY_KEY,
-                CorrelationKeyKind.SECONDARY_KEY
+                KeyKind.PRIMARY_SCOPE_KEY,
+                KeyKind.PRIMARY_KEY,
+                KeyKind.SECONDARY_KEY
             )
         ),
 
         PRIMARY_KEY(
             listOf(
-                CorrelationKeyKind.PRIMARY_KEY
+                KeyKind.PRIMARY_KEY,
+                KeyKind.PRIMARY_KEY
             )
         )
     }
@@ -24,38 +26,39 @@ data class CorrelationKey(
     companion object {
 
         fun fullKey(sourceRecord: SourceRecord): CorrelationKey {
-            return composeKey(sourceRecord.fields, Type.FULL_KEY)
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyType.FULL_KEY)
         }
 
         fun primaryKey(sourceRecord: SourceRecord): CorrelationKey {
-            return composeKey(sourceRecord.fields, Type.PRIMARY_KEY)
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyType.PRIMARY_KEY)
         }
 
-        private fun composeKey(
+        private fun createCorrelationKey(
             fields: Map<Field, String?>,
-            type: Type
+            correlationKeyType: CorrelationKeyType
         ): CorrelationKey {
 
-            val key = fields
-                .filterFieldType<Field, String?, CorrelationKeyField>()
-                .filter { (field, _) ->
-                    (field.correlationKeyKind in type.relatedKeyKinds)
-                }
+            val keyValue = fields
+                .filterFieldType<KeyField, String?>()
+                .filter { (field, _) -> field.keyKind in correlationKeyType.associatedKeyKinds }
                 .map { (field, value) ->
-                    value ?: if (field.correlationFallback != null) {
-                        fields[field.correlationFallback]
+                    value ?: if (field.keyFallback != null) {
+                        fields[field.keyFallback]
                     } else {
                         null
                     }
                 }
                 .joinToString(separator = "|")
 
-            return CorrelationKey(key, type)
+            return CorrelationKey(
+                keyValue = keyValue,
+                correlationKeyType = correlationKeyType
+            )
         }
     }
 
     override fun hashCode(): Int {
-        return key.hashCode()
+        return keyValue.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -66,8 +69,8 @@ data class CorrelationKey(
             return false
         }
 
-        check(type == other.type)
+        check(correlationKeyType == other.correlationKeyType)
 
-        return key == other.key
+        return keyValue == other.keyValue
     }
 }

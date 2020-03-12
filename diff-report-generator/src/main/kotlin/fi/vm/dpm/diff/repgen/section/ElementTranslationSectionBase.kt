@@ -4,13 +4,12 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationKeyField
-import fi.vm.dpm.diff.model.CorrelationKeyKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
 import fi.vm.dpm.diff.model.FixedTranslationRoleSort
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
@@ -20,16 +19,16 @@ open class ElementTranslationSectionBase(
 ) : ElementOverviewSectionBase(
     generationContext
 ) {
-    private val translationRole = CorrelationKeyField(
+    private val translationRole = KeyField(
         fieldName = "TranslationRole",
-        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY,
-        correlationFallback = null
+        keyKind = KeyKind.SECONDARY_KEY,
+        keyFallback = null
     )
 
-    private val translationLanguage = CorrelationKeyField(
+    private val translationLanguage = KeyField(
         fieldName = "Language",
-        correlationKeyKind = CorrelationKeyKind.SECONDARY_KEY,
-        correlationFallback = null
+        keyKind = KeyKind.SECONDARY_KEY,
+        keyFallback = null
     )
 
     private val translation = AtomField(
@@ -70,7 +69,6 @@ open class ElementTranslationSectionBase(
                 NumberAwareSort(translationLanguage),
                 FixedChangeKindSort(changeKind)
             ),
-            correlationMode = CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
             includedChanges = ChangeKind.allValues()
         )
     }

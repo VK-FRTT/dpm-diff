@@ -3,7 +3,6 @@ package fi.vm.dpm.diff.repgen.section
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.ChangeRecord
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.IdentificationLabelField
 import fi.vm.dpm.diff.model.NoteField
@@ -37,7 +36,6 @@ open class SectionBase(
         sectionDescription = "",
         sectionFields = emptyList(),
         sectionSortOrder = emptyList(),
-        correlationMode = CorrelationMode.UNINITIALIZED,
         includedChanges = emptySet()
     )
 

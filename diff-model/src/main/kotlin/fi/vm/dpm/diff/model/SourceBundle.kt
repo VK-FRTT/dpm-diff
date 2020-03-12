@@ -1,9 +1,27 @@
 package fi.vm.dpm.diff.model
 
+import ext.kotlin.filterFieldType
+
 class SourceBundle(
     private val sectionDescriptor: SectionDescriptor,
     private val sourceRecords: List<SourceRecord>
 ) {
+    private enum class CorrelationMode {
+        SINGLE_PHASE_BY_FULL_KEY,
+        TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
+    }
+
+    private val correlationMode: CorrelationMode by lazy {
+        if (sectionDescriptor.sectionFields
+                .filterFieldType<KeyField>()
+                .any { it.keyKind == KeyKind.SECONDARY_KEY }
+        ) {
+            CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY
+        } else {
+            CorrelationMode.SINGLE_PHASE_BY_FULL_KEY
+        }
+    }
+
     private val allCandidates: Map<CorrelationKey, SourceRecord> by lazy {
         sourceRecords
             .groupBy { record -> record.fullKey }
@@ -57,9 +75,8 @@ class SourceBundle(
     }
 
     private fun correlationCandidatesForPivotRecord(pivotRecord: SourceRecord): Map<CorrelationKey, SourceRecord>? {
-        return when (sectionDescriptor.correlationMode) {
-            CorrelationMode.UNINITIALIZED -> thisShouldNeverHappen("Uninitialized correlation mode")
-            CorrelationMode.ONE_PHASE_BY_FULL_KEY -> allCandidates
+        return when (correlationMode) {
+            CorrelationMode.SINGLE_PHASE_BY_FULL_KEY -> allCandidates
             CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY -> candidatesByPrimaryKey[pivotRecord.primaryKey]
         }
     }

@@ -157,7 +157,7 @@ class SpreadsheetOutput(
 
                 is RecordIdentityFallbackField -> null
 
-                is CorrelationKeyField ->
+                is KeyField ->
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
