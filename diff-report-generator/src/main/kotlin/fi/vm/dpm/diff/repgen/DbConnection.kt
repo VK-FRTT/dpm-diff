@@ -5,6 +5,7 @@ import java.io.Closeable
 import java.nio.file.Path
 import java.sql.DriverManager
 import java.sql.ResultSet
+import org.sqlite.SQLiteException
 
 class DbConnection(
     val dbPath: Path,
@@ -24,7 +25,15 @@ class DbConnection(
         diagnostic.debug("DB query:[\n${query.prependIndent()}\n]")
 
         return connection.createStatement().use { statement ->
-            val rs = statement.executeQuery(query)
+            val rs = try {
+                statement.executeQuery(query)
+            } catch (exception: SQLiteException) {
+                val messageTitle = "DB query failure:"
+
+                diagnostic.debug("$messageTitle\n${exception.stackTrace.joinToString(separator = "\n")}")
+                diagnostic.fatal("$messageTitle ${exception.message}")
+            }
+
             action(rs)
         }
     }
