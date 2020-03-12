@@ -10,7 +10,7 @@ import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
 import fi.vm.dpm.diff.model.NumberAwareSort
-import fi.vm.dpm.diff.model.RowIdentityFallbackField
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 
@@ -27,8 +27,8 @@ open class ElementOverviewSectionBase(
         fieldName = "ElementLabel"
     )
 
-    protected val rowIdentityFallback = RowIdentityFallbackField(
-        rowIdentityFallbacks = listOf(elementId, elementInherentLabel)
+    protected val recordIdentityFallback = RecordIdentityFallbackField(
+        identityFallbacks = listOf(elementId, elementInherentLabel)
     )
 
     protected val parentElementType = CorrelationKeyField(
@@ -71,7 +71,7 @@ open class ElementOverviewSectionBase(
             sectionFields = listOf(
                 elementId,
                 elementInherentLabel,
-                rowIdentityFallback,
+                recordIdentityFallback,
                 parentElementType,
                 parentElementCode,
                 elementType,

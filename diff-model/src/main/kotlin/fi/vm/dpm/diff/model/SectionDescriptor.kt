@@ -32,7 +32,7 @@ data class SectionDescriptor(
 
             // Field amounts per field kind
             check(filterFieldType<Field, FallbackField>().size >= 0)
-            check(filterFieldType<Field, RowIdentityFallbackField>().size == 1)
+            check(filterFieldType<Field, RecordIdentityFallbackField>().size == 1)
             check(filterFieldType<Field, CorrelationKeyField>().size >= 1)
             check(filterFieldType<Field, IdentificationLabelField>().size >= 1)
             check(filterFieldType<Field, ChangeKindField>().size == 1)

@@ -23,7 +23,7 @@ data class SourceRecord(
         changeFields.transformAtomsToAddedChange()
         changeFields.setChangeKind(ChangeKind.ADDED)
         changeFields.setNoteWithDetails(
-            rowIdentificationDetail = true
+            recordIdentificationDetail = true
         )
 
         changeFields.discardFields(
@@ -42,7 +42,7 @@ data class SourceRecord(
 
         changeFields.setChangeKind(ChangeKind.DELETED)
         changeFields.setNoteWithDetails(
-            rowIdentificationDetail = true
+            recordIdentificationDetail = true
         )
 
         changeFields.discardFields(
@@ -63,7 +63,7 @@ data class SourceRecord(
         changeFields.transformAtomsToModifiedChange(baselineRecord.fields)
         changeFields.setChangeKind(ChangeKind.MODIFIED)
         changeFields.setNoteWithDetails(
-            rowIdentificationDetail = true,
+            recordIdentificationDetail = true,
             modifiedChangeAtomFieldDetail = true
         )
 
@@ -142,13 +142,13 @@ data class SourceRecord(
     }
 
     private fun MutableMap<Field, Any?>.setNoteWithDetails(
-        rowIdentificationDetail: Boolean = false,
+        recordIdentificationDetail: Boolean = false,
         modifiedChangeAtomFieldDetail: Boolean = false
     ) {
         val details = listOf(
             {
-                if (rowIdentificationDetail) {
-                    rowIdentificationNoteDetail(this)
+                if (recordIdentificationDetail) {
+                    recordIdentificationDetail(this)
                 } else {
                     null
                 }
@@ -175,28 +175,28 @@ data class SourceRecord(
         discard.forEach { remove(it) }
     }
 
-    private fun rowIdentificationNoteDetail(
+    private fun recordIdentificationDetail(
         fields: Map<Field, Any?>
     ): String? {
-        fun outputRowIdentityForCorrelationKeys() = fields
+        fun outputRecordIdentityForCorrelationKeys() = fields
             .filterFieldType<Field, Any?, CorrelationKeyField>()
-            .filter { (field, value) -> field.shouldOutputRowIdentityFallback(value) }
+            .filter { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
             .any()
 
-        fun outputRowIdentityForIdentificationLabels() = fields
+        fun outputRecordIdentityForIdentificationLabels() = fields
             .filterFieldType<Field, Any?, IdentificationLabelField>()
-            .all { (field, value) -> field.shouldOutputRowIdentityFallback(value) }
+            .all { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
 
-        return if (outputRowIdentityForCorrelationKeys() || outputRowIdentityForIdentificationLabels()) {
+        return if (outputRecordIdentityForCorrelationKeys() || outputRecordIdentityForIdentificationLabels()) {
 
-            val rowIdentityFallbackField = knownFieldOfType<RowIdentityFallbackField>()
-            val rowIdentityFallbackLabels = rowIdentityFallbackField
-                .rowIdentityFallbacks
+            val identityFallbackField = knownFieldOfType<RecordIdentityFallbackField>()
+            val identityFallbackItems = identityFallbackField
+                .identityFallbacks
                 .map { fallbackField -> "${fallbackField.fieldName.replaceCamelCase()}: ${fields[fallbackField]}" }
 
             layoutNoteDetail(
-                detailTitle = "$sourceKind ${rowIdentityFallbackField.fieldName.replaceCamelCase().toUpperCase()}",
-                detailLabels = rowIdentityFallbackLabels
+                detailTitle = "$sourceKind ${identityFallbackField.fieldName.replaceCamelCase().toUpperCase()}",
+                detailItems = identityFallbackItems
             )
         } else {
             null
@@ -207,23 +207,23 @@ data class SourceRecord(
         fields: Map<Field, Any?>
     ): String? {
 
-        val modifiedFieldLabels = fields
+        val modifiedFieldItems = fields
             .filterFieldType<Field, Any?, AtomField>()
             .filter { (_, value) -> value is ModifiedChangeAtomValue }
             .map { (field, _) -> field.fieldName.replaceCamelCase() }
 
         return layoutNoteDetail(
             detailTitle = "MODIFIED",
-            detailLabels = modifiedFieldLabels
+            detailItems = modifiedFieldItems
         )
     }
 
     private fun layoutNoteDetail(
         detailTitle: String,
-        detailLabels: List<String>
+        detailItems: List<String>
     ): String? {
-        if (detailLabels.isEmpty()) return null
-        val labelPrefix = "\n- "
-        return "$detailTitle:${detailLabels.joinToString(prefix = labelPrefix, separator = labelPrefix)}"
+        if (detailItems.isEmpty()) return null
+        val itemPrefix = "\n- "
+        return "$detailTitle:${detailItems.joinToString(prefix = itemPrefix, separator = itemPrefix)}"
     }
 }

@@ -9,7 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
-import fi.vm.dpm.diff.model.RowIdentityFallbackField
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -47,8 +47,8 @@ class TableAxisSection(
         fieldName = "AxisLabel"
     )
 
-    private val rowIdentityFallback = RowIdentityFallbackField(
-        rowIdentityFallbacks = listOf(axisId, axisInherentLabel)
+    private val recordIdentityFallback = RecordIdentityFallbackField(
+        identityFallbacks = listOf(axisId, axisInherentLabel)
     )
 
     private val axisOrientation = CorrelationKeyField(
@@ -76,7 +76,7 @@ class TableAxisSection(
             tableCode,
             axisId,
             axisInherentLabel,
-            rowIdentityFallback,
+            recordIdentityFallback,
             axisOrientation,
             *identificationLabels,
             changeKind,

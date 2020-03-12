@@ -49,7 +49,7 @@ open class ElementTranslationSectionBase(
             sectionFields = listOf(
                 elementId,
                 elementInherentLabel,
-                rowIdentityFallback,
+                recordIdentityFallback,
                 parentElementType,
                 parentElementCode,
                 elementType,

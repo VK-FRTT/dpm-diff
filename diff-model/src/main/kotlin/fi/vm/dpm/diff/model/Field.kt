@@ -8,8 +8,8 @@ class FallbackField(
     override val fieldName: String
 ) : Field(fieldName)
 
-class RowIdentityFallbackField(
-    val rowIdentityFallbacks: List<FallbackField>
+class RecordIdentityFallbackField(
+    val identityFallbacks: List<FallbackField>
 ) : Field("Row")
 
 class CorrelationKeyField(
@@ -17,7 +17,7 @@ class CorrelationKeyField(
     val correlationKeyKind: CorrelationKeyKind,
     val correlationFallback: FallbackField?
 ) : Field(fieldName) {
-    fun shouldOutputRowIdentityFallback(fieldValue: Any?): Boolean {
+    fun shouldOutputRecordIdentityFallback(fieldValue: Any?): Boolean {
         return (correlationFallback != null) && (fieldValue == null)
     }
 }
@@ -25,7 +25,7 @@ class CorrelationKeyField(
 class IdentificationLabelField(
     override val fieldName: String
 ) : Field(fieldName) {
-    fun shouldOutputRowIdentityFallback(fieldValue: Any?): Boolean {
+    fun shouldOutputRecordIdentityFallback(fieldValue: Any?): Boolean {
         return (fieldValue == null) || (fieldValue.toString().isBlank())
     }
 }

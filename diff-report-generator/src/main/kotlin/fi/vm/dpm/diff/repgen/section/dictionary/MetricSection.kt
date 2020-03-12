@@ -9,7 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
-import fi.vm.dpm.diff.model.RowIdentityFallbackField
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -31,8 +31,8 @@ class MetricSection(
         fieldName = "MetricLabel"
     )
 
-    private val rowIdentityFallback = RowIdentityFallbackField(
-        rowIdentityFallbacks = listOf(metricId, metricInherentLabel)
+    private val recordIdentityFallback = RecordIdentityFallbackField(
+        identityFallbacks = listOf(metricId, metricInherentLabel)
     )
 
     private val domainCode = CorrelationKeyField(
@@ -83,7 +83,7 @@ class MetricSection(
             domainInherentLabel,
             metricId,
             metricInherentLabel,
-            rowIdentityFallback,
+            recordIdentityFallback,
             domainCode,
             metricCode,
             *identificationLabels,

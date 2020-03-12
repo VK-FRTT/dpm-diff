@@ -9,7 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
-import fi.vm.dpm.diff.model.RowIdentityFallbackField
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -27,8 +27,8 @@ class DimensionSection(
         fieldName = "DimensionLabel"
     )
 
-    private val rowIdentityFallback = RowIdentityFallbackField(
-        rowIdentityFallbacks = listOf(dimensionId, dimensionInherentLabel)
+    private val recordIdentityFallback = RecordIdentityFallbackField(
+        identityFallbacks = listOf(dimensionId, dimensionInherentLabel)
     )
 
     private val dimensionCode = CorrelationKeyField(
@@ -56,7 +56,7 @@ class DimensionSection(
         sectionFields = listOf(
             dimensionId,
             dimensionInherentLabel,
-            rowIdentityFallback,
+            recordIdentityFallback,
             dimensionCode,
             *identificationLabels,
             changeKind,

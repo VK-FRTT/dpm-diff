@@ -9,7 +9,7 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.NumberAwareSort
-import fi.vm.dpm.diff.model.RowIdentityFallbackField
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
@@ -37,8 +37,8 @@ class TableSection(
         fieldName = "TableLabel"
     )
 
-    private val rowIdentityFallback = RowIdentityFallbackField(
-        rowIdentityFallbacks = listOf(tableId, tableInherentLabel)
+    private val recordIdentityFallback = RecordIdentityFallbackField(
+        identityFallbacks = listOf(tableId, tableInherentLabel)
     )
 
     private val tableCode = CorrelationKeyField(
@@ -64,7 +64,7 @@ class TableSection(
             taxonomyCode,
             tableId,
             tableInherentLabel,
-            rowIdentityFallback,
+            recordIdentityFallback,
             tableCode,
             *identificationLabels,
             changeKind,

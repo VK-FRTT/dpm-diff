@@ -155,7 +155,7 @@ class SpreadsheetOutput(
 
                 is FallbackField -> null
 
-                is RowIdentityFallbackField -> null
+                is RecordIdentityFallbackField -> null
 
                 is CorrelationKeyField ->
                     ColumnDescriptor(
