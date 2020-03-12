@@ -14,6 +14,8 @@ import fi.vm.dpm.diff.repgen.section.dictionary.MemberSection
 import fi.vm.dpm.diff.repgen.section.dictionary.MetricSection
 import fi.vm.dpm.diff.repgen.section.reportingframework.ReportingFrameworkOverviewSection
 import fi.vm.dpm.diff.repgen.section.reportingframework.ReportingFrameworkTranslationSection
+import fi.vm.dpm.diff.repgen.section.reportingframework.TableAxisSection
+import fi.vm.dpm.diff.repgen.section.reportingframework.TableSection
 import java.io.Closeable
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -64,7 +66,9 @@ class DpmDiffReportGenerator(
 
         val reportingFrameworkSections = listOf(
             ReportingFrameworkOverviewSection(generationContext),
-            ReportingFrameworkTranslationSection(generationContext)
+            ReportingFrameworkTranslationSection(generationContext),
+            TableSection(generationContext),
+            TableAxisSection(generationContext)
         )
 
         val generatedSections = (dictionarySections + reportingFrameworkSections).map { it.generateSection() }
