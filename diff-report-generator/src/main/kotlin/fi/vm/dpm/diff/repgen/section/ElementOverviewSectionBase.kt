@@ -32,13 +32,13 @@ open class ElementOverviewSectionBase(
 
     protected val parentElementType = KeyField(
         fieldName = "ParentElementType",
-        keyKind = KeyKind.PRIMARY_KEY,
+        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
         keyFallback = null
     )
 
     protected val parentElementCode = KeyField(
         fieldName = "ParentElementCode",
-        keyKind = KeyKind.PRIMARY_KEY,
+        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
         keyFallback = null
     )
 
