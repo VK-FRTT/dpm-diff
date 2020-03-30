@@ -120,7 +120,7 @@ class TableAxisSection(
         LEFT JOIN mTable ON mTable.TableID = mTableAxis.TableID
         LEFT JOIN mTaxonomyTable ON mTaxonomyTable.TableID = mTable.TableID
         LEFT JOIN mTaxonomy ON mTaxonomy.TaxonomyID = mTaxonomyTable.TaxonomyID
-        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mTable.ConceptID
+        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mAxis.ConceptID
         LEFT JOIN mLanguage ON mConceptTranslation.LanguageID = mLanguage.LanguageID
 
         WHERE
