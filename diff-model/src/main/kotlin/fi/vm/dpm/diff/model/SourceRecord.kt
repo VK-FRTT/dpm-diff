@@ -82,10 +82,17 @@ data class SourceRecord(
         }
     }
 
-    private inline fun <reified FT : Field> knownFieldOfType(): FT {
+    private inline fun <reified FT : Field> optionalFieldOfType(): FT? {
         val classCriteria = FT::class
 
-        return sectionDescriptor.sectionFields.filter { it::class == classCriteria }.first() as FT
+        val fields = sectionDescriptor.sectionFields.filter { it::class == classCriteria }
+
+        if (fields.isEmpty()) return null
+        return fields.first() as FT
+    }
+
+    private inline fun <reified FT : Field> requiredFieldOfType(): FT {
+        return optionalFieldOfType() ?: thisShouldNeverHappen("No field with type: ${FT::class.simpleName}")
     }
 
     private fun MutableMap<Field, Any?>.transformAtomsToAddedChange() {
@@ -137,7 +144,7 @@ data class SourceRecord(
     private fun MutableMap<Field, Any?>.setChangeKind(
         changeKind: ChangeKind
     ) {
-        val changeKindField = knownFieldOfType<ChangeKindField>()
+        val changeKindField = requiredFieldOfType<ChangeKindField>()
         this[changeKindField] = changeKind
     }
 
@@ -164,7 +171,7 @@ data class SourceRecord(
 
         if (details.isEmpty()) return
 
-        val noteField = knownFieldOfType<NoteField>()
+        val noteField = requiredFieldOfType<NoteField>()
         val noteValue = details.joinToString(separator = "\n\n")
 
         this[noteField] = noteValue
@@ -178,18 +185,21 @@ data class SourceRecord(
     private fun recordIdentificationDetail(
         fields: Map<Field, Any?>
     ): String? {
-        fun outputRecordIdentityForCorrelationKeys() = fields
+        fun shouldOutputRecordIdentityFallbackForCorrelationKeys() = fields
             .filterFieldType<KeyField, Any?>()
             .filter { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
             .any()
 
-        fun outputRecordIdentityForIdentificationLabels() = fields
+        fun shouldOutputRecordIdentityFallbackForIdentificationLabels() = fields
             .filterFieldType<IdentificationLabelField, Any?>()
             .all { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
 
-        return if (outputRecordIdentityForCorrelationKeys() || outputRecordIdentityForIdentificationLabels()) {
+        val identityFallbackField = optionalFieldOfType<RecordIdentityFallbackField>() ?: return null
 
-            val identityFallbackField = knownFieldOfType<RecordIdentityFallbackField>()
+        return if (
+            shouldOutputRecordIdentityFallbackForCorrelationKeys() ||
+            shouldOutputRecordIdentityFallbackForIdentificationLabels()
+        ) {
             val identityFallbackItems = identityFallbackField
                 .identityFallbacks
                 .map { fallbackField -> "${fallbackField.fieldName.replaceCamelCase()}: ${fields[fallbackField]}" }
