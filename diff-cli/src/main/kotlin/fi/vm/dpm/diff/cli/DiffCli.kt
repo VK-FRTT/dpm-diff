@@ -3,6 +3,7 @@ package fi.vm.dpm.diff.cli
 import fi.vm.dpm.diff.model.DpmDiffReportGenerator
 import fi.vm.dpm.diff.model.FailException
 import fi.vm.dpm.diff.model.HaltException
+import fi.vm.dpm.diff.model.ReportGenerator
 import fi.vm.dpm.diff.model.SpreadsheetOutput
 import fi.vm.dpm.diff.model.throwHalt
 import java.io.BufferedWriter
@@ -74,9 +75,18 @@ internal class DiffCli(
 
     private fun executeDpmDiffReport(diffParams: DpmDiffReportParams) {
 
+        val version = DiffCliVersion.resolveVersion()
+
+        val reportGenerator = ReportGenerator(
+            title = DPM_DIFF_TITLE,
+            revision = version.buildRevision,
+            originUrl = version.originUrl
+        )
+
         val report = DpmDiffReportGenerator(
             baselineDpmDbPath = diffParams.baselineDpmDbPath,
             currentDpmDbPath = diffParams.currentDpmDbPath,
+            reportGenerator = reportGenerator,
             diagnostic = diagnostic
         ).use { generator ->
             generator.generateReport()

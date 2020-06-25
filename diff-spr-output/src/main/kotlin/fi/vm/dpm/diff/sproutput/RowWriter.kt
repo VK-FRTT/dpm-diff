@@ -1,7 +1,8 @@
 package fi.vm.dpm.diff.sproutput
 
+import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.ss.usermodel.CellStyle
-import org.apache.poi.ss.usermodel.Hyperlink
+import org.apache.poi.ss.usermodel.CreationHelper
 import org.apache.poi.xssf.streaming.SXSSFCell
 import org.apache.poi.xssf.streaming.SXSSFRow
 
@@ -22,10 +23,15 @@ class RowWriter(
     }
 
     fun addLinkCell(
-        value: String?,
-        link: Hyperlink,
-        style: CellStyle
+        value: String,
+        style: CellStyle,
+        linkAddress: String,
+        linkType: HyperlinkType,
+        creationHelper: CreationHelper
     ): SXSSFCell {
+        val link = creationHelper.createHyperlink(linkType)
+        link.address = linkAddress
+
         val cell = addCell()
         cell.setCellValue(value)
         cell.hyperlink = link

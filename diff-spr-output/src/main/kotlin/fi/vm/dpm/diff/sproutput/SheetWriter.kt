@@ -11,6 +11,12 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook
 class SheetWriter(
     private val sheet: SXSSFSheet
 ) {
+    data class Link(
+        val linkTitle: String,
+        val linkAddress: String,
+        val linkType: HyperlinkType
+    )
+
     companion object {
         fun createToWorkbook(sheetName: String, workbook: SXSSFWorkbook): SheetWriter {
             val sheet = workbook.createSheet()
@@ -77,22 +83,27 @@ class SheetWriter(
         }
     }
 
-    fun addLinkToSheetRow(
-        linkTitle: String,
-        linkAddress: String,
-        linkStyle: CellStyle,
+    fun addLinkRow(
         cellStyle: CellStyle,
-        vararg cellValues: String?
+        linkStyle: CellStyle,
+        vararg cellValues: Any
     ) {
         val row = addRow()
 
-        val link = sheet.workbook.creationHelper.createHyperlink(HyperlinkType.DOCUMENT)
-        link.address = linkAddress
-
-        row.addLinkCell(linkTitle, link, linkStyle)
-
         cellValues.forEach { cellValue ->
-            row.addCell(cellValue, cellStyle)
+            if (cellValue is Link) {
+                row.addLinkCell(
+                    cellValue.linkTitle,
+                    linkStyle,
+                    cellValue.linkAddress,
+                    cellValue.linkType,
+                    sheet.workbook.creationHelper
+                )
+            }
+
+            if (cellValue is String) {
+                row.addCell(cellValue, cellStyle)
+            }
         }
     }
 

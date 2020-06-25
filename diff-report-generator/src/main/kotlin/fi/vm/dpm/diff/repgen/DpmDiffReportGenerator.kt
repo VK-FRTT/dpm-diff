@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter
 class DpmDiffReportGenerator(
     private val baselineDpmDbPath: Path,
     private val currentDpmDbPath: Path,
+    private val reportGenerator: ReportGenerator,
     private val diagnostic: Diagnostic
 ) : Closeable {
 
@@ -77,7 +78,8 @@ class DpmDiffReportGenerator(
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
             currentDpmDbFileName = currentDpmDbPath.fileName.toString(),
-            sections = generatedSections
+            sections = generatedSections,
+            reportGenerator = reportGenerator
         )
     }
 }

@@ -44,13 +44,31 @@ def lookupGitShortHash = { ->
 }
 
 
+def lookupGitOriginUrl = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'config', '--get', 'remote.origin.url'
+        standardOutput = stdout
+    }
+    def originUrl = stdout.toString().trim()
+
+    try {
+        new URI(originUrl)
+    } catch (URISyntaxException ex) {
+        throw new IllegalArgumentException("GIT origin URL ($originUrl) not a valid JAVA URI (perhaps it is a SSH URL)")
+    }
+
+    return originUrl
+}
+
+
 jar {
     manifest {
         attributes(
                 'Main-Class'            : 'fi.vm.dpm.diff.cli.MainKt',
-                'Implementation-Version': "0.1.0-SNAPSHOT",
                 'Build-Timestamp'       : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now()),
                 'Build-Revision'        : lookupGitShortHash(),
+                'Build-OriginUrl'       : lookupGitOriginUrl(),
                 'Build-Jdk'             : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
                 'Build-OS'              : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}",
         )

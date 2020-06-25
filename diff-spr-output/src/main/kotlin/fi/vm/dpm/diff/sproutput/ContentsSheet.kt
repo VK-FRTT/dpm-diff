@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.sproutput
 
 import fi.vm.dpm.diff.model.ChangeReport
+import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
 object ContentsSheet {
@@ -10,6 +11,10 @@ object ContentsSheet {
         cellStyles: CellStyles,
         changeReport: ChangeReport
     ) {
+        val generatorInfo = with(changeReport.reportGenerator) {
+            "$title ($revision @ $originUrl)"
+        }
+
         val sw = SheetWriter.createToWorkbook("Contents", workbook)
         sw.trackColumnForAutoSizing(3)
 
@@ -19,6 +24,7 @@ object ContentsSheet {
         sw.addRow(cellStyles.contentStyleNormal, "Created at", changeReport.createdAt)
         sw.addRow(cellStyles.contentStyleNormal, "Baseline database", changeReport.baselineDpmDbFileName)
         sw.addRow(cellStyles.contentStyleNormal, "Current database", changeReport.currentDpmDbFileName)
+        sw.addRow(cellStyles.contentStyleNormal, "Generated with", generatorInfo)
         sw.addEmptyRows(3)
 
         sw.addRow(cellStyles.headerStyleNormal, "Sheet", "Description", "Change count")
@@ -30,11 +36,14 @@ object ContentsSheet {
                 section.sectionDescriptor
             )
 
-            sw.addLinkToSheetRow(
-                section.sectionDescriptor.sectionTitle,
-                "'$sheetName'!A1",
-                cellStyles.contentStyleNormalLink,
+            sw.addLinkRow(
                 cellStyles.contentStyleNormal,
+                cellStyles.contentStyleNormalLink,
+                SheetWriter.Link(
+                    linkTitle = section.sectionDescriptor.sectionTitle,
+                    linkAddress = "'$sheetName'!A1",
+                    linkType = HyperlinkType.DOCUMENT
+                ),
                 section.sectionDescriptor.sectionDescription,
                 section.changes.size.toString()
             )

@@ -7,22 +7,22 @@ import java.util.jar.Manifest
 object DiffCliVersion {
 
     data class VersionInfo(
-        val version: String,
         val buildTime: String,
-        val buildRevision: String
+        val buildRevision: String,
+        val originUrl: String
     )
 
     fun printVersion(outWriter: PrintWriter) {
         val version = resolveVersion()
 
         outWriter.println()
-        outWriter.println("Version:      ${version.version}")
         outWriter.println("Build time:   ${version.buildTime}")
         outWriter.println("Revision:     ${version.buildRevision}")
+        outWriter.println("Origin URL:   ${version.originUrl}")
         outWriter.println()
     }
 
-    private fun resolveVersion(): VersionInfo {
+    fun resolveVersion(): VersionInfo {
         val classPath = javaClass.getResource(javaClass.simpleName + ".class").toString()
 
         return if (classPath.startsWith("jar:file:")) {
@@ -33,16 +33,16 @@ object DiffCliVersion {
                 val manifestAttributes = Manifest(it).mainAttributes
 
                 VersionInfo(
-                    version = manifestAttributes.getValue("Implementation-Version"),
                     buildTime = manifestAttributes.getValue("Build-Timestamp"),
-                    buildRevision = manifestAttributes.getValue("Build-Revision")
+                    buildRevision = manifestAttributes.getValue("Build-Revision"),
+                    originUrl = manifestAttributes.getValue("Build-OriginUrl")
                 )
             }
         } else {
             VersionInfo(
-                version = "0.0.0-DEV",
-                buildTime = "-",
-                buildRevision = "-"
+                buildTime = "dev-build-time",
+                buildRevision = "dev-revision",
+                originUrl = "dev-origin"
             )
         }
     }
