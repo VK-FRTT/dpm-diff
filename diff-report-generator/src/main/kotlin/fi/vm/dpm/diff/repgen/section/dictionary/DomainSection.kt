@@ -5,8 +5,8 @@ import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -30,10 +30,10 @@ class DomainSection(
         identityFallbacks = listOf(domainId, domainInherentLabel)
     )
 
-    private val domainCode = KeyField(
+    private val domainCode = KeySegmentField(
         fieldName = "DomainCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = domainInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = domainInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

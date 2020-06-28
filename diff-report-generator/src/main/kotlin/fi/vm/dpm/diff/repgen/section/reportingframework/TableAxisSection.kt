@@ -5,8 +5,8 @@ import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -22,20 +22,20 @@ class TableAxisSection(
         fieldName = "TaxonomyLabel"
     )
 
-    private val taxonomyCode = KeyField(
+    private val taxonomyCode = KeySegmentField(
         fieldName = "TaxonomyCode",
-        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
-        keyFallback = taxonomyInherentLabel
+        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentFallback = taxonomyInherentLabel
     )
 
     private val tableInherentLabel = FallbackField(
         fieldName = "TableLabel"
     )
 
-    private val tableCode = KeyField(
+    private val tableCode = KeySegmentField(
         fieldName = "TableCode",
-        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
-        keyFallback = tableInherentLabel
+        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentFallback = tableInherentLabel
     )
 
     private val axisId = FallbackField(
@@ -50,10 +50,10 @@ class TableAxisSection(
         identityFallbacks = listOf(axisId, axisInherentLabel)
     )
 
-    private val axisOrientation = KeyField(
+    private val axisOrientation = KeySegmentField(
         fieldName = "AxisOrientation",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = axisInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = axisInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

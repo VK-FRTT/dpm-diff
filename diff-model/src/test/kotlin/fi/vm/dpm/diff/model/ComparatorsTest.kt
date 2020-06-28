@@ -1,6 +1,8 @@
-package fi.vm.dpm.diff.model.comparators
+package fi.vm.dpm.diff.model
 
-import fi.vm.dpm.diff.model.thisShouldNeverHappen
+import fi.vm.dpm.diff.model.comparators.FixedOrderComparator
+import fi.vm.dpm.diff.model.comparators.NullsFirstComparator
+import fi.vm.dpm.diff.model.comparators.NumberAwareStringComparator
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.DisplayName

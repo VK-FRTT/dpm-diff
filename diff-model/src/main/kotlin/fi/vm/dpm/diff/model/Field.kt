@@ -12,13 +12,13 @@ class RecordIdentityFallbackField(
     val identityFallbacks: List<FallbackField>
 ) : Field("Row")
 
-class KeyField(
+class KeySegmentField(
     override val fieldName: String,
-    val keyKind: KeyKind,
-    val keyFallback: FallbackField?
+    val segmentKind: KeySegmentKind,
+    val segmentFallback: FallbackField?
 ) : Field(fieldName) {
     fun shouldOutputRecordIdentityFallback(fieldValue: Any?): Boolean {
-        return (keyFallback != null) && (fieldValue == null)
+        return (segmentFallback != null) && (fieldValue == null)
     }
 }
 

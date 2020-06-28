@@ -5,8 +5,8 @@ import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -30,10 +30,10 @@ class DimensionSection(
         identityFallbacks = listOf(dimensionId, dimensionInherentLabel)
     )
 
-    private val dimensionCode = KeyField(
+    private val dimensionCode = KeySegmentField(
         fieldName = "DimensionCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = dimensionInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = dimensionInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

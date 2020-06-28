@@ -8,8 +8,8 @@ import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
 import fi.vm.dpm.diff.model.FixedTranslationRoleSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
@@ -19,16 +19,16 @@ open class ElementTranslationSectionBase(
 ) : ElementOverviewSectionBase(
     generationContext
 ) {
-    private val translationRole = KeyField(
+    private val translationRole = KeySegmentField(
         fieldName = "TranslationRole",
-        keyKind = KeyKind.SECONDARY_KEY,
-        keyFallback = null
+        segmentKind = KeySegmentKind.SUB_OBJECT_SEGMENT,
+        segmentFallback = null
     )
 
-    private val translationLanguage = KeyField(
+    private val translationLanguage = KeySegmentField(
         fieldName = "Language",
-        keyKind = KeyKind.SECONDARY_KEY,
-        keyFallback = null
+        segmentKind = KeySegmentKind.SUB_OBJECT_SEGMENT,
+        segmentFallback = null
     )
 
     private val translation = AtomField(

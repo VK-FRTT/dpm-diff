@@ -2,23 +2,23 @@ package fi.vm.dpm.diff.model
 
 import ext.kotlin.filterFieldType
 
-class CorrelationKey private constructor(
+data class CorrelationKey private constructor(
     private val keyValue: String,
-    private val correlationKeyType: CorrelationKeyType
+    private val correlationKeyKind: CorrelationKeyKind
 ) {
-    private enum class CorrelationKeyType(val associatedKeyKinds: List<KeyKind>) {
-        FULL_KEY(
+    private enum class CorrelationKeyKind(val associatedSegmentKinds: List<KeySegmentKind>) {
+        FULL_CORRELATION_KEY(
             listOf(
-                KeyKind.PRIMARY_SCOPE_KEY,
-                KeyKind.PRIMARY_KEY,
-                KeyKind.SECONDARY_KEY
+                KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+                KeySegmentKind.TOP_LEVEL_SEGMENT,
+                KeySegmentKind.SUB_OBJECT_SEGMENT
             )
         ),
 
-        PRIMARY_KEY(
+        TOP_LEVEL_CORRELATION_KEY(
             listOf(
-                KeyKind.PRIMARY_KEY,
-                KeyKind.PRIMARY_KEY
+                KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+                KeySegmentKind.TOP_LEVEL_SEGMENT
             )
         )
     }
@@ -26,36 +26,46 @@ class CorrelationKey private constructor(
     companion object {
 
         fun fullKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyType.FULL_KEY)
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.FULL_CORRELATION_KEY)
         }
 
-        fun primaryKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyType.PRIMARY_KEY)
+        fun fullKey(fields: Map<Field, Any?>): CorrelationKey {
+            return createCorrelationKey(fields, CorrelationKeyKind.FULL_CORRELATION_KEY)
+        }
+
+        fun topLevelKey(sourceRecord: SourceRecord): CorrelationKey {
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.TOP_LEVEL_CORRELATION_KEY)
         }
 
         private fun createCorrelationKey(
-            fields: Map<Field, String?>,
-            correlationKeyType: CorrelationKeyType
+            fields: Map<Field, Any?>,
+            correlationKeyKind: CorrelationKeyKind
         ): CorrelationKey {
+            val keyFields = fields.filterFieldType<KeySegmentField, Any?>()
 
-            val keyValue = fields
-                .filterFieldType<KeyField, String?>()
-                .filter { (field, _) -> field.keyKind in correlationKeyType.associatedKeyKinds }
-                .map { (field, value) ->
-                    value ?: if (field.keyFallback != null) {
-                        fields[field.keyFallback]
-                    } else {
-                        null
-                    }
-                }
-                .joinToString(separator = "|")
+            val keyValue = correlationKeyKind
+                .associatedSegmentKinds
+                .map { segmentKind ->
+                    keyFields
+                        .filter { (field, _) -> field.segmentKind == segmentKind }
+                        .map { (field, value) ->
+                            value ?: if (field.segmentFallback != null) {
+                                fields[field.segmentFallback]
+                            } else {
+                                null
+                            }
+                        }
+                        .joinToString(separator = "/")
+                }.joinToString(":")
 
             return CorrelationKey(
                 keyValue = keyValue,
-                correlationKeyType = correlationKeyType
+                correlationKeyKind = correlationKeyKind
             )
         }
     }
+
+    fun keyValue() = keyValue
 
     override fun hashCode(): Int {
         return keyValue.hashCode()
@@ -69,7 +79,7 @@ class CorrelationKey private constructor(
             return false
         }
 
-        check(correlationKeyType == other.correlationKeyType)
+        check(correlationKeyKind == other.correlationKeyKind)
 
         return keyValue == other.keyValue
     }

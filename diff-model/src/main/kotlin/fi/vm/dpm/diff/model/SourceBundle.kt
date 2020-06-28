@@ -8,15 +8,15 @@ class SourceBundle(
 ) {
     private enum class CorrelationMode {
         SINGLE_PHASE_BY_FULL_KEY,
-        TWO_PHASE_BY_PRIMARY_AND_FULL_KEY,
+        TWO_PHASE_BY_TOP_LEVEL_AND_FULL_KEY,
     }
 
     private val correlationMode: CorrelationMode by lazy {
         if (sectionDescriptor.sectionFields
-                .filterFieldType<KeyField>()
-                .any { it.keyKind == KeyKind.SECONDARY_KEY }
+                .filterFieldType<KeySegmentField>()
+                .any { it.segmentKind == KeySegmentKind.SUB_OBJECT_SEGMENT }
         ) {
-            CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY
+            CorrelationMode.TWO_PHASE_BY_TOP_LEVEL_AND_FULL_KEY
         } else {
             CorrelationMode.SINGLE_PHASE_BY_FULL_KEY
         }
@@ -36,12 +36,12 @@ class SourceBundle(
             }.toMap()
     }
 
-    private val candidatesByPrimaryKey: Map<CorrelationKey, Map<CorrelationKey, SourceRecord>> by lazy {
+    private val topLevelCandidates: Map<CorrelationKey, Map<CorrelationKey, SourceRecord>> by lazy {
         sourceRecords
-            .groupBy { record -> record.primaryKey }
-            .map { (primaryKey, records) ->
+            .groupBy { record -> record.topLevelKey }
+            .map { (topLevelKey, records) ->
                 val candidates = records.map { record -> record.fullKey to record }.toMap()
-                primaryKey to candidates
+                topLevelKey to candidates
             }.toMap()
     }
 
@@ -77,7 +77,7 @@ class SourceBundle(
     private fun correlationCandidatesForPivotRecord(pivotRecord: SourceRecord): Map<CorrelationKey, SourceRecord>? {
         return when (correlationMode) {
             CorrelationMode.SINGLE_PHASE_BY_FULL_KEY -> allCandidates
-            CorrelationMode.TWO_PHASE_BY_PRIMARY_AND_FULL_KEY -> candidatesByPrimaryKey[pivotRecord.primaryKey]
+            CorrelationMode.TWO_PHASE_BY_TOP_LEVEL_AND_FULL_KEY -> topLevelCandidates[pivotRecord.topLevelKey]
         }
     }
 }

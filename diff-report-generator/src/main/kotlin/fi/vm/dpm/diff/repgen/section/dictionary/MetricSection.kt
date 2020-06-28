@@ -5,8 +5,8 @@ import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -22,10 +22,10 @@ class MetricSection(
         fieldName = "DomainLabel"
     )
 
-    private val domainCode = KeyField(
+    private val domainCode = KeySegmentField(
         fieldName = "DomainCode",
-        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
-        keyFallback = domainInherentLabel
+        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentFallback = domainInherentLabel
     )
 
     private val metricId = FallbackField(
@@ -40,10 +40,10 @@ class MetricSection(
         identityFallbacks = listOf(metricId, metricInherentLabel)
     )
 
-    private val metricCode = KeyField(
+    private val metricCode = KeySegmentField(
         fieldName = "MetricCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = metricInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = metricInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

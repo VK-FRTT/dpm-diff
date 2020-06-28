@@ -6,8 +6,8 @@ import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -30,28 +30,28 @@ open class ElementOverviewSectionBase(
         identityFallbacks = listOf(elementId, elementInherentLabel)
     )
 
-    protected val parentElementType = KeyField(
+    protected val parentElementType = KeySegmentField(
         fieldName = "ParentElementType",
-        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
-        keyFallback = null
+        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentFallback = null
     )
 
-    protected val parentElementCode = KeyField(
+    protected val parentElementCode = KeySegmentField(
         fieldName = "ParentElementCode",
-        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
-        keyFallback = null
+        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentFallback = null
     )
 
-    protected val elementType = KeyField(
+    protected val elementType = KeySegmentField(
         fieldName = "ElementType",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = null
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = null
     )
 
-    protected val elementCode = KeyField(
+    protected val elementCode = KeySegmentField(
         fieldName = "ElementCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = elementInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = elementInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

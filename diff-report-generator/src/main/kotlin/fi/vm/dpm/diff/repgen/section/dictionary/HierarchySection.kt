@@ -4,8 +4,8 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -22,10 +22,10 @@ class HierarchySection(
         fieldName = "DomainLabel"
     )
 
-    private val domainCode = KeyField(
+    private val domainCode = KeySegmentField(
         fieldName = "DomainCode",
-        keyKind = KeyKind.PRIMARY_SCOPE_KEY,
-        keyFallback = domainInherentLabel
+        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentFallback = domainInherentLabel
     )
 
     private val hierarchyId = FallbackField(
@@ -40,10 +40,10 @@ class HierarchySection(
         identityFallbacks = listOf(hierarchyId, hierarchyInherentLabel)
     )
 
-    private val hierarchyCode = KeyField(
+    private val hierarchyCode = KeySegmentField(
         fieldName = "HierarchyCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = hierarchyInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = hierarchyInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

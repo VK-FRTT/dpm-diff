@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.IdentificationLabelField
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.ModifiedChangeAtomValue
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -77,8 +77,8 @@ object SectionSheet {
 
                 is RecordIdentityFallbackField -> null
 
-                is KeyField -> {
-                    if (field.keyKind == KeyKind.PRIMARY_SCOPE_KEY) {
+                is KeySegmentField -> {
+                    if (field.segmentKind == KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT) {
                         ColumnDescriptor(
                             field = field,
                             columnTitle = field.fieldName,

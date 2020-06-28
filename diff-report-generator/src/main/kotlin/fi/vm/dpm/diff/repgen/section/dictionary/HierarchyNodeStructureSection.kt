@@ -5,8 +5,8 @@ import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeyField
-import fi.vm.dpm.diff.model.KeyKind
+import fi.vm.dpm.diff.model.KeySegmentField
+import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
@@ -42,16 +42,16 @@ class HierarchyNodeStructureSection(
         identityFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
     )
 
-    private val hierarchyCode = KeyField(
+    private val hierarchyCode = KeySegmentField(
         fieldName = "HierarchyCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = hierarchyInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = hierarchyInherentLabel
     )
 
-    private val memberCode = KeyField(
+    private val memberCode = KeySegmentField(
         fieldName = "MemberCode",
-        keyKind = KeyKind.PRIMARY_KEY,
-        keyFallback = memberInherentLabel
+        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentFallback = memberInherentLabel
     )
 
     override val identificationLabels = idLabelFields(

@@ -9,8 +9,8 @@ data class SourceRecord(
     val sourceKind: SourceKind,
     val fields: Map<Field, String?>
 ) {
-    val primaryKey: CorrelationKey by lazy {
-        CorrelationKey.primaryKey(this)
+    val topLevelKey: CorrelationKey by lazy {
+        CorrelationKey.topLevelKey(this)
     }
 
     val fullKey: CorrelationKey by lazy {
@@ -186,7 +186,7 @@ data class SourceRecord(
         fields: Map<Field, Any?>
     ): String? {
         fun shouldOutputRecordIdentityFallbackForCorrelationKeys() = fields
-            .filterFieldType<KeyField, Any?>()
+            .filterFieldType<KeySegmentField, Any?>()
             .filter { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
             .any()
 
