@@ -24,7 +24,7 @@ class HierarchySection(
 
     private val domainCode = KeySegmentField(
         fieldName = "DomainCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = domainInherentLabel
     )
 
@@ -42,7 +42,7 @@ class HierarchySection(
 
     private val hierarchyCode = KeySegmentField(
         fieldName = "HierarchyCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = hierarchyInherentLabel
     )
 

@@ -32,25 +32,25 @@ open class ElementOverviewSectionBase(
 
     protected val parentElementType = KeySegmentField(
         fieldName = "ParentElementType",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = null
     )
 
     protected val parentElementCode = KeySegmentField(
         fieldName = "ParentElementCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = null
     )
 
     protected val elementType = KeySegmentField(
         fieldName = "ElementType",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = null
     )
 
     protected val elementCode = KeySegmentField(
         fieldName = "ElementCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = elementInherentLabel
     )
 

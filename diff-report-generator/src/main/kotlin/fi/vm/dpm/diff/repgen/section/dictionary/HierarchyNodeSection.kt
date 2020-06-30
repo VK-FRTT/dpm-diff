@@ -44,13 +44,13 @@ class HierarchyNodeSection(
 
     private val hierarchyCode = KeySegmentField(
         fieldName = "HierarchyCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = hierarchyInherentLabel
     )
 
     private val memberCode = KeySegmentField(
         fieldName = "MemberCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = memberInherentLabel
     )
 

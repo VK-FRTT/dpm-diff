@@ -8,7 +8,6 @@ import fi.vm.dpm.diff.model.IdentificationLabelField
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
-import fi.vm.dpm.diff.model.SourceBundle
 import fi.vm.dpm.diff.model.SourceKind
 import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
@@ -91,26 +90,21 @@ open class SectionBase(
         generationContext.diagnostic.info("Section: ${sectionDescriptor.sectionTitle}")
         sectionDescriptor.sanityCheck()
 
-        val baselineBundle = SourceBundle(
-            sectionDescriptor,
+        val baselineSourceRecords =
             loadSourceRecords(
                 generationContext.baselineConnection,
                 SourceKind.BASELINE
             )
-        )
 
-        val currentBundle = SourceBundle(
-            sectionDescriptor,
-            loadSourceRecords(
-                generationContext.currentConnection,
-                SourceKind.CURRENT
-            )
+        val currentSourceRecords = loadSourceRecords(
+            generationContext.currentConnection,
+            SourceKind.CURRENT
         )
 
         val changes = ChangeRecord.resolveChanges(
             sectionDescriptor = sectionDescriptor,
-            baselineBundle = baselineBundle,
-            currentBundle = currentBundle
+            baselineSourceRecords = baselineSourceRecords,
+            currentSourceRecords = currentSourceRecords
         )
 
         return ReportSection(

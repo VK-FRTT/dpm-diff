@@ -9,8 +9,8 @@ data class SourceRecord(
     val sourceKind: SourceKind,
     val fields: Map<Field, String?>
 ) {
-    val topLevelKey: CorrelationKey by lazy {
-        CorrelationKey.topLevelKey(this)
+    val objectKey: CorrelationKey by lazy {
+        CorrelationKey.objectKey(this)
     }
 
     val fullKey: CorrelationKey by lazy {

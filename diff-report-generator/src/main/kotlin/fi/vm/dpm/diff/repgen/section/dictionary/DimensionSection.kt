@@ -32,7 +32,7 @@ class DimensionSection(
 
     private val dimensionCode = KeySegmentField(
         fieldName = "DimensionCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = dimensionInherentLabel
     )
 

@@ -21,13 +21,13 @@ open class ElementTranslationSectionBase(
 ) {
     private val translationRole = KeySegmentField(
         fieldName = "TranslationRole",
-        segmentKind = KeySegmentKind.SUB_OBJECT_SEGMENT,
+        segmentKind = KeySegmentKind.SUB_SEGMENT,
         segmentFallback = null
     )
 
     private val translationLanguage = KeySegmentField(
         fieldName = "Language",
-        segmentKind = KeySegmentKind.SUB_OBJECT_SEGMENT,
+        segmentKind = KeySegmentKind.SUB_SEGMENT,
         segmentFallback = null
     )
 

@@ -32,7 +32,7 @@ class DomainSection(
 
     private val domainCode = KeySegmentField(
         fieldName = "DomainCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = domainInherentLabel
     )
 

@@ -24,7 +24,7 @@ class TableAxisSection(
 
     private val taxonomyCode = KeySegmentField(
         fieldName = "TaxonomyCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = taxonomyInherentLabel
     )
 
@@ -34,7 +34,7 @@ class TableAxisSection(
 
     private val tableCode = KeySegmentField(
         fieldName = "TableCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = tableInherentLabel
     )
 
@@ -52,7 +52,7 @@ class TableAxisSection(
 
     private val axisOrientation = KeySegmentField(
         fieldName = "AxisOrientation",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = axisInherentLabel
     )
 

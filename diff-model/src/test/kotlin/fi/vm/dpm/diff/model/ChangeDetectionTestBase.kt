@@ -4,39 +4,39 @@ import org.assertj.core.api.Assertions.assertThat
 
 internal open class ChangeDetectionTestBase {
 
-    protected val scopingTopLevelKeySegment = KeySegmentField(
-        fieldName = "scopingTopLevelKeySegment",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+    protected val scopeKeySegment = KeySegmentField(
+        fieldName = "scopeKeySegment",
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = null
     )
 
-    protected val scopingTopLevelKeySegment2 = KeySegmentField(
-        fieldName = "scopingTopLevelKeySegment",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+    protected val scopeKeySegment2 = KeySegmentField(
+        fieldName = "scopeKeySegment2",
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = null
     )
 
-    protected val topLevelKeySegment = KeySegmentField(
-        fieldName = "topLevelKeySegment",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+    protected val primeKeySegment = KeySegmentField(
+        fieldName = "primeKeySegment",
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = null
     )
 
-    protected val topLevelKeySegment2 = KeySegmentField(
-        fieldName = "topLevelKeySegment2",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+    protected val primeKeySegment2 = KeySegmentField(
+        fieldName = "primeKeySegment2",
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = null
     )
 
-    protected val subObjectSegment = KeySegmentField(
-        fieldName = "subObjectSegment",
-        segmentKind = KeySegmentKind.SUB_OBJECT_SEGMENT,
+    protected val subKeySegment = KeySegmentField(
+        fieldName = "subKeySegment",
+        segmentKind = KeySegmentKind.SUB_SEGMENT,
         segmentFallback = null
     )
 
-    protected val subObjectSegment2 = KeySegmentField(
-        fieldName = "subObjectSegment2",
-        segmentKind = KeySegmentKind.SUB_OBJECT_SEGMENT,
+    protected val subKeySegment2 = KeySegmentField(
+        fieldName = "subKeySegment2",
+        segmentKind = KeySegmentKind.SUB_SEGMENT,
         segmentFallback = null
     )
 
@@ -95,13 +95,13 @@ internal open class ChangeDetectionTestBase {
         currentRecordsFieldValues: List<Map<Field, String?>>
     ): List<ChangeRecord> {
 
-        val baselineBundle = createSourceBundle(
+        val baselineSourceRecords = createSourceRecords(
             sectionDescriptor,
             SourceKind.BASELINE,
             baselineRecordsFieldValues
         )
 
-        val currentBundle = createSourceBundle(
+        val currentSourceRecords = createSourceRecords(
             sectionDescriptor,
             SourceKind.CURRENT,
             currentRecordsFieldValues
@@ -109,19 +109,18 @@ internal open class ChangeDetectionTestBase {
 
         val changes = ChangeRecord.resolveChanges(
             sectionDescriptor = sectionDescriptor,
-            baselineBundle = baselineBundle,
-            currentBundle = currentBundle
+            baselineSourceRecords = baselineSourceRecords,
+            currentSourceRecords = currentSourceRecords
         )
 
         return changes
     }
 
-    private fun createSourceBundle(
+    private fun createSourceRecords(
         sectionDescriptor: SectionDescriptor,
         sourceKind: SourceKind,
         recordsFieldValues: List<Map<Field, String?>>
-    ): SourceBundle {
-
+    ): List<SourceRecord> {
         val sourceRecords = recordsFieldValues.map { recordFieldValues ->
 
             val totalFieldValues = sectionDescriptor.sectionFields.map {
@@ -135,10 +134,7 @@ internal open class ChangeDetectionTestBase {
             )
         }
 
-        return SourceBundle(
-            sectionDescriptor = sectionDescriptor,
-            sourceRecords = sourceRecords
-        )
+        return sourceRecords
     }
 
     private fun String.splitRecordsValuesToNestedLists(): List<List<String>> {

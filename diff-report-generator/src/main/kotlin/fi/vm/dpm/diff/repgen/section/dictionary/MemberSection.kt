@@ -25,7 +25,7 @@ class MemberSection(
 
     private val domainCode = KeySegmentField(
         fieldName = "DomainCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = domainInherentLabel
     )
 
@@ -43,7 +43,7 @@ class MemberSection(
 
     private val memberCode = KeySegmentField(
         fieldName = "MemberCode",
-        segmentKind = KeySegmentKind.TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
         segmentFallback = memberInherentLabel
     )
 

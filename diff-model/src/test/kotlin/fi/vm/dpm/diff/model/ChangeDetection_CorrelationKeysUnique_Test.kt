@@ -8,14 +8,14 @@ import org.junit.jupiter.params.provider.CsvSource
 internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestBase() {
 
     @Nested
-    inner class PlainTopLevelSegment {
+    inner class PrimeSegment {
 
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "PlainTopLevelSegment",
-            sectionTitle = "PlainTopLevelSegment",
-            sectionDescription = "PlainTopLevelSegment",
+            sectionShortTitle = "PrimeSegment",
+            sectionTitle = "PrimeSegment",
+            sectionDescription = "PrimeSegment",
             sectionFields = listOf(
-                topLevelKeySegment,
+                primeKeySegment,
                 changeKind,
                 note
             ),
@@ -58,7 +58,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        topLevelKeySegment to values[0]
+                        primeKeySegment to values[0]
                     )
                 },
                 changeResultsMapper = { changeResults ->
@@ -69,14 +69,14 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     }
 
     @Nested
-    inner class PlainTopLevelSegmentWithAtom {
+    inner class PrimeSegmentWithAtom {
 
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "PlainTopLevelSegmentWithAtom",
-            sectionTitle = "PlainTopLevelSegmentWithAtom",
-            sectionDescription = "PlainTopLevelSegmentWithAtom",
+            sectionShortTitle = "PrimeSegmentWithAtom",
+            sectionTitle = "PrimeSegmentWithAtom",
+            sectionDescription = "PrimeSegmentWithAtom",
             sectionFields = listOf(
-                topLevelKeySegment,
+                primeKeySegment,
                 atom,
                 changeKind,
                 note
@@ -120,7 +120,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        topLevelKeySegment to values[0],
+                        primeKeySegment to values[0],
                         atom to values[1]
                     )
                 },
@@ -132,14 +132,14 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     }
 
     @Nested
-    inner class ScopedTopLevelSegment {
+    inner class ScopeAndPrimeSegment {
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "ScopedTopLevelSegment",
-            sectionTitle = "ScopedTopLevelSegment",
-            sectionDescription = "ScopedTopLevelSegment",
+            sectionShortTitle = "ScopeAndPrimeSegment",
+            sectionTitle = "ScopeAndPrimeSegment",
+            sectionDescription = "ScopeAndPrimeSegment",
             sectionFields = listOf(
-                scopingTopLevelKeySegment,
-                topLevelKeySegment,
+                scopeKeySegment,
+                primeKeySegment,
                 changeKind,
                 note
             ),
@@ -182,8 +182,8 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        scopingTopLevelKeySegment to values[0],
-                        topLevelKeySegment to values[1]
+                        scopeKeySegment to values[0],
+                        primeKeySegment to values[1]
                     )
                 },
                 changeResultsMapper = { changeResults ->
@@ -194,15 +194,15 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     }
 
     @Nested
-    inner class ScopedTopLevelSegmentWithAtom {
+    inner class ScopeAndPrimeSegmentWithAtom {
 
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "ScopedTopLevelSegmentWithAtom",
-            sectionTitle = "ScopedTopLevelSegmentWithAtom",
-            sectionDescription = "ScopedTopLevelSegmentWithAtom",
+            sectionShortTitle = "ScopeAndPrimeSegmentWithAtom",
+            sectionTitle = "ScopeAndPrimeSegmentWithAtom",
+            sectionDescription = "ScopeAndPrimeSegmentWithAtom",
             sectionFields = listOf(
-                scopingTopLevelKeySegment,
-                topLevelKeySegment,
+                scopeKeySegment,
+                primeKeySegment,
                 atom,
                 changeKind,
                 note
@@ -233,7 +233,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 "SCOPE PK VAL_B | SCOPE PK_B VAL_B, " +
                 "SCOPE:PK: MODIFIED | SCOPE:PK_B: MODIFIED",
 
-            "Scope isolates equal top level keys, " +
+            "Scope isolates equal object keys, " +
                 "SCOPE PK VAL | SCOPE_B PK VAL | SCOPE_C PK VAL, " +
                 "SCOPE PK VAL | SCOPE_C PK VAL_B, " +
                 "SCOPE_B:PK: DELETED | SCOPE_C:PK: MODIFIED"
@@ -251,8 +251,8 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        scopingTopLevelKeySegment to values[0],
-                        topLevelKeySegment to values[1],
+                        scopeKeySegment to values[0],
+                        primeKeySegment to values[1],
                         atom to values[2]
                     )
                 },
@@ -264,15 +264,15 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     }
 
     @Nested
-    inner class TopLevelAndSubObjectSegment {
+    inner class PrimeAndSubSegmentWithAtom {
 
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "TopLevelAndSubObjectSegment",
-            sectionTitle = "TopLevelAndSubObjectSegment",
-            sectionDescription = "TopLevelAndSubObjectSegment",
+            sectionShortTitle = "PrimeAndSubSegmentWithAtom",
+            sectionTitle = "PrimeAndSubSegmentWithAtom",
+            sectionDescription = "PrimeAndSubSegmentWithAtom",
             sectionFields = listOf(
-                topLevelKeySegment,
-                subObjectSegment,
+                primeKeySegment,
+                subKeySegment,
                 atom,
                 changeKind,
                 note
@@ -326,8 +326,8 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        topLevelKeySegment to values[0],
-                        subObjectSegment to values[1],
+                        primeKeySegment to values[0],
+                        subKeySegment to values[1],
                         atom to values[2]
                     )
                 },
@@ -339,16 +339,16 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     }
 
     @Nested
-    inner class ScopedTopLevelAndSubObjectSegmentWithAtom {
+    inner class ScopePrimeAndSubSegmentWithAtom {
 
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "ScopedTopLevelAndSubObjectSegmentWithAtom",
-            sectionTitle = "ScopedTopLevelAndSubObjectSegmentWithAtom",
-            sectionDescription = "ScopedTopLevelAndSubObjectSegmentWithAtom",
+            sectionShortTitle = "ScopePrimeAndSubSegmentWithAtom",
+            sectionTitle = "ScopePrimeAndSubSegmentWithAtom",
+            sectionDescription = "ScopePrimeAndSubSegmentWithAtom",
             sectionFields = listOf(
-                scopingTopLevelKeySegment,
-                topLevelKeySegment,
-                subObjectSegment,
+                scopeKeySegment,
+                primeKeySegment,
+                subKeySegment,
                 atom,
                 changeKind,
                 note
@@ -389,7 +389,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 "SCOPE PK SK VAL_B | SCOPE PK SK_B VAL_B, " +
                 "SCOPE:PK:SK MODIFIED | SCOPE:PK:SK_B MODIFIED",
 
-            "Scope isolates equal top level keys, " +
+            "Scope isolates equal object keys, " +
                 "SCOPE PK SK VAL | SCOPE_B PK SK VAL | SCOPE_C PK SK VAL, " +
                 "SCOPE PK SK VAL | SCOPE_C PK SK VAL_B, " +
                 "SCOPE_C:PK:SK MODIFIED"
@@ -407,9 +407,9 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        scopingTopLevelKeySegment to values[0],
-                        topLevelKeySegment to values[1],
-                        subObjectSegment to values[2],
+                        scopeKeySegment to values[0],
+                        primeKeySegment to values[1],
+                        subKeySegment to values[2],
                         atom to values[3]
                     )
                 },
@@ -421,19 +421,19 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     }
 
     @Nested
-    inner class MultipleScopedTopLevelAndSubObjectSegmentsWithAtom {
+    inner class TwoScopePrimeAndSubSegmentsWithAtom {
 
         private val sectionDescriptor = SectionDescriptor(
-            sectionShortTitle = "MultipleScopedTopLevelAndSubObjectSegmentsWithAtom ",
-            sectionTitle = "MultipleScopedTopLevelAndSubObjectSegmentsWithAtom ",
-            sectionDescription = "MultipleScopedTopLevelAndSubObjectSegmentsWithAtom ",
+            sectionShortTitle = "TwoScopePrimeAndSubSegmentsWithAtom ",
+            sectionTitle = "TwoScopePrimeAndSubSegmentsWithAtom ",
+            sectionDescription = "TwoScopePrimeAndSubSegmentsWithAtom ",
             sectionFields = listOf(
-                scopingTopLevelKeySegment,
-                scopingTopLevelKeySegment2,
-                topLevelKeySegment,
-                topLevelKeySegment2,
-                subObjectSegment,
-                subObjectSegment2,
+                scopeKeySegment,
+                scopeKeySegment2,
+                primeKeySegment,
+                primeKeySegment2,
+                subKeySegment,
+                subKeySegment2,
                 atom,
                 changeKind,
                 note
@@ -454,12 +454,12 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 "SCOPE SCOPE2 PK PK2 SK SK2 VAL | SCOPE SCOPE2_B PK PK2 SK SK2 VAL_B, " +
                 "SCOPE/SCOPE2_B:PK/PK2:SK/SK2 MODIFIED",
 
-            "First top level segment isolates keys, " +
+            "First prime segment isolates keys, " +
                 "SCOPE SCOPE2 PK PK2 SK SK2 VAL | SCOPE SCOPE2 PK_B PK2 SK SK2 VAL, " +
                 "SCOPE SCOPE2 PK PK2 SK SK2 VAL | SCOPE SCOPE2 PK_B PK2 SK SK2 VAL_B, " +
                 "SCOPE/SCOPE2:PK_B/PK2:SK/SK2 MODIFIED",
 
-            "Second top level segment isolates keys, " +
+            "Second prime segment isolates keys, " +
                 "SCOPE SCOPE2 PK PK2 SK SK2 VAL | SCOPE SCOPE2 PK PK2_B SK SK2 VAL, " +
                 "SCOPE SCOPE2 PK PK2 SK SK2 VAL | SCOPE SCOPE2 PK PK2_B SK SK2 VAL_B, " +
                 "SCOPE/SCOPE2:PK/PK2_B:SK/SK2 MODIFIED",
@@ -487,12 +487,12 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 sectionDescriptor = sectionDescriptor,
                 recordValueMapper = { values ->
                     mapOf(
-                        scopingTopLevelKeySegment to values[0],
-                        scopingTopLevelKeySegment2 to values[1],
-                        topLevelKeySegment to values[2],
-                        topLevelKeySegment2 to values[3],
-                        subObjectSegment to values[4],
-                        subObjectSegment2 to values[5],
+                        scopeKeySegment to values[0],
+                        scopeKeySegment2 to values[1],
+                        primeKeySegment to values[2],
+                        primeKeySegment2 to values[3],
+                        subKeySegment to values[4],
+                        subKeySegment2 to values[5],
                         atom to values[6]
                     )
                 },

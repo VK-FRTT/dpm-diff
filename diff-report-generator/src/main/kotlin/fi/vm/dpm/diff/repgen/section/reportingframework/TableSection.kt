@@ -24,7 +24,7 @@ class TableSection(
 
     private val taxonomyCode = KeySegmentField(
         fieldName = "TaxonomyCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = taxonomyInherentLabel
     )
 
@@ -42,7 +42,7 @@ class TableSection(
 
     private val tableCode = KeySegmentField(
         fieldName = "TableCode",
-        segmentKind = KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = tableInherentLabel
     )
 

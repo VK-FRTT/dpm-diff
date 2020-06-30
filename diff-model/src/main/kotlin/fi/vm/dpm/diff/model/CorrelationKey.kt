@@ -7,18 +7,18 @@ data class CorrelationKey private constructor(
     private val correlationKeyKind: CorrelationKeyKind
 ) {
     private enum class CorrelationKeyKind(val associatedSegmentKinds: List<KeySegmentKind>) {
-        FULL_CORRELATION_KEY(
+        FULL_KEY(
             listOf(
-                KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
-                KeySegmentKind.TOP_LEVEL_SEGMENT,
-                KeySegmentKind.SUB_OBJECT_SEGMENT
+                KeySegmentKind.SCOPE_SEGMENT,
+                KeySegmentKind.PRIME_SEGMENT,
+                KeySegmentKind.SUB_SEGMENT
             )
         ),
 
-        TOP_LEVEL_CORRELATION_KEY(
+        OBJECT_KEY(
             listOf(
-                KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT,
-                KeySegmentKind.TOP_LEVEL_SEGMENT
+                KeySegmentKind.SCOPE_SEGMENT,
+                KeySegmentKind.PRIME_SEGMENT
             )
         )
     }
@@ -26,15 +26,15 @@ data class CorrelationKey private constructor(
     companion object {
 
         fun fullKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.FULL_CORRELATION_KEY)
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.FULL_KEY)
         }
 
         fun fullKey(fields: Map<Field, Any?>): CorrelationKey {
-            return createCorrelationKey(fields, CorrelationKeyKind.FULL_CORRELATION_KEY)
+            return createCorrelationKey(fields, CorrelationKeyKind.FULL_KEY)
         }
 
-        fun topLevelKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.TOP_LEVEL_CORRELATION_KEY)
+        fun objectKey(sourceRecord: SourceRecord): CorrelationKey {
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.OBJECT_KEY)
         }
 
         private fun createCorrelationKey(

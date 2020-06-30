@@ -7,22 +7,30 @@ data class ChangeRecord(
 
         fun resolveChanges(
             sectionDescriptor: SectionDescriptor,
-            baselineBundle: SourceBundle,
-            currentBundle: SourceBundle
+            baselineSourceRecords: List<SourceRecord>,
+            currentSourceRecords: List<SourceRecord>
         ): List<ChangeRecord> {
 
-            fun deleted() = baselineBundle
-                .findRecordsWithoutCorrelationIn(currentBundle)
+            val correlationPolicy = CorrelationPolicy.create(
+                sectionDescriptor = sectionDescriptor,
+                baselineSourceRecords = baselineSourceRecords,
+                currentSourceRecords = currentSourceRecords
+            )
+
+            fun deleted() = correlationPolicy
+                .deletedRecords()
                 .map { it.toDeletedChange() }
 
-            fun added() = currentBundle
-                .findRecordsWithoutCorrelationIn(baselineBundle)
+            fun added() = correlationPolicy
+                .addedRecords()
                 .map { it.toAddedChange() }
 
-            fun modified() = currentBundle
-                .findAndPairRecordsWithCorrelationIn(baselineBundle)
-                .mapNotNull { (currentRecord, baselineRecord) ->
-                    currentRecord.toModifiedChangeOrNullFromBaseline(baselineRecord)
+            fun modified() = correlationPolicy
+                .sameIdentityRecordPairs()
+                .mapNotNull { recordPair ->
+                    recordPair.currentRecord.toModifiedChangeOrNullFromBaseline(
+                        recordPair.baselineRecord
+                    )
                 }
 
             val changeRecords = sectionDescriptor.includedChanges

@@ -78,7 +78,7 @@ object SectionSheet {
                 is RecordIdentityFallbackField -> null
 
                 is KeySegmentField -> {
-                    if (field.segmentKind == KeySegmentKind.SCOPING_TOP_LEVEL_SEGMENT) {
+                    if (field.segmentKind == KeySegmentKind.SCOPE_SEGMENT) {
                         ColumnDescriptor(
                             field = field,
                             columnTitle = field.fieldName,
