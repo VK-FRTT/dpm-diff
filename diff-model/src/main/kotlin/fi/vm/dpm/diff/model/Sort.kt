@@ -29,7 +29,8 @@ data class FixedChangeKindSort(
                 FixedOrderComparator.UnknownObjectMode.FAIL,
                 ChangeKind.DELETED,
                 ChangeKind.ADDED,
-                ChangeKind.MODIFIED
+                ChangeKind.MODIFIED,
+                ChangeKind.DUPLICATE_KEY
             )
         )
     }

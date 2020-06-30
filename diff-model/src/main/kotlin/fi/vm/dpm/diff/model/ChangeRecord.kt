@@ -26,12 +26,16 @@ data class ChangeRecord(
                 .map { it.toAddedChange() }
 
             fun modified() = correlationPolicy
-                .sameIdentityRecordPairs()
+                .correlatingRecordPairs()
                 .mapNotNull { recordPair ->
                     recordPair.currentRecord.toModifiedChangeOrNullFromBaseline(
                         recordPair.baselineRecord
                     )
                 }
+
+            fun duplicateKey() = correlationPolicy
+                .duplicateCorrelationKeyRecords()
+                .map { it.toDuplicateKeyChange() }
 
             val changeRecords = sectionDescriptor.includedChanges
                 .sorted()
@@ -40,6 +44,7 @@ data class ChangeRecord(
                         ChangeKind.DELETED -> deleted()
                         ChangeKind.ADDED -> added()
                         ChangeKind.MODIFIED -> modified()
+                        ChangeKind.DUPLICATE_KEY -> duplicateKey()
                     }
                 }
 

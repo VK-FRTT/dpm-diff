@@ -55,7 +55,7 @@ open class CorrelationPolicy(
         )
     }
 
-    open fun sameIdentityRecordPairs(): List<SourceRecordPair> {
+    open fun correlatingRecordPairs(): List<SourceRecordPair> {
 
         return currentRecordsByFullKey
             .mapNotNull { (key, currentRecordGroup) ->
@@ -76,6 +76,11 @@ open class CorrelationPolicy(
             }
     }
 
+    open fun duplicateCorrelationKeyRecords(): List<SourceRecord> {
+        return recordsWithDuplicateKey(baselineRecordsByFullKey) +
+            recordsWithDuplicateKey(currentRecordsByFullKey)
+    }
+
     private fun recordsWithOneToNoneCorrelation(
         pivotRecords: Map<CorrelationKey, List<SourceRecord>>,
         comparisonRecords: Map<CorrelationKey, List<SourceRecord>>
@@ -93,5 +98,19 @@ open class CorrelationPolicy(
                     null
                 }
             }
+    }
+
+    private fun recordsWithDuplicateKey(
+        pivotRecords: Map<CorrelationKey, List<SourceRecord>>
+    ): List<SourceRecord> {
+
+        return pivotRecords
+            .mapNotNull { (_, pivotRecordGroup) ->
+                if (pivotRecordGroup.size > 1) {
+                    pivotRecordGroup
+                } else {
+                    null
+                }
+            }.flatten()
     }
 }
