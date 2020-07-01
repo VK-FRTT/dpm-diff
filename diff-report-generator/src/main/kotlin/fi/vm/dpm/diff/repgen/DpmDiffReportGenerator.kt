@@ -12,6 +12,7 @@ import fi.vm.dpm.diff.repgen.section.dictionary.HierarchyNodeStructureSection
 import fi.vm.dpm.diff.repgen.section.dictionary.HierarchySection
 import fi.vm.dpm.diff.repgen.section.dictionary.MemberSection
 import fi.vm.dpm.diff.repgen.section.dictionary.MetricSection
+import fi.vm.dpm.diff.repgen.section.reportingframework.AxisOrdinateSection
 import fi.vm.dpm.diff.repgen.section.reportingframework.ReportingFrameworkOverviewSection
 import fi.vm.dpm.diff.repgen.section.reportingframework.ReportingFrameworkTranslationSection
 import fi.vm.dpm.diff.repgen.section.reportingframework.TableAxisSection
@@ -69,7 +70,8 @@ class DpmDiffReportGenerator(
             ReportingFrameworkOverviewSection(generationContext),
             ReportingFrameworkTranslationSection(generationContext),
             TableSection(generationContext),
-            TableAxisSection(generationContext)
+            TableAxisSection(generationContext),
+            AxisOrdinateSection(generationContext)
         )
 
         val generatedSections = (dictionarySections + reportingFrameworkSections).map { it.generateSection() }

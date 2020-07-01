@@ -13,11 +13,13 @@ import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
 import fi.vm.dpm.diff.repgen.section.SectionBase
 
-class TableAxisSection(
+class AxisOrdinateSection(
     generationContext: GenerationContext
 ) : SectionBase(
     generationContext
 ) {
+
+    // Scope
     private val taxonomyInherentLabel = FallbackField(
         fieldName = "TaxonomyLabel"
     )
@@ -38,54 +40,97 @@ class TableAxisSection(
         segmentFallback = tableInherentLabel
     )
 
-    private val axisId = FallbackField(
-        fieldName = "AxisId"
-    )
-
     private val axisInherentLabel = FallbackField(
         fieldName = "AxisLabel"
     )
 
-    private val recordIdentityFallback = RecordIdentityFallbackField(
-        identityFallbacks = listOf(axisId, axisInherentLabel)
-    )
-
     private val axisOrientation = KeySegmentField(
         fieldName = "AxisOrientation",
-        segmentKind = KeySegmentKind.PRIME_SEGMENT,
+        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
         segmentFallback = axisInherentLabel
     )
 
+    // AxisOrdinate
+    private val ordinateId = FallbackField(
+        fieldName = "OrdinateId"
+    )
+
+    private val ordinateInherentLabel = FallbackField(
+        fieldName = "OrdinateLabel"
+    )
+
+    private val recordIdentityFallback = RecordIdentityFallbackField(
+        identityFallbacks = listOf(ordinateId, ordinateInherentLabel)
+    )
+
+    private val ordinateCode = KeySegmentField(
+        fieldName = "OrdinateCode",
+        segmentKind = KeySegmentKind.PRIME_SEGMENT,
+        segmentFallback = ordinateInherentLabel
+    )
+
     override val identificationLabels = idLabelFields(
-        fieldNameBase = "AxisLabel"
+        fieldNameBase = "OrdinateLabel"
+    )
+
+    private val level = AtomField(
+        fieldName = "Level"
     )
 
     private val order = AtomField(
         fieldName = "Order"
     )
 
+    private val parentOrdinateCode = AtomField(
+        fieldName = "ParentOrdinateCode"
+    )
+
+    // Atoms
+    private val isDisplayBeforeChildren = AtomField(
+        fieldName = "IsDisplayBeforeChildren"
+    )
+    private val isAbstractHeader = AtomField(
+        fieldName = "IsAbstractHeader"
+    )
+    private val isRowKey = AtomField(
+        fieldName = "IsRowKey"
+    )
+
+    private val typeOfKey = AtomField(
+        fieldName = "TypeOfKey"
+    )
+
     override val sectionDescriptor = SectionDescriptor(
-        sectionShortTitle = "TableAxis",
-        sectionTitle = "Table Axis",
-        sectionDescription = "Table Axis: changes in Table Axis",
+        sectionShortTitle = "AxisOrdinates",
+        sectionTitle = "Axis Ordinates",
+        sectionDescription = "Axis Ordinates: changes in Axis Ordinates",
         sectionFields = listOf(
             taxonomyInherentLabel,
             taxonomyCode,
             tableInherentLabel,
             tableCode,
-            axisId,
             axisInherentLabel,
-            recordIdentityFallback,
             axisOrientation,
+            ordinateId,
+            ordinateInherentLabel,
+            recordIdentityFallback,
+            ordinateCode,
             *identificationLabels,
             changeKind,
+            level,
             order,
+            parentOrdinateCode,
+            isDisplayBeforeChildren,
+            isAbstractHeader,
+            isRowKey,
+            typeOfKey,
             note
         ),
         sectionSortOrder = listOf(
             NumberAwareSort(taxonomyCode),
             NumberAwareSort(tableCode),
             NumberAwareSort(axisOrientation),
+            NumberAwareSort(ordinateCode),
             FixedChangeKindSort(changeKind)
         ),
         includedChanges = ChangeKind.allValues()
@@ -96,11 +141,19 @@ class TableAxisSection(
         "TaxonomyCode" to taxonomyCode,
         "TableInherentLabel" to tableInherentLabel,
         "TableCode" to tableCode,
-        "AxisId" to axisId,
         "AxisInherentLabel" to axisInherentLabel,
         "AxisOrientation" to axisOrientation,
+        "OrdinateId" to ordinateId,
+        "OrdinateInherentLabel" to ordinateInherentLabel,
+        "OrdinateCode" to ordinateCode,
         *idLabelColumnMapping(),
-        "Order" to order
+        "Level" to level,
+        "Order" to order,
+        "ParentOrdinateCode" to parentOrdinateCode,
+        "IsDisplayBeforeChildren" to isDisplayBeforeChildren,
+        "IsAbstractHeader" to isAbstractHeader,
+        "IsRowKey" to isRowKey,
+        "TypeOfKey" to typeOfKey
     )
 
     override val query = """
@@ -109,30 +162,40 @@ class TableAxisSection(
         ,mTaxonomy.TaxonomyCode AS 'TaxonomyCode'
         ,mTable.TableLabel AS 'TableInherentLabel'
         ,mTable.TableCode AS 'TableCode'
-        ,mAxis.AxisID AS 'AxisId'
         ,mAxis.AxisLabel AS 'AxisInherentLabel'
         ,mAxis.AxisOrientation AS 'AxisOrientation'
+        ,mAxisOrdinate.OrdinateID AS 'OrdinateId'
+        ,mAxisOrdinate.OrdinateLabel AS 'OrdinateInherentLabel'
+        ,mAxisOrdinate.OrdinateCode AS 'OrdinateCode'
         ${idLabelAggregateFragment()}
-        ,'mAxisTable.Order' AS 'Order'
+        ,mAxisOrdinate.Level AS 'Level'
+        ,mAxisOrdinate.'Order' AS 'Order'
+        ,ParentAxisOrdinate.OrdinateCode AS 'ParentOrdinateCode'
+        ,mAxisOrdinate.IsDisplayBeforeChildren AS 'IsDisplayBeforeChildren'
+        ,mAxisOrdinate.IsAbstractHeader AS 'IsAbstractHeader'
+        ,mAxisOrdinate.IsRowKey AS 'IsRowKey'
+        ,mAxisOrdinate.TypeOfKey AS 'TypeOfKey'
 
-        FROM mTableAxis
-        LEFT JOIN mAxis ON mAxis.AxisID = mTableAxis.AxisID
+		FROM mAxisOrdinate
+        LEFT JOIN mAxis ON mAxis.AxisID = mAxisOrdinate.AxisID
+        LEFT JOIN mTableAxis ON mTableAxis.AxisID = mAxisOrdinate.AxisID
         LEFT JOIN mTable ON mTable.TableID = mTableAxis.TableID
         LEFT JOIN mTaxonomyTable ON mTaxonomyTable.TableID = mTable.TableID
         LEFT JOIN mTaxonomy ON mTaxonomy.TaxonomyID = mTaxonomyTable.TaxonomyID
-        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mAxis.ConceptID
+        LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = mAxisOrdinate.ConceptID
         LEFT JOIN mLanguage ON mConceptTranslation.LanguageID = mLanguage.LanguageID
+        LEFT JOIN mAxisOrdinate AS ParentAxisOrdinate ON ParentAxisOrdinate.OrdinateID = mAxisOrdinate.ParentOrdinateID
 
         WHERE
         (mConceptTranslation.Role = "label" OR mConceptTranslation.Role IS NULL)
 
-        GROUP BY mAxis.AxisID
+        GROUP BY mAxisOrdinate.OrdinateID
 
         ORDER BY mTaxonomy.TaxonomyCode ASC, mTable.TableCode ASC, mAxis.AxisOrientation ASC
     """.trimLineStartsAndConsequentBlankLines()
 
     override val sourceTableDescriptors = listOf(
-        "mTableAxis"
+        "mAxisOrdinate"
     )
 
     init {
