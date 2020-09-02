@@ -5,5 +5,5 @@ data class ChangeReport(
     val baselineDpmDbFileName: String,
     val currentDpmDbFileName: String,
     val sections: List<ReportSection>,
-    val reportGenerator: ReportGenerator
+    val reportGeneratorDescriptor: ReportGeneratorDescriptor
 )

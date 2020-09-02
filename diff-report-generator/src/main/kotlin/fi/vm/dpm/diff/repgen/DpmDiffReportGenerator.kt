@@ -25,7 +25,8 @@ import java.time.format.DateTimeFormatter
 class DpmDiffReportGenerator(
     private val baselineDpmDbPath: Path,
     private val currentDpmDbPath: Path,
-    private val reportGenerator: ReportGenerator,
+    private val reportGeneratorDescriptor: ReportGeneratorDescriptor,
+    private val identificationLabelLangCodes: List<String>,
     private val diagnostic: Diagnostic
 ) : Closeable {
 
@@ -50,7 +51,7 @@ class DpmDiffReportGenerator(
         val generationContext = GenerationContext(
             baselineConnection = baselineConnection,
             currentConnection = currentConnection,
-            identificationLabelLangCodes = listOf("fi", "sv"), // TODO
+            identificationLabelLangCodes = identificationLabelLangCodes,
             diagnostic = diagnostic
         )
 
@@ -81,7 +82,7 @@ class DpmDiffReportGenerator(
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
             currentDpmDbFileName = currentDpmDbPath.fileName.toString(),
             sections = generatedSections,
-            reportGenerator = reportGenerator
+            reportGeneratorDescriptor = reportGeneratorDescriptor
         )
     }
 }

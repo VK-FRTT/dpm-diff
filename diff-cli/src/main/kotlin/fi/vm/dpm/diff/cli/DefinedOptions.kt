@@ -17,7 +17,8 @@ enum class OptName(val nameString: String) {
     BASELINE_DPM_DB("baseline-dpm-db"),
     CURRENT_DPM_DB("current-dpm-db"),
     REPORT_CONFIG("report-config"),
-    OUTPUT("output")
+    OUTPUT("output"),
+    IDENTIFICATION_LABEL_LANGUAGES("identificationLabelLanguages")
 }
 
 class DefinedOptions {
@@ -29,10 +30,9 @@ class DefinedOptions {
     private val baselineDpmDb: OptionSpec<Path>
     private val currentDpmDb: OptionSpec<Path>
 
-    private val reportConfig: OptionSpec<Path>
-
     private val output: OptionSpec<Path>
     private val forceOverwrite: OptionSpec<Void>
+    private val identificationLabelLanguages: OptionSpec<String>
 
     private val verbosity: OptionSpec<OutputVerbosity>
 
@@ -65,14 +65,6 @@ class DefinedOptions {
             .withRequiredArg()
             .withValuesConvertedBy(PathConverter())
 
-        reportConfig = optionParser
-            .accepts(
-                OptName.REPORT_CONFIG.nameString,
-                "configuration file for controlling difference report details"
-            )
-            .withRequiredArg()
-            .withValuesConvertedBy(PathConverter())
-
         output = optionParser
             .accepts(
                 OptName.OUTPUT.nameString,
@@ -87,10 +79,17 @@ class DefinedOptions {
                 "silently overwrites the possibly existing target file"
             )
 
+        identificationLabelLanguages = optionParser
+            .accepts(
+                OptName.IDENTIFICATION_LABEL_LANGUAGES.nameString,
+                "list of identification label languages to include in generated report"
+            )
+            .withOptionalArg()
+
         verbosity = optionParser
             .accepts(
                 "verbosity",
-                "status output verbosity, modes: ${OutputVerbosity.NORMAL}, ${OutputVerbosity.DEBUG}"
+                "execution output verbosity, modes: ${OutputVerbosity.NORMAL}, ${OutputVerbosity.DEBUG}"
             )
             .withOptionalArg()
             .withValuesConvertedBy(VerbosityConverter())
@@ -128,9 +127,14 @@ class DefinedOptions {
             cmdShowVersion = optionSet.has(cmdShowVersion),
             baselineDpmDbPath = optionSet.valueOf(baselineDpmDb),
             currentDpmDbPath = optionSet.valueOf(currentDpmDb),
-            reportConfigPath = optionSet.valueOf(reportConfig),
             outputFilePath = optionSet.valueOf(output),
-            forceOverwrite = optionSet.has(this.forceOverwrite),
+            forceOverwrite = optionSet.has(forceOverwrite),
+            identificationLabelLanguages = if (optionSet.has(identificationLabelLanguages)) {
+                optionSet.valueOf(identificationLabelLanguages)
+            } else {
+                null
+            },
+
             verbosity = optionSet.valueOf(verbosity)
         )
     }

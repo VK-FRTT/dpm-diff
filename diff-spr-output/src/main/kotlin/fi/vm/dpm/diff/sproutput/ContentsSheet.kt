@@ -11,7 +11,7 @@ object ContentsSheet {
         cellStyles: CellStyles,
         changeReport: ChangeReport
     ) {
-        val generatorInfo = with(changeReport.reportGenerator) {
+        val generatorInfo = with(changeReport.reportGeneratorDescriptor) {
             "$title ($revision @ $originUrl)"
         }
 

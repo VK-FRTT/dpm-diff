@@ -8,9 +8,9 @@ data class DetectedOptions(
     val cmdShowVersion: Boolean,
     val baselineDpmDbPath: Path?,
     val currentDpmDbPath: Path?,
-    val reportConfigPath: Path?,
     val outputFilePath: Path?,
     val forceOverwrite: Boolean,
+    val identificationLabelLanguages: String?,
     val verbosity: OutputVerbosity
 ) {
     fun dpmDiffReportParams(diagnostic: Diagnostic): DpmDiffReportParams {
@@ -29,13 +29,6 @@ data class DetectedOptions(
                 validationResults
             ),
 
-            reportConfig = PathOptions.checkExistingFileOrDefaultFallback(
-                reportConfigPath,
-                "dpm-diff-report-config.json",
-                OptName.REPORT_CONFIG,
-                validationResults
-            ),
-
             outputFilePath = PathOptions.checkWritableFile(
                 outputFilePath,
                 forceOverwrite,
@@ -43,7 +36,13 @@ data class DetectedOptions(
                 validationResults
             ),
 
-            forceOverwrite = forceOverwrite
+            forceOverwrite = forceOverwrite,
+
+            identificationLabelLangCodes = StringOptions.checkIdentificationLabelLanguages(
+                identificationLabelLanguages,
+                OptName.IDENTIFICATION_LABEL_LANGUAGES,
+                validationResults
+            )
         )
 
         validationResults.reportErrors(diagnostic)
