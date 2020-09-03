@@ -5,7 +5,19 @@ enum class ChangeKind {
     DELETED,
     MODIFIED,
     DUPLICATE_KEY;
+    
     companion object {
-        fun allValues() = ChangeKind.values().toSet()
+        fun allChanges() = setOf(
+            ADDED,
+            DELETED,
+            MODIFIED,
+            DUPLICATE_KEY
+        )
+
+        fun allWithoutDuplicateKeyChanges() = setOf(
+            ADDED,
+            DELETED,
+            MODIFIED
+        )
     }
 }

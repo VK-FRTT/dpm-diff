@@ -20,7 +20,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -82,7 +82,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -144,7 +144,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -208,7 +208,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -278,7 +278,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -354,7 +354,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -439,7 +439,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
 
         @ParameterizedTest(name = "{0}")

@@ -56,7 +56,7 @@ class TableSection(
 
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Table",
-        sectionTitle = "Table",
+        sectionTitle = "Tables",
         sectionDescription = "Added and deleted Tables, changes in FilingIndicator",
         sectionFields = listOf(
             taxonomyInherentLabel,
@@ -75,7 +75,7 @@ class TableSection(
             NumberAwareSort(tableCode),
             FixedChangeKindSort(changeKind)
         ),
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(

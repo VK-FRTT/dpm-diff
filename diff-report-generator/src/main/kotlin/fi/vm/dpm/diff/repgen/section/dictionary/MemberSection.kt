@@ -76,7 +76,7 @@ class MemberSection(
             NumberAwareSort(memberCode),
             FixedChangeKindSort(changeKind)
         ),
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(

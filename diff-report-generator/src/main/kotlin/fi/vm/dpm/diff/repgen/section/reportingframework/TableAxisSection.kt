@@ -88,7 +88,7 @@ class TableAxisSection(
             NumberAwareSort(axisOrientation),
             FixedChangeKindSort(changeKind)
         ),
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(

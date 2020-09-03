@@ -69,7 +69,7 @@ open class ElementTranslationSectionBase(
                 NumberAwareSort(translationLanguage),
                 FixedChangeKindSort(changeKind)
             ),
-            includedChanges = ChangeKind.allValues()
+            includedChanges = ChangeKind.allChanges()
         )
     }
 

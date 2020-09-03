@@ -67,7 +67,7 @@ class DomainSection(
             NumberAwareSort(domainCode),
             FixedChangeKindSort(changeKind)
         ),
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(

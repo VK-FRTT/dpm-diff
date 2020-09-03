@@ -67,7 +67,7 @@ class DimensionSection(
             NumberAwareSort(dimensionCode),
             FixedChangeKindSort(changeKind)
         ),
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(

@@ -70,7 +70,7 @@ class HierarchySection(
             NumberAwareSort(hierarchyCode),
             FixedChangeKindSort(changeKind)
         ),
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(

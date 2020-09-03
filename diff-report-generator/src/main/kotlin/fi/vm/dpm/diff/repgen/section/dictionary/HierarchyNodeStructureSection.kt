@@ -98,7 +98,7 @@ class HierarchyNodeStructureSection(
 
         //Report all changes (i.e. also adds/deletes) as those explain why
         //subsequent nodes order/level values change
-        includedChanges = ChangeKind.allValues()
+        includedChanges = ChangeKind.allChanges()
     )
 
     override val queryColumnMapping = mapOf(
