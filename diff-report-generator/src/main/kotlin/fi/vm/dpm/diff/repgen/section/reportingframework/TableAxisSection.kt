@@ -66,8 +66,8 @@ class TableAxisSection(
 
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "TableAxis",
-        sectionTitle = "Table Axis",
-        sectionDescription = "Table Axis: changes in Table Axis",
+        sectionTitle = "TableAxis",
+        sectionDescription = "Added and deleted Table Axis, changes in Order",
         sectionFields = listOf(
             taxonomyInherentLabel,
             taxonomyCode,

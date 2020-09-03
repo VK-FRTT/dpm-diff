@@ -73,7 +73,7 @@ class HierarchyNodeStructureSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "HierNodeStructure",
         sectionTitle = "HierarchyNodes structure",
-        sectionDescription = "HierarchyNodes: Parent Member, Order and Level changes",
+        sectionDescription = "Added and deleted HierarchyNodes, changes in Parent Member, Order and Level details",
         sectionFields = listOf(
             hierarchyId,
             hierarchyInherentLabel,
@@ -95,6 +95,9 @@ class HierarchyNodeStructureSection(
             NumberAwareSort(memberCode),
             FixedChangeKindSort(changeKind)
         ),
+
+        //Report all changes (i.e. also adds/deletes) as those explain why
+        //subsequent nodes order/level values change
         includedChanges = ChangeKind.allValues()
     )
 

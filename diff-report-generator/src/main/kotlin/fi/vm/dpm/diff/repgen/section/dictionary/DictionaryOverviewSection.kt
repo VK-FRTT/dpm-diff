@@ -76,7 +76,7 @@ class DictionaryOverviewSection(
     override val sectionDescriptor = elementOverviewSectionDescriptor(
         sectionShortTitle = "DictOverview",
         sectionTitle = "Dictionary overview",
-        sectionDescription = "Dictionary: added and deleted Domains, Members, Metrics, Dimensions and Hierarchies"
+        sectionDescription = "Added and deleted Domains, Members, Metrics, Dimensions and Hierarchies"
     )
 
     override val queryColumnMapping = elementOverviewQueryColumnMappings()

@@ -51,7 +51,7 @@ class DimensionSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Dimension",
         sectionTitle = "Dimensions",
-        sectionDescription = "Dimensions: Domain reference and dimension kind changes",
+        sectionDescription = "Added and deleted Dimensions, changes in Domain reference and IsTypedDimension",
         sectionFields = listOf(
             dimensionId,
             dimensionInherentLabel,

@@ -73,7 +73,7 @@ class HierarchyNodeSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "HierNode",
         sectionTitle = "HierarchyNodes",
-        sectionDescription = "HierarchyNodes: ComparisonOperator, UnaryOperator and IsAbstract changes",
+        sectionDescription = "Added and deleted HierarchyNodes, changes in ComparisonOperator, UnaryOperator and IsAbstract details",
         sectionFields = listOf(
             hierarchyId,
             hierarchyInherentLabel,

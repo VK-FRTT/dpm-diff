@@ -51,7 +51,7 @@ class DomainSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Domain",
         sectionTitle = "Domains",
-        sectionDescription = "Domains: data type changes (in TypedDomains) and domain kind changes (TypedDomain/ExplicitDomain)",
+        sectionDescription = "Added and deleted Domains, changes in IsTypedDomain and DataType",
         sectionFields = listOf(
             domainId,
             domainInherentLabel,

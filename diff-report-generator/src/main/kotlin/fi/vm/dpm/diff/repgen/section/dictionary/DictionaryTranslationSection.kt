@@ -11,8 +11,8 @@ class DictionaryTranslationSection(
 ) {
     override val sectionDescriptor = elementTranslationSectionDescriptor(
         sectionShortTitle = "DictTranslation",
-        sectionTitle = "Dictionary Translations",
-        sectionDescription = "Dictionary: Label and Description changes"
+        sectionTitle = "Dictionary translations",
+        sectionDescription = "Label and description changes in Domains, Members, Metrics, Dimensions and Hierarchies"
     )
 
     override val queryColumnMapping = elementTranslationQueryColumnMappings()

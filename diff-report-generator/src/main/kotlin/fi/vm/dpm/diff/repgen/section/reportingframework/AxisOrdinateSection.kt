@@ -89,9 +89,11 @@ class AxisOrdinateSection(
     private val isDisplayBeforeChildren = AtomField(
         fieldName = "IsDisplayBeforeChildren"
     )
+
     private val isAbstractHeader = AtomField(
         fieldName = "IsAbstractHeader"
     )
+
     private val isRowKey = AtomField(
         fieldName = "IsRowKey"
     )
@@ -102,8 +104,8 @@ class AxisOrdinateSection(
 
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "AxisOrdinates",
-        sectionTitle = "Axis Ordinates",
-        sectionDescription = "Axis Ordinates: changes in Axis Ordinates",
+        sectionTitle = "AxisOrdinates",
+        sectionDescription = "Added and deleted Axis Ordinates, changes in IsDisplayBeforeChildren, IsAbstractHeader, IsRowKey and TypeOfKey",
         sectionFields = listOf(
             taxonomyInherentLabel,
             taxonomyCode,

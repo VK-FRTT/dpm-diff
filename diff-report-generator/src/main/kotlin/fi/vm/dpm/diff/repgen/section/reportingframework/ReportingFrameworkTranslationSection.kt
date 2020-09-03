@@ -11,8 +11,8 @@ class ReportingFrameworkTranslationSection(
 ) {
     override val sectionDescriptor = elementTranslationSectionDescriptor(
         sectionShortTitle = "RepFwTranslation",
-        sectionTitle = "ReportingFramework Translations",
-        sectionDescription = "ReportingFramework: Label and Description changes"
+        sectionTitle = "ReportingFramework translations",
+        sectionDescription = "Label and description changes in Reporting Frameworks, Taxonomies, Modules and Tables"
     )
 
     override val queryColumnMapping = elementTranslationQueryColumnMappings()

@@ -58,7 +58,7 @@ class MemberSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Member",
         sectionTitle = "Members",
-        sectionDescription = "Members: DefaultMember assignment changes",
+        sectionDescription = "Added and deleted Members, changes in IsDefaultMember",
         sectionFields = listOf(
             domainInherentLabel,
             domainCode,

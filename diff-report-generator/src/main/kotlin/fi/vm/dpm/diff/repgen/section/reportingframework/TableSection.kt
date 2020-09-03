@@ -57,7 +57,7 @@ class TableSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Table",
         sectionTitle = "Table",
-        sectionDescription = "Tables: Filing indicator changes",
+        sectionDescription = "Added and deleted Tables, changes in FilingIndicator",
         sectionFields = listOf(
             taxonomyInherentLabel,
             taxonomyCode,

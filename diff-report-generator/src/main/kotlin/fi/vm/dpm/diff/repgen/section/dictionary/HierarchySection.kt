@@ -53,7 +53,7 @@ class HierarchySection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Hierarchy",
         sectionTitle = "Hierarchies",
-        sectionDescription = "Hierarchies: Domain reference changes",
+        sectionDescription = "Added and deleted Hierarchies",
         sectionFields = listOf(
             domainInherentLabel,
             domainCode,

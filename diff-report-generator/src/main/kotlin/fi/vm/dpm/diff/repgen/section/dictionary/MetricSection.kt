@@ -77,7 +77,7 @@ class MetricSection(
     override val sectionDescriptor = SectionDescriptor(
         sectionShortTitle = "Metric",
         sectionTitle = "Metrics",
-        sectionDescription = "Metrics: DataType, FlowType, BalanceType, Domain reference and Hierarchy reference changes",
+        sectionDescription = "Added and deleted Metrics, changes in DataType, FlowType, BalanceType, Domain reference and Hierarchy reference",
         sectionFields = listOf(
             domainInherentLabel,
             domainCode,

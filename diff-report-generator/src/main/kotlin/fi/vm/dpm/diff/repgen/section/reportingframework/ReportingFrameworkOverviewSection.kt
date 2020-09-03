@@ -69,7 +69,7 @@ class ReportingFrameworkOverviewSection(
     override val sectionDescriptor = elementOverviewSectionDescriptor(
         sectionShortTitle = "RepFwOverview",
         sectionTitle = "ReportingFramework overview",
-        sectionDescription = "ReportingFramework: added and deleted Reporting Frameworks, Taxonomies, Modules and Tables"
+        sectionDescription = "Added and deleted Reporting Frameworks, Taxonomies, Modules and Tables"
     )
 
     override val queryColumnMapping = elementOverviewQueryColumnMappings()
