@@ -48,6 +48,8 @@ allprojects { subproj ->
     }
 
     test {
+	    useJUnitPlatform()
+        
         filter {
             setFailOnNoMatchingTests(false)
         }
