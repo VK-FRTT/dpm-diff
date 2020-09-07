@@ -5,7 +5,8 @@ import fi.vm.dpm.diff.model.throwHalt
 import java.io.PrintWriter
 
 class DiffCliDiagnostic(
-    private val printWriter: PrintWriter
+    private val printWriter: PrintWriter,
+    private val verbosity: OutputVerbosity
 ) : Diagnostic {
 
     override fun fatal(message: String): Nothing {
@@ -20,6 +21,8 @@ class DiffCliDiagnostic(
     }
 
     override fun debug(message: String) {
-        printWriter.println(message)
+        if (verbosity == OutputVerbosity.DEBUG) {
+            printWriter.println(message)
+        }
     }
 }

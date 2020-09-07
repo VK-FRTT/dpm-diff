@@ -107,6 +107,8 @@ open class SectionBase(
             currentSourceRecords = currentSourceRecords
         )
 
+        generationContext.diagnostic.info("... changes: ${changes.size}")
+
         return ReportSection(
             sectionDescriptor = sectionDescriptor,
             changes = changes

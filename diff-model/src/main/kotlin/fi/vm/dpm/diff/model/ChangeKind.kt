@@ -5,7 +5,7 @@ enum class ChangeKind {
     DELETED,
     MODIFIED,
     DUPLICATE_KEY;
-    
+
     companion object {
         fun allChanges() = setOf(
             ADDED,

@@ -5,6 +5,7 @@ import fi.vm.dpm.diff.model.FailException
 import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
 import fi.vm.dpm.diff.model.SpreadsheetOutput
+import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.throwHalt
 import java.io.BufferedWriter
 import java.io.Closeable
@@ -26,7 +27,6 @@ internal class DiffCli(
     private val definedOptions = DefinedOptions()
     private val outWriter = PrintWriter(BufferedWriter(OutputStreamWriter(outStream, charset)), true)
     private val errWriter = PrintWriter(BufferedWriter(OutputStreamWriter(errStream, charset)), true)
-    private val diagnostic = DiffCliDiagnostic(outWriter)
 
     override fun close() {
         outWriter.close()
@@ -39,6 +39,8 @@ internal class DiffCli(
 
             val detectedOptions = definedOptions.detectOptionsFromArgs(args)
 
+            val diagnostic = DiffCliDiagnostic(outWriter, detectedOptions.verbosity)
+
             if (detectedOptions.cmdShowHelp) {
                 definedOptions.printHelp(outWriter)
                 throwHalt()
@@ -49,7 +51,8 @@ internal class DiffCli(
                 throwHalt()
             }
 
-            executeDpmDiffReport(detectedOptions.dpmDiffReportParams(diagnostic))
+            val dpmDiffReportParams = detectedOptions.dpmDiffReportParams(diagnostic)
+            executeDpmDiffReport(dpmDiffReportParams, diagnostic)
         }
     }
 
@@ -73,8 +76,10 @@ internal class DiffCli(
         }
     }
 
-    private fun executeDpmDiffReport(diffParams: DpmDiffReportParams) {
-
+    private fun executeDpmDiffReport(
+        diffParams: DpmDiffReportParams,
+        diagnostic: Diagnostic
+    ) {
         val version = DiffCliVersion.resolveVersion()
 
         val reportGeneratorDescriptor = ReportGeneratorDescriptor(

@@ -96,8 +96,8 @@ class HierarchyNodeStructureSection(
             FixedChangeKindSort(changeKind)
         ),
 
-        //Report all changes (i.e. also adds/deletes) as those explain why
-        //subsequent nodes order/level values change
+        // Report all changes (i.e. also adds/deletes) as those explain why
+        // subsequent nodes order/level values change
         includedChanges = ChangeKind.allChanges()
     )
 
