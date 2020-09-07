@@ -4,6 +4,7 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
@@ -33,6 +34,7 @@ open class ElementTranslationSectionBase(
 
     private val translation = AtomField(
         fieldName = "Translation",
+        displayHint = DisplayHint.FIXED_EXTRA_WIDE,
         atomOptions = AtomOption.OUTPUT_TO_ADDED_CHANGE
     )
 

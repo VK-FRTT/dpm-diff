@@ -33,7 +33,7 @@ data class SectionDescriptor(
             check(filterFieldType<FallbackField>().size >= 0)
             check(filterFieldType<RecordIdentityFallbackField>().size == 1)
             check(filterFieldType<KeySegmentField>().size >= 1)
-            check(filterFieldType<IdentificationLabelField>().size >= 1)
+            check(filterFieldType<IdentificationLabelField>().size >= 0)
             check(filterFieldType<ChangeKindField>().size == 1)
             check(filterFieldType<AtomField>().size >= 0)
             check(filterFieldType<NoteField>().size == 1)

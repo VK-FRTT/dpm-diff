@@ -4,6 +4,7 @@ import ext.kotlin.replaceCamelCase
 import fi.vm.dpm.diff.model.AddedChangeAtomValue
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.IdentificationLabelField
@@ -14,6 +15,7 @@ import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.ReportSection
 import fi.vm.dpm.diff.model.SectionDescriptor
+import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
 object SectionSheet {
@@ -82,7 +84,7 @@ object SectionSheet {
                         ColumnDescriptor(
                             field = field,
                             columnTitle = field.fieldName,
-                            columnWidth = ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN,
+                            columnWidth = field.displayHintToColumnWidth(),
                             headerStyle = cellStyles.headerStyleDimmed,
                             contentStyle = cellStyles.contentStyleDimmed,
                             changeToCellValue = { changeValue -> changeValue as String }
@@ -91,7 +93,7 @@ object SectionSheet {
                         ColumnDescriptor(
                             field = field,
                             columnTitle = field.fieldName,
-                            columnWidth = ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN,
+                            columnWidth = field.displayHintToColumnWidth(),
                             headerStyle = cellStyles.headerStyleNormal,
                             contentStyle = cellStyles.contentStyleNormal,
                             changeToCellValue = { changeValue -> changeValue as String }
@@ -103,7 +105,7 @@ object SectionSheet {
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
-                        columnWidth = ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN,
+                        columnWidth = field.displayHintToColumnWidth(),
                         headerStyle = cellStyles.headerStyleNormal,
                         contentStyle = cellStyles.contentStyleNormal,
                         changeToCellValue = { changeValue -> changeValue as String }
@@ -113,24 +115,18 @@ object SectionSheet {
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
-                        columnWidth = ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN,
+                        columnWidth = field.displayHintToColumnWidth(),
                         headerStyle = cellStyles.headerStyleNormal,
                         contentStyle = cellStyles.contentStyleNormal,
                         changeToCellValue = { changeValue -> changeValue.toString() }
                     )
 
                 is AtomField -> {
-                    val columnWidth = if (field.fieldName.toLowerCase().contains("translation")) {
-                        ColumnWidth.FIXED_EXTRA_WIDE
-                    } else {
-                        ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN
-                    }
-
                     listOf(
                         ColumnDescriptor(
                             field = field,
                             columnTitle = field.fieldName,
-                            columnWidth = columnWidth,
+                            columnWidth = field.displayHintToColumnWidth(),
                             headerStyle = cellStyles.headerStyleNormal,
                             contentStyle = cellStyles.contentStyleNormal,
                             changeToCellValue = { changeValue ->
@@ -145,7 +141,7 @@ object SectionSheet {
                         ColumnDescriptor(
                             field = field,
                             columnTitle = "${field.fieldName} (baseline)",
-                            columnWidth = columnWidth,
+                            columnWidth = field.displayHintToColumnWidth(),
                             headerStyle = cellStyles.headerStyleNormal,
                             contentStyle = cellStyles.contentStyleNormal,
                             changeToCellValue = { changeValue ->
@@ -163,7 +159,7 @@ object SectionSheet {
                     ColumnDescriptor(
                         field = field,
                         columnTitle = field.fieldName,
-                        columnWidth = ColumnWidth.FIXED_WIDE,
+                        columnWidth = field.displayHintToColumnWidth(),
                         headerStyle = cellStyles.headerStyleNormal,
                         contentStyle = cellStyles.contentStyleNormal,
                         changeToCellValue = { changeValue -> changeValue as String }
@@ -175,6 +171,26 @@ object SectionSheet {
                 is ColumnDescriptor -> listOf(fieldColumns)
                 is List<*> -> fieldColumns as List<ColumnDescriptor>
                 else -> emptyList()
+            }
+        }
+    }
+
+    private fun Field.displayHintToColumnWidth(): ColumnWidth {
+        return when (displayHint) {
+            DisplayHint.FIT_BY_TITLE -> {
+                ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN
+            }
+
+            DisplayHint.FIXED_WIDE -> {
+                ColumnWidth.FIXED_WIDE
+            }
+
+            DisplayHint.FIXED_EXTRA_WIDE -> {
+                ColumnWidth.FIXED_EXTRA_WIDE
+            }
+
+            else -> {
+                thisShouldNeverHappen("Unsupported display hint")
             }
         }
     }
