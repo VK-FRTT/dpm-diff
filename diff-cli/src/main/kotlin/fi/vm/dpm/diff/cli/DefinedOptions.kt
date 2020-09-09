@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.cli
+ package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.throwFail
 import java.io.PrintWriter
@@ -62,7 +62,7 @@ class DefinedOptions {
                 OptName.CURRENT_DPM_DB.nameString,
                 "DPM database to use as current in difference reporting"
             )
-            .withRequiredArg()
+            .withOptionalArg()
             .withValuesConvertedBy(PathConverter())
 
         output = optionParser
@@ -70,7 +70,7 @@ class DefinedOptions {
                 OptName.OUTPUT.nameString,
                 "output file where to store report"
             )
-            .withRequiredArg()
+            .withOptionalArg()
             .withValuesConvertedBy(PathConverter())
 
         forceOverwrite = optionParser
