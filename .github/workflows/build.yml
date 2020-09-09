@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches:
-      - feature/build-and-docs
+      - master
 
 jobs:
   build:
