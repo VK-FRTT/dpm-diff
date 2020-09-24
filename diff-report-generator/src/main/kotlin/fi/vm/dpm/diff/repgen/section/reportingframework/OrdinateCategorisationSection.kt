@@ -99,11 +99,6 @@ class OrdinateCategorisationSection(
     )
 
     // Atoms
-    private val dimensionMemberSignature = AtomField(
-        fieldName = "DimensionMemberSignature",
-        displayHint = DisplayHint.FIXED_EXTRA_WIDE
-    )
-
     private val source = AtomField(
         fieldName = "Source"
     )
@@ -135,7 +130,6 @@ class OrdinateCategorisationSection(
             memberCode,
             recordIdentityFallback,
             changeKind,
-            dimensionMemberSignature,
             source,
             dps,
             note
@@ -172,7 +166,6 @@ class OrdinateCategorisationSection(
         "MemberInherentLabel" to memberInherentLabel,
         "MemberCode" to memberCode,
 
-        "DimensionMemberSignature" to dimensionMemberSignature,
         "Source" to source,
         "DPS" to dps
     )
@@ -194,7 +187,6 @@ class OrdinateCategorisationSection(
         ,mMember.MemberID AS 'MemberId'
         ,mMember.MemberLabel AS 'MemberInherentLabel'
         ,mMember.MemberCode AS 'MemberCode'
-        ,mOrdinateCategorisation.DimensionMemberSignature AS 'DimensionMemberSignature'
         ,mOrdinateCategorisation.Source AS 'Source'
         ,mOrdinateCategorisation.DPS AS 'DPS'
 
