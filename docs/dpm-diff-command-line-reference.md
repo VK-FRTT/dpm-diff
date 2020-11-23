@@ -16,6 +16,7 @@ The DPM Diff is executed via Command Line Interface (CLI) and its operation is c
 | Revision | Date       | Author(s) | Description                                   |
 | -------- | ---------- | --------- | --------------------------------------------- |
 | 0.1      | 2020-09-07 | HE        | Initial command line reference for DPM Diff |
+| 0.2      | 2020-11-23 | HE        | New translation languages option |
 
 
 <br>
@@ -50,8 +51,16 @@ When given, DPM Diff silently overwrites existing conflicting output file.
  
 `--identificationLabelLanguages` _[Language codes]_
 
-Defines for which languages element identification labels are generated to report.
-Comma separated list of language codes, for example `fi,sv`
+Controls for which languages element identification labels are generated to report.
+Comma separated list of language codes, for example `fi,sv`.
+
+
+`--translationLanguages` _[Language codes]_
+
+Controls which languages are reported in translation sections (Dictionary, ReportingFramework and AxisOrdinate translations).
+Comma separated list of language codes, for example `fi,sv`.
+Optional option. If not given, changes for all languages are reported.
+
 
 `--verbosity` _[Verbosity mode]_
 
@@ -73,7 +82,7 @@ Prints help text about command line options and exit.
 
 <br>
 
-### 3.2 Compare Data Point Models and report differences
+### 3.2 Compare Data Point Models and report all differences
 
 ```
 $ dpmdiff -baseline-dpm-db SBR-2020-01-07.db --current-dpm-db SBR-2020-04-21.db --output SBR-2020-04-21-changes.xlsx --identificationLabelLanguages fi,sv

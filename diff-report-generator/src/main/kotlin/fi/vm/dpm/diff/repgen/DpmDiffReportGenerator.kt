@@ -29,6 +29,7 @@ class DpmDiffReportGenerator(
     private val currentDpmDbPath: Path,
     private val reportGeneratorDescriptor: ReportGeneratorDescriptor,
     private val identificationLabelLangCodes: List<String>,
+    private val translationLangCodes: List<String>?,
     private val diagnostic: Diagnostic
 ) : Closeable {
 
@@ -55,7 +56,7 @@ class DpmDiffReportGenerator(
 
         val dictionarySections = listOf(
             DictionaryOverviewSection(generationContext),
-            DictionaryTranslationSection(generationContext),
+            DictionaryTranslationSection(generationContext, translationLangCodes),
             DomainSection(generationContext),
             MemberSection(generationContext),
             MetricSection(generationContext),
@@ -67,11 +68,11 @@ class DpmDiffReportGenerator(
 
         val reportingFrameworkSections = listOf(
             ReportingFrameworkOverviewSection(generationContext),
-            ReportingFrameworkTranslationSection(generationContext),
+            ReportingFrameworkTranslationSection(generationContext, translationLangCodes),
             TableSection(generationContext),
             TableAxisSection(generationContext),
             AxisOrdinateSection(generationContext),
-            AxisOrdinateTranslationSection(generationContext),
+            AxisOrdinateTranslationSection(generationContext, translationLangCodes),
             OrdinateCategorisationSection(generationContext)
         )
 
@@ -82,7 +83,11 @@ class DpmDiffReportGenerator(
             baselineDpmDbFileName = baselineDpmDbPath.fileName.toString(),
             currentDpmDbFileName = currentDpmDbPath.fileName.toString(),
             sections = generatedSections,
-            reportGeneratorDescriptor = reportGeneratorDescriptor
+            reportGeneratorDescriptor = reportGeneratorDescriptor,
+            reportGenerationOptions = listOf(
+                "IdentificationLabelLanguages: ${identificationLabelLangCodes.joinToString()}",
+                "TranslationLanguages: ${translationLangCodes?.joinToString() ?: "ALL"}"
+            )
         )
     }
 }

@@ -93,6 +93,7 @@ internal class DiffCli(
             currentDpmDbPath = diffParams.currentDpmDbPath,
             reportGeneratorDescriptor = reportGeneratorDescriptor,
             identificationLabelLangCodes = diffParams.identificationLabelLangCodes,
+            translationLangCodes = diffParams.translationLangCodes,
             diagnostic = diagnostic
         ).use { generator ->
             generator.generateReport()

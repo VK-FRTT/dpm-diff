@@ -14,6 +14,7 @@ import fi.vm.dpm.diff.model.KeySegmentKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
+import fi.vm.dpm.diff.repgen.section.ElementTranslationHelpers.translationLanguageWhereStatement
 
 open class ElementTranslationSectionBase(
     generationContext: GenerationContext
@@ -90,7 +91,10 @@ open class ElementTranslationSectionBase(
         )
     }
 
-    protected fun elementTranslationQuery(elementQueryDescriptors: List<ElementQueryDescriptor>): String {
+    protected fun elementTranslationQuery(
+        elementQueryDescriptors: List<ElementQueryDescriptor>,
+        translationLangCodes: List<String>?
+    ): String {
         val query =
             """
             -- Shared sub-queries
@@ -122,6 +126,8 @@ open class ElementTranslationSectionBase(
                 .map { "SELECT * FROM ${elementTranslationQueryName(it)}" }
                 .joinToString("\nUNION ALL\n")}
             )
+
+            ${translationLanguageWhereStatement(translationLangCodes)}
 
             ORDER BY ElementType, ParentElementCode, ElementCode
             """

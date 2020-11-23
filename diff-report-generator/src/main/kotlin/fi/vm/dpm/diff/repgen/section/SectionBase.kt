@@ -189,12 +189,14 @@ open class SectionBase(
                 is SourceTableDescriptor -> {
                     sb.append("\nFROM ${it.table}")
 
-                    if (it.where != null) {
-                        sb.append("\nWHERE ${it.where}")
+                    if (it.joins != null) {
+                        it.joins.forEach { join ->
+                            sb.append("\nLEFT JOIN $join")
+                        }
                     }
 
-                    if (it.join != null) {
-                        sb.append("\nLEFT JOIN ${it.join}")
+                    if (it.where != null) {
+                        sb.append("\nWHERE ${it.where}")
                     }
                 }
 

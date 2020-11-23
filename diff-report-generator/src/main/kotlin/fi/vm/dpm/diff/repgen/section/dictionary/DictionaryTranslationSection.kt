@@ -1,11 +1,12 @@
 package fi.vm.dpm.diff.repgen.section.dictionary
 
 import fi.vm.dpm.diff.repgen.GenerationContext
-import fi.vm.dpm.diff.repgen.SourceTableDescriptor
+import fi.vm.dpm.diff.repgen.section.ElementTranslationHelpers.elementTranslationSourceTableDescriptor
 import fi.vm.dpm.diff.repgen.section.ElementTranslationSectionBase
 
 class DictionaryTranslationSection(
-    generationContext: GenerationContext
+    generationContext: GenerationContext,
+    translationLangCodes: List<String>?
 ) : ElementTranslationSectionBase(
     generationContext
 ) {
@@ -17,24 +18,34 @@ class DictionaryTranslationSection(
 
     override val queryColumnMapping = elementTranslationQueryColumnMappings()
 
-    override val query = elementTranslationQuery(DictionaryOverviewSection.elementQueryDescriptors)
+    override val query = elementTranslationQuery(
+        DictionaryOverviewSection.elementQueryDescriptors,
+        translationLangCodes
+    )
 
     override val sourceTableDescriptors = listOf(
-        SourceTableDescriptor(
-            table = "mDomain",
-            join = "mConceptTranslation on mConceptTranslation.ConceptID = mDomain.ConceptID"
+        elementTranslationSourceTableDescriptor(
+            elementTable = "mDomain",
+            conceptTranslationJoin = "mConceptTranslation on mConceptTranslation.ConceptID = mDomain.ConceptID",
+            translationLangCodes = translationLangCodes
         ),
-        SourceTableDescriptor(
-            table = "mMember",
-            join = "mConceptTranslation on mConceptTranslation.ConceptID = mMember.ConceptID"
+
+        elementTranslationSourceTableDescriptor(
+            elementTable = "mMember",
+            conceptTranslationJoin = "mConceptTranslation on mConceptTranslation.ConceptID = mMember.ConceptID",
+            translationLangCodes = translationLangCodes
         ),
-        SourceTableDescriptor(
-            table = "mDimension",
-            join = "mConceptTranslation on mConceptTranslation.ConceptID = mDimension.ConceptID"
+
+        elementTranslationSourceTableDescriptor(
+            elementTable = "mDimension",
+            conceptTranslationJoin = "mConceptTranslation on mConceptTranslation.ConceptID = mDimension.ConceptID",
+            translationLangCodes = translationLangCodes
         ),
-        SourceTableDescriptor(
-            table = "mHierarchy",
-            join = "mConceptTranslation on mConceptTranslation.ConceptID = mHierarchy.ConceptID"
+
+        elementTranslationSourceTableDescriptor(
+            elementTable = "mHierarchy",
+            conceptTranslationJoin = "mConceptTranslation on mConceptTranslation.ConceptID = mHierarchy.ConceptID",
+            translationLangCodes = translationLangCodes
         )
     )
 

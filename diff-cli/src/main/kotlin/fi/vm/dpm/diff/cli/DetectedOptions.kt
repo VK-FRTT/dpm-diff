@@ -11,6 +11,7 @@ data class DetectedOptions(
     val outputFilePath: Path?,
     val forceOverwrite: Boolean,
     val identificationLabelLanguages: String?,
+    val translationLanguages: String?,
     val verbosity: OutputVerbosity
 ) {
     fun dpmDiffReportParams(diagnostic: Diagnostic): DpmDiffReportParams {
@@ -38,9 +39,15 @@ data class DetectedOptions(
 
             forceOverwrite = forceOverwrite,
 
-            identificationLabelLangCodes = StringOptions.checkIdentificationLabelLanguages(
+            identificationLabelLangCodes = LangCodeOptions.checkIdentificationLabelLanguages(
                 identificationLabelLanguages,
                 OptName.IDENTIFICATION_LABEL_LANGUAGES,
+                validationResults
+            ),
+
+            translationLangCodes = LangCodeOptions.checkTranslationLanguages(
+                translationLanguages,
+                OptName.TRANSLATION_LANGUAGES,
                 validationResults
             )
         )

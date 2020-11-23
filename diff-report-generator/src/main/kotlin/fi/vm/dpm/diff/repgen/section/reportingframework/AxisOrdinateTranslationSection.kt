@@ -14,11 +14,13 @@ import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionDescriptor
 import fi.vm.dpm.diff.repgen.GenerationContext
-import fi.vm.dpm.diff.repgen.SourceTableDescriptor
+import fi.vm.dpm.diff.repgen.section.ElementTranslationHelpers.elementTranslationSourceTableDescriptor
+import fi.vm.dpm.diff.repgen.section.ElementTranslationHelpers.translationLanguageWhereStatement
 import fi.vm.dpm.diff.repgen.section.SectionBase
 
 class AxisOrdinateTranslationSection(
-    generationContext: GenerationContext
+    generationContext: GenerationContext,
+    translationLangCodes: List<String>?
 ) : SectionBase(
     generationContext
 ) {
@@ -198,14 +200,17 @@ class AxisOrdinateTranslationSection(
         LEFT JOIN mConceptTranslation ON mConceptTranslation.ConceptID = OrdinateConceptId
         LEFT JOIN mLanguage ON mLanguage.LanguageID = mConceptTranslation.LanguageID
 
+        ${translationLanguageWhereStatement(translationLangCodes)}
+
         ORDER BY OrdinateCode
 
     """.trimLineStartsAndConsequentBlankLines()
 
     override val sourceTableDescriptors = listOf(
-        SourceTableDescriptor(
-            table = "mAxisOrdinate",
-            join = "mConceptTranslation on mConceptTranslation.ConceptID = mAxisOrdinate.ConceptID"
+        elementTranslationSourceTableDescriptor(
+            elementTable = "mAxisOrdinate",
+            conceptTranslationJoin = "mConceptTranslation on mConceptTranslation.ConceptID = mAxisOrdinate.ConceptID",
+            translationLangCodes = translationLangCodes
         )
     )
 

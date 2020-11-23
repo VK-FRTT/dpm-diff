@@ -1,4 +1,4 @@
- package fi.vm.dpm.diff.cli
+package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.throwFail
 import java.io.PrintWriter
@@ -18,7 +18,8 @@ enum class OptName(val nameString: String) {
     CURRENT_DPM_DB("current-dpm-db"),
     REPORT_CONFIG("report-config"),
     OUTPUT("output"),
-    IDENTIFICATION_LABEL_LANGUAGES("identificationLabelLanguages")
+    IDENTIFICATION_LABEL_LANGUAGES("identificationLabelLanguages"),
+    TRANSLATION_LANGUAGES("translationLanguages")
 }
 
 class DefinedOptions {
@@ -33,6 +34,7 @@ class DefinedOptions {
     private val output: OptionSpec<Path>
     private val forceOverwrite: OptionSpec<Void>
     private val identificationLabelLanguages: OptionSpec<String>
+    private val translationLanguages: OptionSpec<String>
 
     private val verbosity: OptionSpec<OutputVerbosity>
 
@@ -86,6 +88,13 @@ class DefinedOptions {
             )
             .withOptionalArg()
 
+        translationLanguages = optionParser
+            .accepts(
+                OptName.TRANSLATION_LANGUAGES.nameString,
+                "list of languages for which translation changes are reported"
+            )
+            .withOptionalArg()
+
         verbosity = optionParser
             .accepts(
                 "verbosity",
@@ -135,6 +144,11 @@ class DefinedOptions {
                 null
             },
 
+            translationLanguages = if (optionSet.has(translationLanguages)) {
+                optionSet.valueOf(translationLanguages)
+            } else {
+                null
+            },
             verbosity = optionSet.valueOf(verbosity)
         )
     }

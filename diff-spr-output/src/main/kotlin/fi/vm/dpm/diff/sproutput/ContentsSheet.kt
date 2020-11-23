@@ -25,6 +25,8 @@ object ContentsSheet {
         sw.addRow(cellStyles.contentStyleNormal, "Baseline database", changeReport.baselineDpmDbFileName)
         sw.addRow(cellStyles.contentStyleNormal, "Current database", changeReport.currentDpmDbFileName)
         sw.addRow(cellStyles.contentStyleNormal, "Generated with", generatorInfo)
+        sw.addRow(cellStyles.contentStyleNormal, "Generation options", changeReport.reportGenerationOptions.joinToString(separator = "\n"))
+
         sw.addEmptyRows(3)
 
         sw.addRow(cellStyles.headerStyleNormal, "Sheet", "Description", "Change count")
