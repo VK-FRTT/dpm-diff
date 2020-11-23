@@ -120,8 +120,9 @@ open class SectionBase(
         sourceKind: SourceKind
     ): List<SourceRecord> {
         val sourceRecords = mutableListOf<SourceRecord>()
+        val queryName = "${sectionDescriptor.sectionShortTitle} $sourceKind Records"
 
-        dbConnection.executeQuery(query) { resultSet ->
+        dbConnection.executeQuery(query, queryName) { resultSet ->
             sanityCheckResultSetColumnLabels(resultSet)
 
             while (resultSet.next()) {
@@ -142,7 +143,8 @@ open class SectionBase(
 
         sanityCheckLoadedSourceRecordsCount(
             sourceRecords,
-            dbConnection
+            dbConnection,
+            sourceKind
         )
 
         return sourceRecords
@@ -172,7 +174,8 @@ open class SectionBase(
 
     private fun sanityCheckLoadedSourceRecordsCount(
         loadedRecords: List<SourceRecord>,
-        dbConnection: DbConnection
+        dbConnection: DbConnection,
+        sourceKind: SourceKind
     ) {
         val tableRowCountQueries = sourceTableDescriptors.map {
             val sb = StringBuilder()
@@ -208,7 +211,9 @@ open class SectionBase(
             )
         """.trimLineStartsAndConsequentBlankLines()
 
-        val totalRowCount = dbConnection.executeQuery(totalRowCountQuery) { resultSet ->
+        val queryName = "${sectionDescriptor.sectionShortTitle} $sourceKind TotalRowCounts"
+
+        val totalRowCount = dbConnection.executeQuery(totalRowCountQuery, queryName) { resultSet ->
             resultSet.next()
             resultSet.getInt("TotalCount")
         }

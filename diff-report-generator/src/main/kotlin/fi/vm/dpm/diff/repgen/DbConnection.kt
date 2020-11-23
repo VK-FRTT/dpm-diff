@@ -1,5 +1,7 @@
 package fi.vm.dpm.diff.repgen
 
+import fi.vm.dpm.diff.model.SectionDescriptor
+import fi.vm.dpm.diff.model.SourceKind
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import java.io.Closeable
 import java.nio.file.Path
@@ -20,9 +22,10 @@ class DbConnection(
 
     fun <R> executeQuery(
         query: String,
+        queryName: String,
         action: (ResultSet) -> R
     ): R {
-        diagnostic.debug("DB query:[\n${query.prependIndent()}\n]")
+        diagnostic.debug("DB query '$queryName':[\n${query.prependIndent()}\n]")
 
         return connection.createStatement().use { statement ->
             val rs = try {
