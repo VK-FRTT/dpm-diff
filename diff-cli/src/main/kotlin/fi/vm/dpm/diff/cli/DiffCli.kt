@@ -1,12 +1,14 @@
 package fi.vm.dpm.diff.cli
 
-import fi.vm.dpm.diff.model.DpmDiffReportGenerator
+import fi.vm.dpm.diff.model.DpmReportGenerator
 import fi.vm.dpm.diff.model.FailException
 import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
 import fi.vm.dpm.diff.model.SpreadsheetOutput
+import fi.vm.dpm.diff.model.VkDataReportGenerator
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.throwHalt
+import fi.vm.dpm.diff.repgen.ReportGenerator
 import java.io.BufferedWriter
 import java.io.Closeable
 import java.io.OutputStreamWriter
@@ -41,6 +43,8 @@ internal class DiffCli(
 
             val diagnostic = DiffCliDiagnostic(outWriter, detectedOptions.verbosity)
 
+            detectedOptions.ensureSingleCommandGiven(diagnostic)
+
             if (detectedOptions.cmdShowHelp) {
                 definedOptions.printHelp(outWriter)
                 throwHalt()
@@ -51,8 +55,17 @@ internal class DiffCli(
                 throwHalt()
             }
 
-            val dpmDiffReportParams = detectedOptions.dpmDiffReportParams(diagnostic)
-            executeDpmDiffReport(dpmDiffReportParams, diagnostic)
+            if (detectedOptions.cmdCompareDpm) {
+                val params = detectedOptions.compareParamsDpm(diagnostic)
+                compareDpm(params, diagnostic)
+                throwHalt()
+            }
+
+            if (detectedOptions.cmdCompareVkData) {
+                val params = detectedOptions.compareParamsVkData(diagnostic)
+                compareVkData(params, diagnostic)
+                throwHalt()
+            }
         }
     }
 
@@ -76,31 +89,61 @@ internal class DiffCli(
         }
     }
 
-    private fun executeDpmDiffReport(
-        diffParams: DpmDiffReportParams,
+    private fun compareDpm(
+        params: CompareParamsDpm,
         diagnostic: Diagnostic
     ) {
+        val reportGeneratorDescriptor = reportGeneratorDescriptor()
+
+        val generator = DpmReportGenerator(
+            baselineDbPath = params.common.baselineDbPath,
+            currentDbPath = params.common.currentDbPath,
+            reportGeneratorDescriptor = reportGeneratorDescriptor,
+            identificationLabelLangCodes = params.identificationLabelLangCodes,
+            translationLangCodes = params.translationLangCodes,
+            diagnostic = diagnostic
+        )
+
+        generateAndRender(generator, params.common, diagnostic)
+    }
+
+    private fun compareVkData(
+        params: CompareParamsVkData,
+        diagnostic: Diagnostic
+    ) {
+        val reportGeneratorDescriptor = reportGeneratorDescriptor()
+
+        val generator = VkDataReportGenerator(
+            baselineDbPath = params.common.baselineDbPath,
+            currentDbPath = params.common.currentDbPath,
+            reportGeneratorDescriptor = reportGeneratorDescriptor,
+            diagnostic = diagnostic
+        )
+
+        generateAndRender(generator, params.common, diagnostic)
+    }
+
+    private fun reportGeneratorDescriptor(): ReportGeneratorDescriptor {
         val version = DiffCliVersion.resolveVersion()
 
-        val reportGeneratorDescriptor = ReportGeneratorDescriptor(
+        return ReportGeneratorDescriptor(
             title = DPM_DIFF_TITLE,
             revision = version.buildRevision,
             originUrl = version.originUrl
         )
+    }
 
-        val report = DpmDiffReportGenerator(
-            baselineDpmDbPath = diffParams.baselineDpmDbPath,
-            currentDpmDbPath = diffParams.currentDpmDbPath,
-            reportGeneratorDescriptor = reportGeneratorDescriptor,
-            identificationLabelLangCodes = diffParams.identificationLabelLangCodes,
-            translationLangCodes = diffParams.translationLangCodes,
-            diagnostic = diagnostic
-        ).use { generator ->
+    private fun generateAndRender(
+        generator: ReportGenerator,
+        commonParams: CompareParamsCommon,
+        diagnostic: Diagnostic
+    ) {
+        val report = generator.use { generator ->
             generator.generateReport()
         }
 
         SpreadsheetOutput(
-            outputFilePath = diffParams.outputFilePath,
+            outputFilePath = commonParams.outputFilePath,
             diagnostic = diagnostic
         ).use { output ->
             output.renderOutput(report)

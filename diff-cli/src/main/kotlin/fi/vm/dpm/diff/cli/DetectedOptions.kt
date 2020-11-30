@@ -6,38 +6,38 @@ import java.nio.file.Path
 data class DetectedOptions(
     val cmdShowHelp: Boolean,
     val cmdShowVersion: Boolean,
+    val cmdCompareDpm: Boolean,
+    val cmdCompareVkData: Boolean,
+
     val baselineDpmDbPath: Path?,
     val currentDpmDbPath: Path?,
     val outputFilePath: Path?,
     val forceOverwrite: Boolean,
+    val verbosity: OutputVerbosity,
+
     val identificationLabelLanguages: String?,
-    val translationLanguages: String?,
-    val verbosity: OutputVerbosity
+    val translationLanguages: String?
 ) {
-    fun dpmDiffReportParams(diagnostic: Diagnostic): DpmDiffReportParams {
+
+    fun ensureSingleCommandGiven(diagnostic: Diagnostic) {
+        val commandCount = listOf(
+            cmdShowHelp,
+            cmdShowVersion,
+            cmdCompareDpm,
+            cmdCompareVkData
+        ).count { it }
+
+        if (commandCount != 1) {
+            diagnostic.fatal("Single command must be given")
+        }
+    }
+
+    fun compareParamsDpm(diagnostic: Diagnostic): CompareParamsDpm {
         val validationResults = OptionValidationResults()
 
-        val params = DpmDiffReportParams(
-            baselineDpmDbPath = PathOptions.checkExistingFile(
-                baselineDpmDbPath,
-                OptName.BASELINE_DPM_DB,
-                validationResults
-            ),
+        val params = CompareParamsDpm(
 
-            currentDpmDbPath = PathOptions.checkExistingFile(
-                currentDpmDbPath,
-                OptName.CURRENT_DPM_DB,
-                validationResults
-            ),
-
-            outputFilePath = PathOptions.checkWritableFile(
-                outputFilePath,
-                forceOverwrite,
-                OptName.OUTPUT,
-                validationResults
-            ),
-
-            forceOverwrite = forceOverwrite,
+            common = compareParamsCommon(validationResults),
 
             identificationLabelLangCodes = LangCodeOptions.checkIdentificationLabelLanguages(
                 identificationLabelLanguages,
@@ -55,5 +55,42 @@ data class DetectedOptions(
         validationResults.reportErrors(diagnostic)
 
         return params
+    }
+
+    fun compareParamsVkData(diagnostic: Diagnostic): CompareParamsVkData {
+        val validationResults = OptionValidationResults()
+
+        val params = CompareParamsVkData(
+            common = compareParamsCommon(validationResults)
+        )
+
+        validationResults.reportErrors(diagnostic)
+
+        return params
+    }
+
+    private fun compareParamsCommon(validationResults: OptionValidationResults): CompareParamsCommon {
+        return CompareParamsCommon(
+            baselineDbPath = PathOptions.checkExistingFile(
+                baselineDpmDbPath,
+                OptName.BASELINE_DB,
+                validationResults
+            ),
+
+            currentDbPath = PathOptions.checkExistingFile(
+                currentDpmDbPath,
+                OptName.CURRENT_DB,
+                validationResults
+            ),
+
+            outputFilePath = PathOptions.checkWritableFile(
+                outputFilePath,
+                forceOverwrite,
+                OptName.OUTPUT,
+                validationResults
+            ),
+
+            forceOverwrite = forceOverwrite
+        )
     }
 }
