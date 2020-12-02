@@ -1,14 +1,15 @@
 package fi.vm.dpm.diff.cli
 
-import fi.vm.dpm.diff.model.DpmReportGenerator
+import fi.vm.dpm.diff.model.DpmSectionPlans
 import fi.vm.dpm.diff.model.FailException
 import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
 import fi.vm.dpm.diff.model.SpreadsheetOutput
-import fi.vm.dpm.diff.model.VkDataReportGenerator
+import fi.vm.dpm.diff.model.SqlReportGenerator
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.throwHalt
-import fi.vm.dpm.diff.repgen.ReportGenerator
+import fi.vm.dpm.diff.repgen.SectionPlanSql
+import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 import java.io.BufferedWriter
 import java.io.Closeable
 import java.io.OutputStreamWriter
@@ -56,14 +57,14 @@ internal class DiffCli(
             }
 
             if (detectedOptions.cmdCompareDpm) {
-                val params = detectedOptions.compareParamsDpm(diagnostic)
-                compareDpm(params, diagnostic)
+                val (commonOptions, dpmSectionOptions) = detectedOptions.compareDpmOptions(diagnostic)
+                compareDpm(commonOptions, dpmSectionOptions, diagnostic)
                 throwHalt()
             }
 
             if (detectedOptions.cmdCompareVkData) {
-                val params = detectedOptions.compareParamsVkData(diagnostic)
-                compareVkData(params, diagnostic)
+                val commonOptions = detectedOptions.compareVkDataOptions(diagnostic)
+                compareVkData(commonOptions, diagnostic)
                 throwHalt()
             }
         }
@@ -90,37 +91,30 @@ internal class DiffCli(
     }
 
     private fun compareDpm(
-        params: CompareParamsDpm,
+        commonOptions: CommonCompareOptions,
+        dpmSectionOptions: DpmSectionOptions,
         diagnostic: Diagnostic
     ) {
-        val reportGeneratorDescriptor = reportGeneratorDescriptor()
-
-        val generator = DpmReportGenerator(
-            baselineDbPath = params.common.baselineDbPath,
-            currentDbPath = params.common.currentDbPath,
-            reportGeneratorDescriptor = reportGeneratorDescriptor,
-            identificationLabelLangCodes = params.identificationLabelLangCodes,
-            translationLangCodes = params.translationLangCodes,
+        generateAndRenderSqlBasedReport(
+            sectionPlans = DpmSectionPlans.allPlans(dpmSectionOptions),
+            reportGeneratorDescriptor = reportGeneratorDescriptor(),
+            reportGenerationOptions = dpmSectionOptions.toReportGenerationOptions(),
+            commonOptions = commonOptions,
             diagnostic = diagnostic
         )
-
-        generateAndRender(generator, params.common, diagnostic)
     }
 
     private fun compareVkData(
-        params: CompareParamsVkData,
+        commonOptions: CommonCompareOptions,
         diagnostic: Diagnostic
     ) {
-        val reportGeneratorDescriptor = reportGeneratorDescriptor()
-
-        val generator = VkDataReportGenerator(
-            baselineDbPath = params.common.baselineDbPath,
-            currentDbPath = params.common.currentDbPath,
-            reportGeneratorDescriptor = reportGeneratorDescriptor,
+        generateAndRenderSqlBasedReport(
+            sectionPlans = emptyList(),
+            reportGeneratorDescriptor = reportGeneratorDescriptor(),
+            reportGenerationOptions = emptyList(),
+            commonOptions = commonOptions,
             diagnostic = diagnostic
         )
-
-        generateAndRender(generator, params.common, diagnostic)
     }
 
     private fun reportGeneratorDescriptor(): ReportGeneratorDescriptor {
@@ -133,17 +127,28 @@ internal class DiffCli(
         )
     }
 
-    private fun generateAndRender(
-        generator: ReportGenerator,
-        commonParams: CompareParamsCommon,
+    private fun generateAndRenderSqlBasedReport(
+        sectionPlans: Collection<SectionPlanSql>,
+        reportGeneratorDescriptor: ReportGeneratorDescriptor,
+        reportGenerationOptions: List<String>,
+        commonOptions: CommonCompareOptions,
         diagnostic: Diagnostic
     ) {
-        val report = generator.use { generator ->
-            generator.generateReport()
+        val generator = SqlReportGenerator(
+            sectionPlans = sectionPlans,
+            reportGeneratorDescriptor = reportGeneratorDescriptor,
+            reportGenerationOptions = reportGenerationOptions,
+            baselineDbPath = commonOptions.baselineDbPath,
+            currentDbPath = commonOptions.currentDbPath,
+            diagnostic = diagnostic
+        )
+
+        val report = generator.use {
+            it.generateReport()
         }
 
         SpreadsheetOutput(
-            outputFilePath = commonParams.outputFilePath,
+            outputFilePath = commonOptions.outputFilePath,
             diagnostic = diagnostic
         ).use { output ->
             output.renderOutput(report)

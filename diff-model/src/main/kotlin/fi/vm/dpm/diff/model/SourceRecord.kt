@@ -5,7 +5,7 @@ import ext.kotlin.replaceCamelCase
 import kotlin.reflect.KClass
 
 data class SourceRecord(
-    val sectionDescriptor: SectionDescriptor,
+    val sectionOutline: SectionOutline,
     val sourceKind: SourceKind,
     val fields: Map<Field, String?>
 ) {
@@ -105,7 +105,7 @@ data class SourceRecord(
     private inline fun <reified FT : Field> optionalFieldOfType(): FT? {
         val classCriteria = FT::class
 
-        val fields = sectionDescriptor.sectionFields.filter { it::class == classCriteria }
+        val fields = sectionOutline.sectionFields.filter { it::class == classCriteria }
 
         if (fields.isEmpty()) return null
         return fields.first() as FT

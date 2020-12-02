@@ -14,7 +14,7 @@ import fi.vm.dpm.diff.model.ModifiedChangeAtomValue
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.ReportSection
-import fi.vm.dpm.diff.model.SectionDescriptor
+import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
@@ -28,13 +28,13 @@ object SectionSheet {
     ) {
         val sheetName = composeSheetName(
             sectionIndex,
-            section.sectionDescriptor
+            section.sectionOutline
         )
 
         val sw = SheetWriter.createToWorkbook(sheetName, workbook)
 
         val columns = sectionColumns(
-            section.sectionDescriptor.sectionFields,
+            section.sectionOutline.sectionFields,
             cellStyles
         )
 
@@ -61,9 +61,9 @@ object SectionSheet {
 
     fun composeSheetName(
         sectionIndex: Int,
-        sectionDescriptor: SectionDescriptor
+        sectionOutline: SectionOutline
     ): String {
-        return "${String.format("%02d", sectionIndex + 1)}_${sectionDescriptor.sectionShortTitle.replaceCamelCase("_")}"
+        return "${String.format("%02d", sectionIndex + 1)}_${sectionOutline.sectionShortTitle.replaceCamelCase("_")}"
     }
 
     private fun sectionColumns(

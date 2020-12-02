@@ -52,12 +52,12 @@ internal open class ChangeDetectionTestBase {
         baselineRecordsValues: String?,
         currentRecordsValues: String?,
         expectedResultsValues: String?,
-        sectionDescriptor: SectionDescriptor,
+        sectionOutline: SectionOutline,
         recordValueMapper: (List<String?>) -> (Map<Field, String?>),
         changeResultsMapper: (List<ChangeRecord>) -> (List<String>)
     ) {
         val changes = executeResolveChanges(
-            sectionDescriptor = sectionDescriptor,
+            sectionOutline = sectionOutline,
             baselineRecordsFieldValues = buildRecordsFieldValues(baselineRecordsValues, recordValueMapper),
             currentRecordsFieldValues = buildRecordsFieldValues(currentRecordsValues, recordValueMapper)
         )
@@ -90,25 +90,25 @@ internal open class ChangeDetectionTestBase {
     }
 
     private fun executeResolveChanges(
-        sectionDescriptor: SectionDescriptor,
+        sectionOutline: SectionOutline,
         baselineRecordsFieldValues: List<Map<Field, String?>>,
         currentRecordsFieldValues: List<Map<Field, String?>>
     ): List<ChangeRecord> {
 
         val baselineSourceRecords = createSourceRecords(
-            sectionDescriptor,
+            sectionOutline,
             SourceKind.BASELINE,
             baselineRecordsFieldValues
         )
 
         val currentSourceRecords = createSourceRecords(
-            sectionDescriptor,
+            sectionOutline,
             SourceKind.CURRENT,
             currentRecordsFieldValues
         )
 
         val changes = ChangeRecord.resolveChanges(
-            sectionDescriptor = sectionDescriptor,
+            sectionOutline = sectionOutline,
             baselineSourceRecords = baselineSourceRecords,
             currentSourceRecords = currentSourceRecords
         )
@@ -117,18 +117,18 @@ internal open class ChangeDetectionTestBase {
     }
 
     private fun createSourceRecords(
-        sectionDescriptor: SectionDescriptor,
+        sectionOutline: SectionOutline,
         sourceKind: SourceKind,
         recordsFieldValues: List<Map<Field, String?>>
     ): List<SourceRecord> {
         val sourceRecords = recordsFieldValues.map { recordFieldValues ->
 
-            val totalFieldValues = sectionDescriptor.sectionFields.map {
+            val totalFieldValues = sectionOutline.sectionFields.map {
                 it to null
             }.toMap() + recordFieldValues
 
             SourceRecord(
-                sectionDescriptor,
+                sectionOutline,
                 sourceKind,
                 totalFieldValues
             )

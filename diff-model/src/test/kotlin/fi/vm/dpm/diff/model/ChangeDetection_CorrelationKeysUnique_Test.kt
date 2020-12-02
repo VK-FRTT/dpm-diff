@@ -10,7 +10,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     @Nested
     inner class PrimeSegment {
 
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "PrimeSegment",
             sectionTitle = "PrimeSegment",
             sectionDescription = "PrimeSegment",
@@ -55,7 +55,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         primeKeySegment to values[0]
@@ -71,7 +71,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     @Nested
     inner class PrimeSegmentWithAtom {
 
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "PrimeSegmentWithAtom",
             sectionTitle = "PrimeSegmentWithAtom",
             sectionDescription = "PrimeSegmentWithAtom",
@@ -117,7 +117,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         primeKeySegment to values[0],
@@ -133,7 +133,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
 
     @Nested
     inner class ScopeAndPrimeSegment {
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "ScopeAndPrimeSegment",
             sectionTitle = "ScopeAndPrimeSegment",
             sectionDescription = "ScopeAndPrimeSegment",
@@ -179,7 +179,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         scopeKeySegment to values[0],
@@ -196,7 +196,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     @Nested
     inner class ScopeAndPrimeSegmentWithAtom {
 
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "ScopeAndPrimeSegmentWithAtom",
             sectionTitle = "ScopeAndPrimeSegmentWithAtom",
             sectionDescription = "ScopeAndPrimeSegmentWithAtom",
@@ -248,7 +248,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         scopeKeySegment to values[0],
@@ -266,7 +266,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     @Nested
     inner class PrimeAndSubSegmentWithAtom {
 
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "PrimeAndSubSegmentWithAtom",
             sectionTitle = "PrimeAndSubSegmentWithAtom",
             sectionDescription = "PrimeAndSubSegmentWithAtom",
@@ -323,7 +323,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         primeKeySegment to values[0],
@@ -341,7 +341,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     @Nested
     inner class ScopePrimeAndSubSegmentWithAtom {
 
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "ScopePrimeAndSubSegmentWithAtom",
             sectionTitle = "ScopePrimeAndSubSegmentWithAtom",
             sectionDescription = "ScopePrimeAndSubSegmentWithAtom",
@@ -404,7 +404,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         scopeKeySegment to values[0],
@@ -423,7 +423,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
     @Nested
     inner class TwoScopePrimeAndSubSegmentsWithAtom {
 
-        private val sectionDescriptor = SectionDescriptor(
+        private val sectionOutline = SectionOutline(
             sectionShortTitle = "TwoScopePrimeAndSubSegmentsWithAtom ",
             sectionTitle = "TwoScopePrimeAndSubSegmentsWithAtom ",
             sectionDescription = "TwoScopePrimeAndSubSegmentsWithAtom ",
@@ -484,7 +484,7 @@ internal class ChangeDetection_CorrelationKeysUnique_Test : ChangeDetectionTestB
                 baselineRecordsValues = baselineRecordsValues,
                 currentRecordsValues = currentRecordsValues,
                 expectedResultsValues = expectedResultsValues,
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 recordValueMapper = { values ->
                     mapOf(
                         scopeKeySegment to values[0],

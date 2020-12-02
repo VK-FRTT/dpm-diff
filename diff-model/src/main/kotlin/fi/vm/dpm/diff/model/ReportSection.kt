@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.model
 
 data class ReportSection(
-    val sectionDescriptor: SectionDescriptor,
+    val sectionOutline: SectionOutline,
     val changes: List<ChangeRecord>
 )

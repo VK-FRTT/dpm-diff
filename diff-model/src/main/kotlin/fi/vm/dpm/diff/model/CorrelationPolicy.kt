@@ -10,12 +10,12 @@ open class CorrelationPolicy(
     companion object {
 
         fun create(
-            sectionDescriptor: SectionDescriptor,
+            sectionOutline: SectionOutline,
             baselineSourceRecords: List<SourceRecord>,
             currentSourceRecords: List<SourceRecord>
         ): CorrelationPolicy {
 
-            return if (sectionDescriptor
+            return if (sectionOutline
                     .sectionFields
                     .filterFieldType<KeySegmentField>()
                     .any { it.segmentKind == KeySegmentKind.SUB_SEGMENT }

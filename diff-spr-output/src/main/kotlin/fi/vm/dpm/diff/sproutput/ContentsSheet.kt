@@ -48,18 +48,18 @@ object ContentsSheet {
 
             val sheetName = SectionSheet.composeSheetName(
                 index,
-                section.sectionDescriptor
+                section.sectionOutline
             )
 
             sw.addLinkRow(
                 cellStyles.contentStyleNormal,
                 cellStyles.contentStyleNormalLink,
                 SheetWriter.Link(
-                    linkTitle = section.sectionDescriptor.sectionTitle,
+                    linkTitle = section.sectionOutline.sectionTitle,
                     linkAddress = "'$sheetName'!A1",
                     linkType = HyperlinkType.DOCUMENT
                 ),
-                section.sectionDescriptor.sectionDescription,
+                section.sectionOutline.sectionDescription,
                 section.changes.size.toString()
             )
         }

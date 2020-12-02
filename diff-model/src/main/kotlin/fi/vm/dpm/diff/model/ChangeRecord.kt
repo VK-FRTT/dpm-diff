@@ -6,13 +6,13 @@ data class ChangeRecord(
     companion object {
 
         fun resolveChanges(
-            sectionDescriptor: SectionDescriptor,
+            sectionOutline: SectionOutline,
             baselineSourceRecords: List<SourceRecord>,
             currentSourceRecords: List<SourceRecord>
         ): List<ChangeRecord> {
 
             val correlationPolicy = CorrelationPolicy.create(
-                sectionDescriptor = sectionDescriptor,
+                sectionOutline = sectionOutline,
                 baselineSourceRecords = baselineSourceRecords,
                 currentSourceRecords = currentSourceRecords
             )
@@ -37,7 +37,7 @@ data class ChangeRecord(
                 .duplicateCorrelationKeyRecords()
                 .map { it.toDuplicateKeyChange() }
 
-            val changeRecords = sectionDescriptor.includedChanges
+            val changeRecords = sectionOutline.includedChanges
                 .sorted()
                 .flatMap { changeKind ->
                     when (changeKind) {
@@ -48,7 +48,7 @@ data class ChangeRecord(
                     }
                 }
 
-            val comparator = ChangeRecordComparator(sectionDescriptor.sectionSortOrder)
+            val comparator = ChangeRecordComparator(sectionOutline.sectionSortOrder)
             return changeRecords.sortedWith(comparator)
         }
     }
