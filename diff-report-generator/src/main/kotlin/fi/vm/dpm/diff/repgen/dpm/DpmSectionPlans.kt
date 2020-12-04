@@ -42,7 +42,7 @@ object DpmSectionPlans {
             TableAxisSection.sectionPlan(dpmSectionOptions),
             AxisOrdinateSection.sectionPlan(dpmSectionOptions),
             AxisOrdinateTranslationSection.sectionPlan(dpmSectionOptions),
-            OrdinateCategorisationSection.sectionPlan(dpmSectionOptions)
+            OrdinateCategorisationSection.sectionPlan()
         )
 
         return dictionarySectionPlans + reportingFrameworkSectionPlans

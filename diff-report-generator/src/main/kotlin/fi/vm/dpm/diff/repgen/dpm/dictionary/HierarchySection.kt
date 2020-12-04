@@ -114,7 +114,7 @@ object HierarchySection {
             "mHierarchy"
         )
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = sectionOutline,
             queryColumnMapping = queryColumnMapping,
             query = query,

@@ -14,11 +14,10 @@ import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.repgen.SectionPlanSql
-import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 
 object OrdinateCategorisationSection {
 
-    fun sectionPlan(dpmSectionOptions: DpmSectionOptions): SectionPlanSql {
+    fun sectionPlan(): SectionPlanSql {
 
         // Scope
         val taxonomyInherentLabel = FallbackField(
@@ -211,7 +210,7 @@ object OrdinateCategorisationSection {
             "mOrdinateCategorisation"
         )
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = sectionOutline,
             queryColumnMapping = queryColumnMapping,
             query = query,

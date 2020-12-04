@@ -37,7 +37,7 @@ data class ChangeRecord(
                 .duplicateCorrelationKeyRecords()
                 .map { it.toDuplicateKeyChange() }
 
-            val changeRecords = sectionOutline.includedChanges
+            return sectionOutline.includedChanges
                 .sorted()
                 .flatMap { changeKind ->
                     when (changeKind) {
@@ -47,9 +47,6 @@ data class ChangeRecord(
                         ChangeKind.DUPLICATE_KEY -> duplicateKey()
                     }
                 }
-
-            val comparator = ChangeRecordComparator(sectionOutline.sectionSortOrder)
-            return changeRecords.sortedWith(comparator)
         }
     }
 }

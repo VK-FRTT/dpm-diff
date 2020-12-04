@@ -112,7 +112,7 @@ object DimensionSection {
             "mDimension"
         )
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = sectionOutline,
             queryColumnMapping = queryColumnMapping,
             query = query,

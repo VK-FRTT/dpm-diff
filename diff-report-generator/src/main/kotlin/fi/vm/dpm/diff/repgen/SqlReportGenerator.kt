@@ -21,11 +21,11 @@ class SqlReportGenerator(
 ) : Closeable {
 
     private val baselineConnection: SQLiteDbConnection by lazy {
-        SQLiteDbConnection(baselineDbPath, diagnostic)
+        SQLiteDbConnection(baselineDbPath, SourceKind.BASELINE, diagnostic)
     }
 
     private val currentConnection: SQLiteDbConnection by lazy {
-        SQLiteDbConnection(currentDbPath, diagnostic)
+        SQLiteDbConnection(currentDbPath, SourceKind.CURRENT, diagnostic)
     }
 
     override fun close() {
@@ -51,73 +51,106 @@ class SqlReportGenerator(
     }
 
     private fun generateSection(sectionPlan: SectionPlanSql): ReportSection {
-        diagnostic.info("Section: ${sectionPlan.sectionOutline.sectionTitle}")
-        sectionPlan.sectionOutline.sanityCheck()
+        data class PartitionResult(
+            val changes: List<ChangeRecord>,
+            val baselineSourceRecordCount: Int,
+            val currentSourceRecordCount: Int
+        )
 
-        val baselineSourceRecords = loadSourceRecords(
-            sectionPlan,
+        diagnostic.info("\nSection: ${sectionPlan.sectionOutline().sectionTitle}")
+        sectionPlan.sectionOutline().sanityCheck()
+
+        val partitionedQueries = sectionPlan.partitionedQueries()
+
+        val partitionResults = partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
+
+            val baselineSourceRecords = loadSourceRecordsPartition(
+                partitionQuery = partitionQuery,
+                partitionIndex = partitionIndex,
+                totalPartitions = partitionedQueries.size,
+                queryColumnMapping = sectionPlan.queryColumnMapping(),
+                sectionOutline = sectionPlan.sectionOutline(),
+                dbConnection = baselineConnection
+            )
+
+            val currentSourceRecords = loadSourceRecordsPartition(
+                partitionQuery = partitionQuery,
+                partitionIndex = partitionIndex,
+                totalPartitions = partitionedQueries.size,
+                queryColumnMapping = sectionPlan.queryColumnMapping(),
+                sectionOutline = sectionPlan.sectionOutline(),
+                dbConnection = currentConnection
+            )
+
+            val changes = ChangeRecord.resolveChanges(
+                sectionOutline = sectionPlan.sectionOutline(),
+                baselineSourceRecords = baselineSourceRecords,
+                currentSourceRecords = currentSourceRecords
+            )
+
+            PartitionResult(
+                changes = changes,
+                baselineSourceRecordCount = baselineSourceRecords.size,
+                currentSourceRecordCount = currentSourceRecords.size
+            )
+        }
+
+        sanityCheckLoadedSourceRecordsCount(
+            partitionResults.sumBy { it.baselineSourceRecordCount },
+            sectionPlan.sourceTableDescriptors(),
             baselineConnection,
-            SourceKind.BASELINE
+            sectionPlan.sectionOutline()
         )
 
         sanityCheckLoadedSourceRecordsCount(
-            sectionPlan,
-            baselineSourceRecords,
-            baselineConnection,
-            SourceKind.BASELINE
-        )
-
-        val currentSourceRecords = loadSourceRecords(
-            sectionPlan,
+            partitionResults.sumBy { it.currentSourceRecordCount },
+            sectionPlan.sourceTableDescriptors(),
             currentConnection,
-            SourceKind.CURRENT
+            sectionPlan.sectionOutline()
         )
 
-        sanityCheckLoadedSourceRecordsCount(
-            sectionPlan,
-            currentSourceRecords,
-            currentConnection,
-            SourceKind.CURRENT
-        )
+        val comparator = ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder)
 
-        val changes = ChangeRecord.resolveChanges(
-            sectionOutline = sectionPlan.sectionOutline,
-            baselineSourceRecords = baselineSourceRecords,
-            currentSourceRecords = currentSourceRecords
-        )
+        val changes = partitionResults
+            .flatMap { it.changes }
+            .sortedWith(comparator)
 
         diagnostic.info("... changes: ${changes.size}")
 
         return ReportSection(
-            sectionOutline = sectionPlan.sectionOutline,
+            sectionOutline = sectionPlan.sectionOutline(),
             changes = changes
         )
     }
 
-    private fun loadSourceRecords(
-        sectionPlan: SectionPlanSql,
-        dbConnection: SQLiteDbConnection,
-        sourceKind: SourceKind
+    private fun loadSourceRecordsPartition(
+        partitionQuery: String,
+        partitionIndex: Int,
+        totalPartitions: Int,
+        queryColumnMapping: Map<String, Field>,
+        sectionOutline: SectionOutline,
+        dbConnection: SQLiteDbConnection
     ): List<SourceRecord> {
         val sourceRecords = mutableListOf<SourceRecord>()
-        val queryName = "${sectionPlan.sectionOutline.sectionShortTitle} $sourceKind Records"
 
-        dbConnection.executeQuery(sectionPlan.query, queryName) { resultSet ->
+        val queryDebugName = "${sectionOutline.sectionTitle} SourceRecordsPartition ${partitionIndex + 1}/$totalPartitions"
+
+        dbConnection.executeQuery(partitionQuery, queryDebugName) { resultSet ->
 
             sanityCheckResultSetColumnLabels(
-                sectionPlan,
+                queryColumnMapping,
                 resultSet
             )
 
             while (resultSet.next()) {
 
-                val loadedFields = sectionPlan.queryColumnMapping.map { (column, field) ->
-                    field to resultSet.getString(column)
+                val loadedFields = queryColumnMapping.map { (columnLabel, field) ->
+                    field to resultSet.getString(columnLabel)
                 }.toMap()
 
                 val sourceRecord = SourceRecord(
-                    sectionOutline = sectionPlan.sectionOutline,
-                    sourceKind = sourceKind,
+                    sectionOutline = sectionOutline,
+                    sourceKind = dbConnection.sourceKind,
                     fields = loadedFields
                 )
 
@@ -129,7 +162,7 @@ class SqlReportGenerator(
     }
 
     private fun sanityCheckResultSetColumnLabels(
-        sectionPlan: SectionPlanSql,
+        queryColumnMapping: Map<String, Field>,
         resultSet: ResultSet
     ) {
         val resultSetColumnLabels =
@@ -138,7 +171,7 @@ class SqlReportGenerator(
                 .toTypedArray()
 
         val mappingColumnLabels =
-            sectionPlan.queryColumnMapping
+            queryColumnMapping
                 .map { (columnLabel, _) -> columnLabel }
                 .toTypedArray()
 
@@ -154,12 +187,12 @@ class SqlReportGenerator(
     }
 
     private fun sanityCheckLoadedSourceRecordsCount(
-        sectionPlan: SectionPlanSql,
-        loadedRecords: List<SourceRecord>,
+        loadedRecordCount: Int,
+        sourceTableDescriptors: List<Any>,
         dbConnection: SQLiteDbConnection,
-        sourceKind: SourceKind
+        sectionOutline: SectionOutline
     ) {
-        val tableRowCountQueries = sectionPlan.sourceTableDescriptors.map {
+        val tableRowCountQueries = sourceTableDescriptors.map {
             val sb = StringBuilder()
             sb.append("SELECT COUNT(*) AS Count")
 
@@ -195,18 +228,18 @@ class SqlReportGenerator(
             )
         """.trimLineStartsAndConsequentBlankLines()
 
-        val queryName = "${sectionPlan.sectionOutline.sectionTitle} $sourceKind TotalRowCounts"
+        val queryDebugName = "${sectionOutline.sectionTitle} TotalRowCount"
 
-        val totalRowCount = dbConnection.executeQuery(totalRowCountQuery, queryName) { resultSet ->
+        val totalRowCount = dbConnection.executeQuery(totalRowCountQuery, queryDebugName) { resultSet ->
             resultSet.next()
             resultSet.getInt("TotalCount")
         }
 
-        if (loadedRecords.size != totalRowCount) {
+        if (loadedRecordCount != totalRowCount) {
             diagnostic.fatal(
                 """
-                Count mismatch in $queryName, database: ${dbConnection.dbPath}".
-                SourceRecords: ${loadedRecords.size}
+                Count mismatch in $queryDebugName, database: ${dbConnection.dbPath}".
+                Loaded SourceRecords: $loadedRecordCount
                 SourceTable(s) total rows: $totalRowCount
                 """.trimLineStartsAndConsequentBlankLines()
             )

@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.repgen
 
+import fi.vm.dpm.diff.model.SourceKind
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import java.io.Closeable
 import java.nio.file.Path
@@ -9,6 +10,7 @@ import org.sqlite.SQLiteException
 
 class SQLiteDbConnection(
     val dbPath: Path,
+    val sourceKind: SourceKind,
     private val diagnostic: Diagnostic
 ) : Closeable {
 
@@ -20,10 +22,10 @@ class SQLiteDbConnection(
 
     fun <R> executeQuery(
         query: String,
-        queryName: String,
+        queryDebugName: String,
         action: (ResultSet) -> R
     ): R {
-        diagnostic.debug("DB query '$queryName':[\n${query.prependIndent()}\n]")
+        diagnostic.debug("Query $queryDebugName $sourceKind:[\n${query.prependIndent()}\n]")
 
         return connection.createStatement().use { statement ->
             val rs = try {

@@ -78,7 +78,7 @@ object CommonDictionarySections {
             dpmSectionOptions
         )
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = planComposer.sectionOutline(
                 sectionShortTitle = "DictOverview",
                 sectionTitle = "Dictionary overview",
@@ -107,7 +107,7 @@ object CommonDictionarySections {
 
         val translationLangsOptionHelper = TranslationLangsOptionHelper(dpmSectionOptions)
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = planComposer.sectionOutline(
                 sectionShortTitle = "DictTranslation",
                 sectionTitle = "Dictionary translations",

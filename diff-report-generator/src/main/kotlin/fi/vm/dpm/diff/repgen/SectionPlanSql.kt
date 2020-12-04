@@ -2,10 +2,47 @@ package fi.vm.dpm.diff.repgen
 
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.SectionOutline
+import fi.vm.dpm.diff.model.thisShouldNeverHappen
 
-data class SectionPlanSql(
-    val sectionOutline: SectionOutline,
-    val queryColumnMapping: Map<String, Field>,
-    val query: String,
-    val sourceTableDescriptors: List<Any>
-)
+class SectionPlanSql private constructor(
+    private val sectionOutline: SectionOutline,
+    private val queryColumnMapping: Map<String, Field>,
+    private val query: String?,
+    private val partitionedQueries: List<String>?,
+    private val sourceTableDescriptors: List<Any>
+) {
+    companion object {
+
+        fun withSingleQuery(
+            sectionOutline: SectionOutline,
+            queryColumnMapping: Map<String, Field>,
+            query: String,
+            sourceTableDescriptors: List<Any>
+        ): SectionPlanSql {
+            return SectionPlanSql(sectionOutline, queryColumnMapping, query, null, sourceTableDescriptors)
+        }
+
+        fun withPartitionedQueries(
+            sectionOutline: SectionOutline,
+            queryColumnMapping: Map<String, Field>,
+            partitionedQueries: List<String>,
+            sourceTableDescriptors: List<Any>
+        ): SectionPlanSql {
+            return SectionPlanSql(sectionOutline, queryColumnMapping, null, partitionedQueries, sourceTableDescriptors)
+        }
+    }
+
+    fun sectionOutline() = sectionOutline
+
+    fun queryColumnMapping() = queryColumnMapping
+
+    fun partitionedQueries(): List<String> {
+        return when {
+            query != null -> listOf(query)
+            partitionedQueries != null -> partitionedQueries
+            else -> thisShouldNeverHappen("")
+        }
+    }
+
+    fun sourceTableDescriptors() = sourceTableDescriptors
+}

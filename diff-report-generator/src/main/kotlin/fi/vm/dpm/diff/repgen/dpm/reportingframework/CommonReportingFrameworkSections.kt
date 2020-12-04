@@ -70,7 +70,7 @@ object CommonReportingFrameworkSections {
             dpmSectionOptions
         )
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = planComposer.sectionOutline(
                 sectionShortTitle = "RepFwOverview",
                 sectionTitle = "ReportingFramework overview",
@@ -99,7 +99,7 @@ object CommonReportingFrameworkSections {
 
         val translationLangsOptionHelper = TranslationLangsOptionHelper(dpmSectionOptions)
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = planComposer.sectionOutline(
                 sectionShortTitle = "RepFwTranslation",
                 sectionTitle = "ReportingFramework translations",

@@ -123,7 +123,7 @@ object TableSection {
             "mTable"
         )
 
-        return SectionPlanSql(
+        return SectionPlanSql.withSingleQuery(
             sectionOutline = sectionOutline,
             queryColumnMapping = queryColumnMapping,
             query = query,
