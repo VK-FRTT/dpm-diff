@@ -4,6 +4,7 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.KeySegmentField
@@ -75,6 +76,7 @@ object TableAxisSection {
             sectionShortTitle = "TableAxis",
             sectionTitle = "TableAxis",
             sectionDescription = "Added and deleted Table Axis, changes in Order",
+            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

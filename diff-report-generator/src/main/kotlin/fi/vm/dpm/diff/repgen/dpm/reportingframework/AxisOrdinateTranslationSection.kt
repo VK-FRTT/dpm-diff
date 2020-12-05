@@ -5,6 +5,7 @@ import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
@@ -107,6 +108,7 @@ object AxisOrdinateTranslationSection {
             sectionShortTitle = "AxisOrdTranslation",
             sectionTitle = "AxisOrdinate translations",
             sectionDescription = "Label and description changes in Axis Ordinates",
+            sectionCorrelationMode = CorrelationMode.DISTINCT_SUB_OBJECTS,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

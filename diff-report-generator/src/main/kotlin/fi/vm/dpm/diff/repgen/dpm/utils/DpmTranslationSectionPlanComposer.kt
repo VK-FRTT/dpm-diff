@@ -4,6 +4,7 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
 import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
@@ -52,6 +53,7 @@ class DpmTranslationSectionPlanComposer(
             sectionShortTitle = sectionShortTitle,
             sectionTitle = sectionTitle,
             sectionDescription = sectionDescription,
+            sectionCorrelationMode = CorrelationMode.DISTINCT_SUB_OBJECTS,
             sectionFields = listOf(
                 overviewSectionPlanComposer.elementId,
                 overviewSectionPlanComposer.elementInherentLabel,

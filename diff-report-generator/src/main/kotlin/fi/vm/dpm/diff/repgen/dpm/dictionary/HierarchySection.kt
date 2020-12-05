@@ -3,6 +3,7 @@ package fi.vm.dpm.diff.repgen.dpm.dictionary
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.KeySegmentField
@@ -60,6 +61,7 @@ object HierarchySection {
             sectionShortTitle = "Hierarchy",
             sectionTitle = "Hierarchies",
             sectionDescription = "Added and deleted Hierarchies",
+            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
             sectionFields = listOf(
                 domainInherentLabel,
                 domainCode,

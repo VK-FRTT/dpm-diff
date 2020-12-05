@@ -4,6 +4,7 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
@@ -115,6 +116,7 @@ object OrdinateCategorisationSection {
             sectionShortTitle = "OrdCat",
             sectionTitle = "OrdinateCategorisations",
             sectionDescription = "Added and deleted OrdinateCategorisations",
+            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

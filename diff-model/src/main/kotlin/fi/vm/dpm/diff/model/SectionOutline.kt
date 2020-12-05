@@ -7,6 +7,7 @@ data class SectionOutline(
     val sectionShortTitle: String,
     val sectionTitle: String,
     val sectionDescription: String,
+    val sectionCorrelationMode: CorrelationMode,
     val sectionFields: List<Field>,
     val sectionSortOrder: List<Sort>,
     val includedChanges: Set<ChangeKind>
@@ -24,6 +25,25 @@ data class SectionOutline(
 
         with(sectionDescription) {
             check(isNotBlank())
+        }
+
+        // sectionCorrelationMode
+        run {
+            val keyFields = sectionFields.filterFieldType<KeySegmentField>()
+
+            when (sectionCorrelationMode) {
+                CorrelationMode.DISTINCT_OBJECTS -> {
+                    check(keyFields.count { it.segmentKind == KeySegmentKind.SCOPE_SEGMENT } >= 0)
+                    check(keyFields.count { it.segmentKind == KeySegmentKind.PRIME_SEGMENT } >= 1)
+                    check(keyFields.count { it.segmentKind == KeySegmentKind.SUB_SEGMENT } == 0)
+                }
+
+                CorrelationMode.DISTINCT_SUB_OBJECTS -> {
+                    check(keyFields.count { it.segmentKind == KeySegmentKind.SCOPE_SEGMENT } >= 0)
+                    check(keyFields.count { it.segmentKind == KeySegmentKind.PRIME_SEGMENT } >= 1)
+                    check(keyFields.count { it.segmentKind == KeySegmentKind.SUB_SEGMENT } >= 1)
+                }
+            }
         }
 
         with(sectionFields) {

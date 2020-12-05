@@ -1,7 +1,5 @@
 package fi.vm.dpm.diff.model
 
-import ext.kotlin.filterFieldType
-
 open class CorrelationPolicy(
     baselineSourceRecords: List<SourceRecord>,
     currentSourceRecords: List<SourceRecord>
@@ -15,21 +13,22 @@ open class CorrelationPolicy(
             currentSourceRecords: List<SourceRecord>
         ): CorrelationPolicy {
 
-            return if (sectionOutline
-                    .sectionFields
-                    .filterFieldType<KeySegmentField>()
-                    .any { it.segmentKind == KeySegmentKind.SUB_SEGMENT }
-            ) {
-                CorrelationPolicySubObject(
-                    baselineSourceRecords = baselineSourceRecords,
-                    currentSourceRecords = currentSourceRecords
+            return when (sectionOutline.sectionCorrelationMode) {
+                CorrelationMode.DISTINCT_OBJECTS -> {
+                    CorrelationPolicy(
+                        baselineSourceRecords = baselineSourceRecords,
+                        currentSourceRecords = currentSourceRecords
+                    )
+                }
 
-                )
-            } else
-                CorrelationPolicy(
-                    baselineSourceRecords = baselineSourceRecords,
-                    currentSourceRecords = currentSourceRecords
-                )
+                CorrelationMode.DISTINCT_SUB_OBJECTS -> {
+                    CorrelationPolicySubObject(
+                        baselineSourceRecords = baselineSourceRecords,
+                        currentSourceRecords = currentSourceRecords
+
+                    )
+                }
+            }
         }
     }
 

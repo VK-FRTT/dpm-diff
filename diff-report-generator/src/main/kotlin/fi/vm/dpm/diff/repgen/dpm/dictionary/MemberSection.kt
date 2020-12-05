@@ -4,6 +4,7 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.KeySegmentField
@@ -65,6 +66,7 @@ object MemberSection {
             sectionShortTitle = "Member",
             sectionTitle = "Members",
             sectionDescription = "Added and deleted Members, changes in IsDefaultMember",
+            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
             sectionFields = listOf(
                 domainInherentLabel,
                 domainCode,

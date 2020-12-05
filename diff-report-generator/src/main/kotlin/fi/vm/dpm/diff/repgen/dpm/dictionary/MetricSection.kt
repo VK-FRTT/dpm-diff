@@ -4,6 +4,7 @@ import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.KeySegmentField
@@ -84,6 +85,7 @@ object MetricSection {
             sectionShortTitle = "Metric",
             sectionTitle = "Metrics",
             sectionDescription = "Added and deleted Metrics, changes in DataType, FlowType, BalanceType, Domain reference and Hierarchy reference",
+            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
             sectionFields = listOf(
                 domainInherentLabel,
                 domainCode,

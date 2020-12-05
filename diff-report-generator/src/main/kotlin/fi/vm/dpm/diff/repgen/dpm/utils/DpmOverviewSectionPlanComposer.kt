@@ -3,6 +3,7 @@ package fi.vm.dpm.diff.repgen.dpm.utils
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
@@ -72,6 +73,7 @@ class DpmOverviewSectionPlanComposer(
             sectionShortTitle = sectionShortTitle,
             sectionTitle = sectionTitle,
             sectionDescription = sectionDescription,
+            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
             sectionFields = listOf(
                 elementId,
                 elementInherentLabel,
