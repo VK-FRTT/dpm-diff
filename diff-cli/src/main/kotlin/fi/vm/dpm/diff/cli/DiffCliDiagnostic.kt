@@ -20,6 +20,11 @@ class DiffCliDiagnostic(
         printWriter.println(message)
     }
 
+    override fun progressStep() {
+        printWriter.print(".")
+        printWriter.flush()
+    }
+
     override fun debug(message: String) {
         if (verbosity == OutputVerbosity.DEBUG) {
             printWriter.println(message)

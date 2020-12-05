@@ -2,37 +2,21 @@ package fi.vm.dpm.diff.model
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
-import fi.vm.dpm.diff.repgen.SQLiteDbConnection
+import fi.vm.dpm.diff.repgen.DbConnection
 import fi.vm.dpm.diff.repgen.SectionPlanSql
+import fi.vm.dpm.diff.repgen.SourceDbs
 import fi.vm.dpm.diff.repgen.dpm.utils.SourceTableDescriptor
-import java.io.Closeable
-import java.nio.file.Path
 import java.sql.ResultSet
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class SqlReportGenerator(
     private val sectionPlans: Collection<SectionPlanSql>,
+    private val sourceDbs: SourceDbs,
     private val reportGeneratorDescriptor: ReportGeneratorDescriptor,
     private val reportGenerationOptions: List<String>,
-    private val baselineDbPath: Path,
-    private val currentDbPath: Path,
     private val diagnostic: Diagnostic
-) : Closeable {
-
-    private val baselineConnection: SQLiteDbConnection by lazy {
-        SQLiteDbConnection(baselineDbPath, SourceKind.BASELINE, diagnostic)
-    }
-
-    private val currentConnection: SQLiteDbConnection by lazy {
-        SQLiteDbConnection(currentDbPath, SourceKind.CURRENT, diagnostic)
-    }
-
-    override fun close() {
-        baselineConnection.close()
-        currentConnection.close()
-    }
-
+) {
     fun generateReport(): ChangeReport {
 
         val reportSections = sectionPlans.map {
@@ -42,8 +26,8 @@ class SqlReportGenerator(
         return ChangeReport(
             reportKind = ChangeReportKind.DPM,
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
-            baselineFileName = baselineDbPath.fileName.toString(),
-            currentFileName = currentDbPath.fileName.toString(),
+            baselineFileName = sourceDbs.baselineDbPath.fileName.toString(),
+            currentFileName = sourceDbs.currentDbPath.fileName.toString(),
             sections = reportSections,
             reportGeneratorDescriptor = reportGeneratorDescriptor,
             reportGenerationOptions = reportGenerationOptions
@@ -64,13 +48,14 @@ class SqlReportGenerator(
 
         val partitionResults = partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
 
+            diagnostic.progressStep()
             val baselineSourceRecords = loadSourceRecordsPartition(
                 partitionQuery = partitionQuery,
                 partitionIndex = partitionIndex,
                 totalPartitions = partitionedQueries.size,
                 queryColumnMapping = sectionPlan.queryColumnMapping(),
                 sectionOutline = sectionPlan.sectionOutline(),
-                dbConnection = baselineConnection
+                dbConnection = sourceDbs.baselineConnection
             )
 
             val currentSourceRecords = loadSourceRecordsPartition(
@@ -79,9 +64,10 @@ class SqlReportGenerator(
                 totalPartitions = partitionedQueries.size,
                 queryColumnMapping = sectionPlan.queryColumnMapping(),
                 sectionOutline = sectionPlan.sectionOutline(),
-                dbConnection = currentConnection
+                dbConnection = sourceDbs.currentConnection
             )
 
+            diagnostic.progressStep()
             val changes = ChangeRecord.resolveChanges(
                 sectionOutline = sectionPlan.sectionOutline(),
                 baselineSourceRecords = baselineSourceRecords,
@@ -98,24 +84,24 @@ class SqlReportGenerator(
         sanityCheckLoadedSourceRecordsCount(
             partitionResults.sumBy { it.baselineSourceRecordCount },
             sectionPlan.sourceTableDescriptors(),
-            baselineConnection,
+            sourceDbs.baselineConnection,
             sectionPlan.sectionOutline()
         )
 
         sanityCheckLoadedSourceRecordsCount(
             partitionResults.sumBy { it.currentSourceRecordCount },
             sectionPlan.sourceTableDescriptors(),
-            currentConnection,
+            sourceDbs.currentConnection,
             sectionPlan.sectionOutline()
         )
 
+        diagnostic.progressStep()
         val comparator = ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder)
-
         val changes = partitionResults
             .flatMap { it.changes }
             .sortedWith(comparator)
 
-        diagnostic.info("... changes: ${changes.size}")
+        diagnostic.info(" => changes: ${changes.size}")
 
         return ReportSection(
             sectionOutline = sectionPlan.sectionOutline(),
@@ -129,7 +115,7 @@ class SqlReportGenerator(
         totalPartitions: Int,
         queryColumnMapping: Map<String, Field>,
         sectionOutline: SectionOutline,
-        dbConnection: SQLiteDbConnection
+        dbConnection: DbConnection
     ): List<SourceRecord> {
         val sourceRecords = mutableListOf<SourceRecord>()
 
@@ -189,7 +175,7 @@ class SqlReportGenerator(
     private fun sanityCheckLoadedSourceRecordsCount(
         loadedRecordCount: Int,
         sourceTableDescriptors: List<Any>,
-        dbConnection: SQLiteDbConnection,
+        dbConnection: DbConnection,
         sectionOutline: SectionOutline
     ) {
         val tableRowCountQueries = sourceTableDescriptors.map {

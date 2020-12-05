@@ -9,6 +9,7 @@ import fi.vm.dpm.diff.model.SqlReportGenerator
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.throwHalt
 import fi.vm.dpm.diff.repgen.SectionPlanSql
+import fi.vm.dpm.diff.repgen.SourceDbs
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 import java.io.BufferedWriter
 import java.io.Closeable
@@ -95,26 +96,48 @@ internal class DiffCli(
         dpmSectionOptions: DpmSectionOptions,
         diagnostic: Diagnostic
     ) {
-        generateAndRenderSqlBasedReport(
-            sectionPlans = DpmSectionPlans.allPlans(dpmSectionOptions),
-            reportGeneratorDescriptor = reportGeneratorDescriptor(),
-            reportGenerationOptions = dpmSectionOptions.toReportGenerationOptions(),
-            commonOptions = commonOptions,
+        val sourceDbs = SourceDbs(
+            baselineDbPath = commonOptions.baselineDbPath,
+            currentDbPath = commonOptions.currentDbPath,
+            jdbcDriver = "sqlite",
             diagnostic = diagnostic
         )
+
+        sourceDbs.use {
+            val sectionPlans = DpmSectionPlans.allPlans(dpmSectionOptions)
+
+            generateAndRenderSqlBasedReport(
+                sectionPlans = sectionPlans,
+                sourceDbs = sourceDbs,
+                reportGeneratorDescriptor = reportGeneratorDescriptor(),
+                reportGenerationOptions = dpmSectionOptions.toReportGenerationOptions(),
+                commonOptions = commonOptions,
+                diagnostic = diagnostic
+            )
+        }
     }
 
     private fun compareVkData(
         commonOptions: CommonCompareOptions,
         diagnostic: Diagnostic
     ) {
-        generateAndRenderSqlBasedReport(
-            sectionPlans = emptyList(),
-            reportGeneratorDescriptor = reportGeneratorDescriptor(),
-            reportGenerationOptions = emptyList(),
-            commonOptions = commonOptions,
+        val sourceDbs = SourceDbs(
+            baselineDbPath = commonOptions.baselineDbPath,
+            currentDbPath = commonOptions.currentDbPath,
+            jdbcDriver = "sqlite",
             diagnostic = diagnostic
         )
+
+        sourceDbs.use {
+            generateAndRenderSqlBasedReport(
+                sectionPlans = emptyList(),
+                sourceDbs = sourceDbs,
+                reportGeneratorDescriptor = reportGeneratorDescriptor(),
+                reportGenerationOptions = emptyList(),
+                commonOptions = commonOptions,
+                diagnostic = diagnostic
+            )
+        }
     }
 
     private fun reportGeneratorDescriptor(): ReportGeneratorDescriptor {
@@ -129,6 +152,7 @@ internal class DiffCli(
 
     private fun generateAndRenderSqlBasedReport(
         sectionPlans: Collection<SectionPlanSql>,
+        sourceDbs: SourceDbs,
         reportGeneratorDescriptor: ReportGeneratorDescriptor,
         reportGenerationOptions: List<String>,
         commonOptions: CommonCompareOptions,
@@ -136,16 +160,13 @@ internal class DiffCli(
     ) {
         val generator = SqlReportGenerator(
             sectionPlans = sectionPlans,
+            sourceDbs = sourceDbs,
             reportGeneratorDescriptor = reportGeneratorDescriptor,
             reportGenerationOptions = reportGenerationOptions,
-            baselineDbPath = commonOptions.baselineDbPath,
-            currentDbPath = commonOptions.currentDbPath,
             diagnostic = diagnostic
         )
 
-        val report = generator.use {
-            it.generateReport()
-        }
+        val report = generator.generateReport()
 
         SpreadsheetOutput(
             outputFilePath = commonOptions.outputFilePath,

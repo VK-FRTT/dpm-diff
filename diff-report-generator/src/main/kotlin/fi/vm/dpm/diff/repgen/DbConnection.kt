@@ -8,13 +8,14 @@ import java.sql.DriverManager
 import java.sql.ResultSet
 import org.sqlite.SQLiteException
 
-class SQLiteDbConnection(
+class DbConnection(
     val dbPath: Path,
+    jdbcDriver: String,
     val sourceKind: SourceKind,
     private val diagnostic: Diagnostic
 ) : Closeable {
 
-    private val connection = DriverManager.getConnection("jdbc:sqlite:$dbPath")
+    private val connection = DriverManager.getConnection("jdbc:$jdbcDriver:$dbPath")
 
     override fun close() {
         connection.close()
