@@ -9,12 +9,12 @@ data class SourceRecord(
     val sourceKind: SourceKind,
     val fields: Map<Field, String?>
 ) {
-    val objectKey: CorrelationKey by lazy {
-        CorrelationKey.objectKey(this)
-    }
-
     val fullKey: CorrelationKey by lazy {
         CorrelationKey.fullKey(this)
+    }
+
+    val parentKey: CorrelationKey by lazy {
+        CorrelationKey.parentKey(this)
     }
 
     fun toAddedChange(): ChangeRecord {
@@ -60,7 +60,7 @@ data class SourceRecord(
     fun toDuplicateKeyChange(): ChangeRecord {
         val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
-        changeFields.setChangeKind(ChangeKind.DUPLICATE_KEY)
+        changeFields.setChangeKind(ChangeKind.DUPLICATE_KEY_ALERT)
         changeFields.setNoteWithDetails(
             recordIdentificationDetailIfNeeded = true
         )
@@ -215,7 +215,7 @@ data class SourceRecord(
         alwaysOutputRecordIdentificationDetail: Boolean
     ): String? {
         fun shouldOutputRecordIdentityFallbackForCorrelationKeys() = fields
-            .filterFieldType<KeySegmentField, Any?>()
+            .filterFieldType<KeyField, Any?>()
             .filter { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
             .any()
 

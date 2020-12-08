@@ -29,19 +29,31 @@ data class SectionOutline(
 
         // sectionCorrelationMode
         run {
-            val keyFields = sectionFields.filterFieldType<KeySegmentField>()
+            val keyFields = sectionFields.filterFieldType<KeyField>()
 
             when (sectionCorrelationMode) {
-                CorrelationMode.DISTINCT_OBJECTS -> {
-                    check(keyFields.count { it.segmentKind == KeySegmentKind.SCOPE_SEGMENT } >= 0)
-                    check(keyFields.count { it.segmentKind == KeySegmentKind.PRIME_SEGMENT } >= 1)
-                    check(keyFields.count { it.segmentKind == KeySegmentKind.SUB_SEGMENT } == 0)
+                CorrelationMode.CORRELATION_BY_KEY -> {
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.CONTEXT_PARENT_KEY } >= 0)
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.PARENT_KEY } >= 0)
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.PRIME_KEY } >= 1)
                 }
 
-                CorrelationMode.DISTINCT_SUB_OBJECTS -> {
-                    check(keyFields.count { it.segmentKind == KeySegmentKind.SCOPE_SEGMENT } >= 0)
-                    check(keyFields.count { it.segmentKind == KeySegmentKind.PRIME_SEGMENT } >= 1)
-                    check(keyFields.count { it.segmentKind == KeySegmentKind.SUB_SEGMENT } >= 1)
+                CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE -> {
+                    check(
+                        keyFields.count { it.keyFieldKind == KeyFieldKind.CONTEXT_PARENT_KEY } >= 1 ||
+                        keyFields.count { it.keyFieldKind == KeyFieldKind.PARENT_KEY } >= 1
+                    )
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.PRIME_KEY } >= 1)
+                }
+
+                CorrelationMode.CORRELATION_BY_KEYS_AND_ATOMS_VALUES -> {
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.CONTEXT_PARENT_KEY } >= 0)
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.PARENT_KEY } >= 0)
+                    check(keyFields.count { it.keyFieldKind == KeyFieldKind.PRIME_KEY } >= 1)
+                    check(sectionFields.filterFieldType<AtomField>().size >= 1)
+
+                    check(ChangeKind.MODIFIED !in includedChanges)
+                    check(ChangeKind.DUPLICATE_KEY_ALERT !in includedChanges)
                 }
             }
         }
@@ -52,7 +64,7 @@ data class SectionOutline(
             // Field amounts per field kind
             check(filterFieldType<FallbackField>().size >= 0)
             check(filterFieldType<RecordIdentityFallbackField>().size == 1)
-            check(filterFieldType<KeySegmentField>().size >= 1)
+            check(filterFieldType<KeyField>().size >= 1)
             check(filterFieldType<IdentificationLabelField>().size >= 0)
             check(filterFieldType<ChangeKindField>().size == 1)
             check(filterFieldType<AtomField>().size >= 0)
@@ -88,6 +100,12 @@ data class SectionOutline(
 
         with(includedChanges) {
             check(isNotEmpty())
+        }
+    }
+
+    private fun check(value: Boolean) {
+        if (!value) {
+            thisShouldNeverHappen("SectionOutline SanityCheck failed for: $sectionTitle")
         }
     }
 }

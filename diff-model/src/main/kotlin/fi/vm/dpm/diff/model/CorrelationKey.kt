@@ -6,19 +6,19 @@ data class CorrelationKey private constructor(
     private val keyValue: String,
     private val correlationKeyKind: CorrelationKeyKind
 ) {
-    private enum class CorrelationKeyKind(val associatedSegmentKinds: List<KeySegmentKind>) {
+    private enum class CorrelationKeyKind(val associatedKeyKinds: List<KeyFieldKind>) {
         FULL_KEY(
             listOf(
-                KeySegmentKind.SCOPE_SEGMENT,
-                KeySegmentKind.PRIME_SEGMENT,
-                KeySegmentKind.SUB_SEGMENT
+                KeyFieldKind.CONTEXT_PARENT_KEY,
+                KeyFieldKind.PARENT_KEY,
+                KeyFieldKind.PRIME_KEY
             )
         ),
 
-        OBJECT_KEY(
+        PARENT_KEY(
             listOf(
-                KeySegmentKind.SCOPE_SEGMENT,
-                KeySegmentKind.PRIME_SEGMENT
+                KeyFieldKind.CONTEXT_PARENT_KEY,
+                KeyFieldKind.PARENT_KEY
             )
         )
     }
@@ -33,24 +33,24 @@ data class CorrelationKey private constructor(
             return createCorrelationKey(fields, CorrelationKeyKind.FULL_KEY)
         }
 
-        fun objectKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.OBJECT_KEY)
+        fun parentKey(sourceRecord: SourceRecord): CorrelationKey {
+            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.PARENT_KEY)
         }
 
         private fun createCorrelationKey(
             fields: Map<Field, Any?>,
             correlationKeyKind: CorrelationKeyKind
         ): CorrelationKey {
-            val keyFields = fields.filterFieldType<KeySegmentField, Any?>()
+            val keyFields = fields.filterFieldType<KeyField, Any?>()
 
             val keyValue = correlationKeyKind
-                .associatedSegmentKinds
-                .map { segmentKind ->
+                .associatedKeyKinds
+                .map { kind ->
                     keyFields
-                        .filter { (field, _) -> field.segmentKind == segmentKind }
+                        .filter { (field, _) -> field.keyFieldKind == kind }
                         .map { (field, value) ->
-                            value ?: if (field.segmentFallback != null) {
-                                fields[field.segmentFallback]
+                            value ?: if (field.keyFieldFallback != null) {
+                                fields[field.keyFieldFallback]
                             } else {
                                 null
                             }

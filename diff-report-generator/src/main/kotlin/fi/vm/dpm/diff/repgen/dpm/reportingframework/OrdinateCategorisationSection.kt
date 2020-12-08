@@ -8,8 +8,8 @@ import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -25,30 +25,30 @@ object OrdinateCategorisationSection {
             fieldName = "TaxonomyLabel"
         )
 
-        val taxonomyCode = KeySegmentField(
+        val taxonomyCode = KeyField(
             fieldName = "TaxonomyCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = taxonomyInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = taxonomyInherentLabel
         )
 
         val tableInherentLabel = FallbackField(
             fieldName = "TableLabel"
         )
 
-        val tableCode = KeySegmentField(
+        val tableCode = KeyField(
             fieldName = "TableCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = tableInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = tableInherentLabel
         )
 
         val axisInherentLabel = FallbackField(
             fieldName = "AxisLabel"
         )
 
-        val axisOrientation = KeySegmentField(
+        val axisOrientation = KeyField(
             fieldName = "AxisOrientation",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = axisInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = axisInherentLabel
         )
 
         // OrdinateCategorisation
@@ -60,10 +60,10 @@ object OrdinateCategorisationSection {
             fieldName = "OrdinateLabel"
         )
 
-        val ordinateCode = KeySegmentField(
+        val ordinateCode = KeyField(
             fieldName = "OrdinateCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = ordinateInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = ordinateInherentLabel
         )
 
         val dimensionId = FallbackField(
@@ -74,10 +74,10 @@ object OrdinateCategorisationSection {
             fieldName = "DimensionLabel"
         )
 
-        val dimensionCode = KeySegmentField(
+        val dimensionCode = KeyField(
             fieldName = "DimensionCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = dimensionInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = dimensionInherentLabel
         )
 
         val memberId = FallbackField(
@@ -88,10 +88,10 @@ object OrdinateCategorisationSection {
             fieldName = "MemberLabel"
         )
 
-        val memberCode = KeySegmentField(
+        val memberCode = KeyField(
             fieldName = "MemberCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = memberInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = memberInherentLabel
         )
 
         val recordIdentityFallback = RecordIdentityFallbackField(
@@ -116,7 +116,7 @@ object OrdinateCategorisationSection {
             sectionShortTitle = "OrdCat",
             sectionTitle = "OrdinateCategorisations",
             sectionDescription = "Added and deleted OrdinateCategorisations",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

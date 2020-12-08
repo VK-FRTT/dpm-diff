@@ -8,8 +8,8 @@ import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -32,28 +32,28 @@ class DpmOverviewSectionPlanComposer(
         identityFallbacks = listOf(elementId, elementInherentLabel)
     )
 
-    val parentElementType = KeySegmentField(
+    val parentElementType = KeyField(
         fieldName = "ParentElementType",
-        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-        segmentFallback = null
+        keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    val parentElementCode = KeySegmentField(
+    val parentElementCode = KeyField(
         fieldName = "ParentElementCode",
-        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-        segmentFallback = null
+        keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    val elementType = KeySegmentField(
+    val elementType = KeyField(
         fieldName = "ElementType",
-        segmentKind = KeySegmentKind.PRIME_SEGMENT,
-        segmentFallback = null
+        keyFieldKind = KeyFieldKind.PRIME_KEY,
+        keyFieldFallback = null
     )
 
-    val elementCode = KeySegmentField(
+    val elementCode = KeyField(
         fieldName = "ElementCode",
-        segmentKind = KeySegmentKind.PRIME_SEGMENT,
-        segmentFallback = elementInherentLabel
+        keyFieldKind = KeyFieldKind.PRIME_KEY,
+        keyFieldFallback = elementInherentLabel
     )
 
     val identificationLabels = DpmSectionIdentificationLabels(
@@ -73,7 +73,7 @@ class DpmOverviewSectionPlanComposer(
             sectionShortTitle = sectionShortTitle,
             sectionTitle = sectionTitle,
             sectionDescription = sectionDescription,
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 elementId,
                 elementInherentLabel,

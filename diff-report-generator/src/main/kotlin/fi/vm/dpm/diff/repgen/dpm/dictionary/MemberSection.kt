@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -26,10 +26,10 @@ object MemberSection {
             fieldName = "DomainLabel"
         )
 
-        val domainCode = KeySegmentField(
+        val domainCode = KeyField(
             fieldName = "DomainCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = domainInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = domainInherentLabel
         )
 
         val memberId = FallbackField(
@@ -44,10 +44,10 @@ object MemberSection {
             identityFallbacks = listOf(memberId, memberInherentLabel)
         )
 
-        val memberCode = KeySegmentField(
+        val memberCode = KeyField(
             fieldName = "MemberCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = memberInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = memberInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -66,7 +66,7 @@ object MemberSection {
             sectionShortTitle = "Member",
             sectionTitle = "Members",
             sectionDescription = "Added and deleted Members, changes in IsDefaultMember",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 domainInherentLabel,
                 domainCode,

@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -45,16 +45,16 @@ object HierarchyNodeStructureSection {
             identityFallbacks = listOf(hierarchyId, memberId, hierarchyNodeInherentLabel)
         )
 
-        val hierarchyCode = KeySegmentField(
+        val hierarchyCode = KeyField(
             fieldName = "HierarchyCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = hierarchyInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = hierarchyInherentLabel
         )
 
-        val memberCode = KeySegmentField(
+        val memberCode = KeyField(
             fieldName = "MemberCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = memberInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = memberInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -81,7 +81,7 @@ object HierarchyNodeStructureSection {
             sectionShortTitle = "HierNodeStructure",
             sectionTitle = "HierarchyNodes structure",
             sectionDescription = "Added and deleted HierarchyNodes, changes in Parent Member, Order and Level details",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 hierarchyId,
                 hierarchyInherentLabel,

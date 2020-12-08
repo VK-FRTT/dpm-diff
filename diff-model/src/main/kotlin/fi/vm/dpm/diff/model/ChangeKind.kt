@@ -4,17 +4,17 @@ enum class ChangeKind {
     ADDED,
     DELETED,
     MODIFIED,
-    DUPLICATE_KEY;
+    DUPLICATE_KEY_ALERT;
 
     companion object {
         fun allChanges() = setOf(
             ADDED,
             DELETED,
             MODIFIED,
-            DUPLICATE_KEY
+            DUPLICATE_KEY_ALERT
         )
 
-        fun allWithoutDuplicateKeyChanges() = setOf(
+        fun allExceptDuplicateKeyAlerts() = setOf(
             ADDED,
             DELETED,
             MODIFIED

@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -25,10 +25,10 @@ object MetricSection {
             fieldName = "DomainLabel"
         )
 
-        val domainCode = KeySegmentField(
+        val domainCode = KeyField(
             fieldName = "DomainCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = domainInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = domainInherentLabel
         )
 
         val metricId = FallbackField(
@@ -43,10 +43,10 @@ object MetricSection {
             identityFallbacks = listOf(metricId, metricInherentLabel)
         )
 
-        val metricCode = KeySegmentField(
+        val metricCode = KeyField(
             fieldName = "MetricCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = metricInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = metricInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -85,7 +85,7 @@ object MetricSection {
             sectionShortTitle = "Metric",
             sectionTitle = "Metrics",
             sectionDescription = "Added and deleted Metrics, changes in DataType, FlowType, BalanceType, Domain reference and Hierarchy reference",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 domainInherentLabel,
                 domainCode,

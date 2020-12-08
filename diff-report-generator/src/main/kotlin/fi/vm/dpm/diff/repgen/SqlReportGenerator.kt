@@ -42,7 +42,7 @@ class SqlReportGenerator(
         )
 
         diagnostic.info("\nSection: ${sectionPlan.sectionOutline().sectionTitle}")
-        sectionPlan.sectionOutline().sanityCheck()
+        sectionPlan.sanityCheck()
 
         val partitionedQueries = sectionPlan.partitionedQueries()
 

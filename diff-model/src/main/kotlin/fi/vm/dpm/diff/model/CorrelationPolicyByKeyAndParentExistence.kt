@@ -1,18 +1,18 @@
 package fi.vm.dpm.diff.model
 
-class CorrelationPolicySubObject(
+class CorrelationPolicyByKeyAndParentExistence(
     baselineSourceRecords: List<SourceRecord>,
     currentSourceRecords: List<SourceRecord>
-) : CorrelationPolicy(
+) : CorrelationPolicyByKey(
     baselineSourceRecords,
     currentSourceRecords
 ) {
-    private val baselineRecordsByObjectKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
-        baselineSourceRecords.groupBy { record -> record.objectKey }
+    private val baselineRecordsByParentKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
+        baselineSourceRecords.groupBy { record -> record.parentKey }
     }
 
-    private val currentRecordsByObjectKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
-        currentSourceRecords.groupBy { record -> record.objectKey }
+    private val currentRecordsByParentKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
+        currentSourceRecords.groupBy { record -> record.parentKey }
     }
 
     override fun deletedRecords(): List<SourceRecord> {
@@ -20,7 +20,7 @@ class CorrelationPolicySubObject(
 
         return keepRecordsWhichObjectKeyExists(
             records = records,
-            comparisonRecords = currentRecordsByObjectKey
+            comparisonRecords = currentRecordsByParentKey
         )
     }
 
@@ -29,7 +29,7 @@ class CorrelationPolicySubObject(
 
         return keepRecordsWhichObjectKeyExists(
             records = records,
-            comparisonRecords = baselineRecordsByObjectKey
+            comparisonRecords = baselineRecordsByParentKey
         )
     }
 
@@ -38,7 +38,7 @@ class CorrelationPolicySubObject(
         comparisonRecords: Map<CorrelationKey, List<SourceRecord>>
     ): List<SourceRecord> {
         return records.filter { record ->
-            comparisonRecords[record.objectKey] != null
+            comparisonRecords[record.parentKey] != null
         }
     }
 }

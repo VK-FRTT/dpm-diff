@@ -33,7 +33,7 @@ data class ChangeRecord(
                     )
                 }
 
-            fun duplicateKey() = correlationPolicy
+            fun duplicateKeyAlerts() = correlationPolicy
                 .duplicateCorrelationKeyRecords()
                 .map { it.toDuplicateKeyChange() }
 
@@ -44,7 +44,7 @@ data class ChangeRecord(
                         ChangeKind.DELETED -> deleted()
                         ChangeKind.ADDED -> added()
                         ChangeKind.MODIFIED -> modified()
-                        ChangeKind.DUPLICATE_KEY -> duplicateKey()
+                        ChangeKind.DUPLICATE_KEY_ALERT -> duplicateKeyAlerts()
                     }
                 }
         }

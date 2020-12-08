@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -33,10 +33,10 @@ object DomainSection {
             identityFallbacks = listOf(domainId, domainInherentLabel)
         )
 
-        val domainCode = KeySegmentField(
+        val domainCode = KeyField(
             fieldName = "DomainCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = domainInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = domainInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -60,7 +60,7 @@ object DomainSection {
             sectionShortTitle = "Domain",
             sectionTitle = "Domains",
             sectionDescription = "Added and deleted Domains, changes in IsTypedDomain and DataType",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 domainId,
                 domainInherentLabel,

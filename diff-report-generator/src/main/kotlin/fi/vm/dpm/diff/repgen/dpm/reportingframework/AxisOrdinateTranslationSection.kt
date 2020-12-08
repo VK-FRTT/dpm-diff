@@ -10,8 +10,8 @@ import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedTranslationRoleSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -27,38 +27,38 @@ object AxisOrdinateTranslationSection {
 
         val translationLangsOptionHelper = TranslationLangsOptionHelper(dpmSectionOptions)
 
-        // Scope
+        // Context parents
         val taxonomyInherentLabel = FallbackField(
             fieldName = "TaxonomyLabel"
         )
 
-        val taxonomyCode = KeySegmentField(
+        val taxonomyCode = KeyField(
             fieldName = "TaxonomyCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = taxonomyInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = taxonomyInherentLabel
         )
 
         val tableInherentLabel = FallbackField(
             fieldName = "TableLabel"
         )
 
-        val tableCode = KeySegmentField(
+        val tableCode = KeyField(
             fieldName = "TableCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = tableInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = tableInherentLabel
         )
 
         val axisInherentLabel = FallbackField(
             fieldName = "AxisLabel"
         )
 
-        val axisOrientation = KeySegmentField(
+        val axisOrientation = KeyField(
             fieldName = "AxisOrientation",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = axisInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = axisInherentLabel
         )
 
-        // AxisOrdinate
+        // AxisOrdinate (parent)
         val ordinateId = FallbackField(
             fieldName = "OrdinateId"
         )
@@ -71,10 +71,10 @@ object AxisOrdinateTranslationSection {
             identityFallbacks = listOf(ordinateId, ordinateInherentLabel)
         )
 
-        val ordinateCode = KeySegmentField(
+        val ordinateCode = KeyField(
             fieldName = "OrdinateCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = ordinateInherentLabel
+            keyFieldKind = KeyFieldKind.PARENT_KEY,
+            keyFieldFallback = ordinateInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -83,16 +83,16 @@ object AxisOrdinateTranslationSection {
         )
 
         // Translations
-        val translationRole = KeySegmentField(
+        val translationRole = KeyField(
             fieldName = "TranslationRole",
-            segmentKind = KeySegmentKind.SUB_SEGMENT,
-            segmentFallback = null
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = null
         )
 
-        val translationLanguage = KeySegmentField(
+        val translationLanguage = KeyField(
             fieldName = "Language",
-            segmentKind = KeySegmentKind.SUB_SEGMENT,
-            segmentFallback = null
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = null
         )
 
         val changeKind = ChangeKindField()
@@ -108,7 +108,7 @@ object AxisOrdinateTranslationSection {
             sectionShortTitle = "AxisOrdTranslation",
             sectionTitle = "AxisOrdinate translations",
             sectionDescription = "Label and description changes in Axis Ordinates",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_SUB_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,
@@ -136,7 +136,7 @@ object AxisOrdinateTranslationSection {
                 NumberAwareSort(translationLanguage),
                 FixedChangeKindSort(changeKind)
             ),
-            includedChanges = ChangeKind.allWithoutDuplicateKeyChanges()
+            includedChanges = ChangeKind.allExceptDuplicateKeyAlerts()
         )
 
         val queryColumnMapping = mapOf(

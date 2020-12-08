@@ -4,40 +4,40 @@ import org.assertj.core.api.Assertions.assertThat
 
 internal open class ChangeDetectionTestBase {
 
-    protected val scopeKeySegment = KeySegmentField(
-        fieldName = "scopeKeySegment",
-        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-        segmentFallback = null
+    protected val contextParentKey = KeyField(
+        fieldName = "contextParentKey",
+        keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    protected val scopeKeySegment2 = KeySegmentField(
-        fieldName = "scopeKeySegment2",
-        segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-        segmentFallback = null
+    protected val contextParentKey2 = KeyField(
+        fieldName = "contextParentKey2",
+        keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    protected val primeKeySegment = KeySegmentField(
-        fieldName = "primeKeySegment",
-        segmentKind = KeySegmentKind.PRIME_SEGMENT,
-        segmentFallback = null
+    protected val parentKey = KeyField(
+        fieldName = "parentKey",
+        keyFieldKind = KeyFieldKind.PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    protected val primeKeySegment2 = KeySegmentField(
-        fieldName = "primeKeySegment2",
-        segmentKind = KeySegmentKind.PRIME_SEGMENT,
-        segmentFallback = null
+    protected val parentKey2 = KeyField(
+        fieldName = "parentKey2",
+        keyFieldKind = KeyFieldKind.PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    protected val subKeySegment = KeySegmentField(
-        fieldName = "subKeySegment",
-        segmentKind = KeySegmentKind.SUB_SEGMENT,
-        segmentFallback = null
+    protected val primeKey = KeyField(
+        fieldName = "primeKey",
+        keyFieldKind = KeyFieldKind.PRIME_KEY,
+        keyFieldFallback = null
     )
 
-    protected val subKeySegment2 = KeySegmentField(
-        fieldName = "subKeySegment2",
-        segmentKind = KeySegmentKind.SUB_SEGMENT,
-        segmentFallback = null
+    protected val primeKey2 = KeyField(
+        fieldName = "primeKey2",
+        keyFieldKind = KeyFieldKind.PRIME_KEY,
+        keyFieldFallback = null
     )
 
     protected val atom = AtomField(

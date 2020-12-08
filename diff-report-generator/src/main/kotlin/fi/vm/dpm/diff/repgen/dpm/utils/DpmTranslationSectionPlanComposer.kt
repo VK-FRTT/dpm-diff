@@ -10,8 +10,8 @@ import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.FixedElementTypeSort
 import fi.vm.dpm.diff.model.FixedTranslationRoleSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
@@ -26,16 +26,28 @@ class DpmTranslationSectionPlanComposer(
             dpmSectionOptions
         )
 
-    private val translationRole = KeySegmentField(
-        fieldName = "TranslationRole",
-        segmentKind = KeySegmentKind.SUB_SEGMENT,
-        segmentFallback = null
+    private val elementType = KeyField(
+        fieldName = "ElementType",
+        keyFieldKind = KeyFieldKind.PARENT_KEY,
+        keyFieldFallback = null
     )
 
-    private val translationLanguage = KeySegmentField(
+    private val elementCode = KeyField(
+        fieldName = "ElementCode",
+        keyFieldKind = KeyFieldKind.PARENT_KEY,
+        keyFieldFallback = overviewSectionPlanComposer.elementInherentLabel
+    )
+
+    private val translationRole = KeyField(
+        fieldName = "TranslationRole",
+        keyFieldKind = KeyFieldKind.PRIME_KEY,
+        keyFieldFallback = null
+    )
+
+    private val translationLanguage = KeyField(
         fieldName = "Language",
-        segmentKind = KeySegmentKind.SUB_SEGMENT,
-        segmentFallback = null
+        keyFieldKind = KeyFieldKind.PRIME_KEY,
+        keyFieldFallback = null
     )
 
     private val translation = AtomField(
@@ -53,15 +65,15 @@ class DpmTranslationSectionPlanComposer(
             sectionShortTitle = sectionShortTitle,
             sectionTitle = sectionTitle,
             sectionDescription = sectionDescription,
-            sectionCorrelationMode = CorrelationMode.DISTINCT_SUB_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
             sectionFields = listOf(
                 overviewSectionPlanComposer.elementId,
                 overviewSectionPlanComposer.elementInherentLabel,
                 overviewSectionPlanComposer.recordIdentityFallback,
                 overviewSectionPlanComposer.parentElementType,
                 overviewSectionPlanComposer.parentElementCode,
-                overviewSectionPlanComposer.elementType,
-                overviewSectionPlanComposer.elementCode,
+                elementType,
+                elementCode,
                 *overviewSectionPlanComposer.identificationLabels.labelFields(),
                 translationRole,
                 translationLanguage,
@@ -72,8 +84,8 @@ class DpmTranslationSectionPlanComposer(
             sectionSortOrder = listOf(
                 FixedElementTypeSort(overviewSectionPlanComposer.parentElementType),
                 NumberAwareSort(overviewSectionPlanComposer.parentElementCode),
-                FixedElementTypeSort(overviewSectionPlanComposer.elementType),
-                NumberAwareSort(overviewSectionPlanComposer.elementCode),
+                FixedElementTypeSort(elementType),
+                NumberAwareSort(elementCode),
                 FixedTranslationRoleSort(translationRole),
                 NumberAwareSort(translationLanguage),
                 FixedChangeKindSort(overviewSectionPlanComposer.changeKind)
@@ -86,8 +98,8 @@ class DpmTranslationSectionPlanComposer(
         return mapOf(
             "ElementId" to overviewSectionPlanComposer.elementId,
             "ElementInherentLabel" to overviewSectionPlanComposer.elementInherentLabel,
-            "ElementType" to overviewSectionPlanComposer.elementType,
-            "ElementCode" to overviewSectionPlanComposer.elementCode,
+            "ElementType" to elementType,
+            "ElementCode" to elementCode,
             "ParentElementType" to overviewSectionPlanComposer.parentElementType,
             "ParentElementCode" to overviewSectionPlanComposer.parentElementCode,
             *overviewSectionPlanComposer.identificationLabels.labelColumnMapping(),

@@ -30,7 +30,7 @@ data class FixedChangeKindSort(
                 ChangeKind.DELETED,
                 ChangeKind.ADDED,
                 ChangeKind.MODIFIED,
-                ChangeKind.DUPLICATE_KEY
+                ChangeKind.DUPLICATE_KEY_ALERT
             )
         )
     }

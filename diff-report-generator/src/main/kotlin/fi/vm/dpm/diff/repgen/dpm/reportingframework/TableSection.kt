@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -25,10 +25,10 @@ object TableSection {
             fieldName = "TaxonomyLabel"
         )
 
-        val taxonomyCode = KeySegmentField(
+        val taxonomyCode = KeyField(
             fieldName = "TaxonomyCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = taxonomyInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = taxonomyInherentLabel
         )
 
         val tableId = FallbackField(
@@ -43,10 +43,10 @@ object TableSection {
             identityFallbacks = listOf(tableId, tableInherentLabel)
         )
 
-        val tableCode = KeySegmentField(
+        val tableCode = KeyField(
             fieldName = "TableCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = tableInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = tableInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -66,7 +66,7 @@ object TableSection {
             sectionShortTitle = "Table",
             sectionTitle = "Tables",
             sectionDescription = "Added and deleted Tables, changes in FilingIndicator",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

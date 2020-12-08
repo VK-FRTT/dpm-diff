@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -25,20 +25,20 @@ object TableAxisSection {
             fieldName = "TaxonomyLabel"
         )
 
-        val taxonomyCode = KeySegmentField(
+        val taxonomyCode = KeyField(
             fieldName = "TaxonomyCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = taxonomyInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = taxonomyInherentLabel
         )
 
         val tableInherentLabel = FallbackField(
             fieldName = "TableLabel"
         )
 
-        val tableCode = KeySegmentField(
+        val tableCode = KeyField(
             fieldName = "TableCode",
-            segmentKind = KeySegmentKind.SCOPE_SEGMENT,
-            segmentFallback = tableInherentLabel
+            keyFieldKind = KeyFieldKind.CONTEXT_PARENT_KEY,
+            keyFieldFallback = tableInherentLabel
         )
 
         val axisId = FallbackField(
@@ -53,10 +53,10 @@ object TableAxisSection {
             identityFallbacks = listOf(axisId, axisInherentLabel)
         )
 
-        val axisOrientation = KeySegmentField(
+        val axisOrientation = KeyField(
             fieldName = "AxisOrientation",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = axisInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = axisInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -76,7 +76,7 @@ object TableAxisSection {
             sectionShortTitle = "TableAxis",
             sectionTitle = "TableAxis",
             sectionDescription = "Added and deleted Table Axis, changes in Order",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

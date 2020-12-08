@@ -7,8 +7,8 @@ import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.KeySegmentField
-import fi.vm.dpm.diff.model.KeySegmentKind
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
@@ -33,10 +33,10 @@ object DimensionSection {
             identityFallbacks = listOf(dimensionId, dimensionInherentLabel)
         )
 
-        val dimensionCode = KeySegmentField(
+        val dimensionCode = KeyField(
             fieldName = "DimensionCode",
-            segmentKind = KeySegmentKind.PRIME_SEGMENT,
-            segmentFallback = dimensionInherentLabel
+            keyFieldKind = KeyFieldKind.PRIME_KEY,
+            keyFieldFallback = dimensionInherentLabel
         )
 
         val identificationLabels = DpmSectionIdentificationLabels(
@@ -60,7 +60,7 @@ object DimensionSection {
             sectionShortTitle = "Dimension",
             sectionTitle = "Dimensions",
             sectionDescription = "Added and deleted Dimensions, changes in Domain reference and IsTypedDimension",
-            sectionCorrelationMode = CorrelationMode.DISTINCT_OBJECTS,
+            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
             sectionFields = listOf(
                 dimensionId,
                 dimensionInherentLabel,
