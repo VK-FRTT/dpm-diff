@@ -6,45 +6,45 @@ data class CorrelationKey private constructor(
     private val keyValue: String,
     private val correlationKeyKind: CorrelationKeyKind
 ) {
-    private enum class CorrelationKeyKind(val associatedKeyKinds: List<KeyFieldKind>) {
-        FULL_KEY(
-            listOf(
-                KeyFieldKind.CONTEXT_PARENT_KEY,
-                KeyFieldKind.PARENT_KEY,
-                KeyFieldKind.PRIME_KEY
-            )
-        ),
-
-        PARENT_KEY(
-            listOf(
-                KeyFieldKind.CONTEXT_PARENT_KEY,
-                KeyFieldKind.PARENT_KEY
-            )
-        )
-    }
-
     companion object {
 
-        fun fullKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.FULL_KEY)
+        fun createCorrelationKey(
+            correlationKeyKind: CorrelationKeyKind,
+            sourceRecord: SourceRecord
+        ): CorrelationKey {
+            return createCorrelationKey(
+                correlationKeyKind,
+                sourceRecord.fields
+            )
         }
 
-        fun fullKey(fields: Map<Field, Any?>): CorrelationKey {
-            return createCorrelationKey(fields, CorrelationKeyKind.FULL_KEY)
+        fun createCorrelationKey(
+            correlationKeyKind: CorrelationKeyKind,
+            fields: Map<Field, Any?>
+        ): CorrelationKey {
+            return when (correlationKeyKind) {
+                CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY -> createKeyFieldCorrelationKey(
+                    fields,
+                    fullKeyFieldKinds,
+                    correlationKeyKind
+                )
+                CorrelationKeyKind.PARENT_KEY_FIELD_CORRELATION_KEY -> createKeyFieldCorrelationKey(
+                    fields,
+                    parentKeyFieldKinds,
+                    correlationKeyKind
+                )
+                CorrelationKeyKind.ATOM_FIELD_CORRELATION_KEY -> createAtomFieldCorrelationKey(fields)
+            }
         }
 
-        fun parentKey(sourceRecord: SourceRecord): CorrelationKey {
-            return createCorrelationKey(sourceRecord.fields, CorrelationKeyKind.PARENT_KEY)
-        }
-
-        private fun createCorrelationKey(
+        private fun createKeyFieldCorrelationKey(
             fields: Map<Field, Any?>,
+            includedKeyFieldKinds: List<KeyFieldKind>,
             correlationKeyKind: CorrelationKeyKind
         ): CorrelationKey {
             val keyFields = fields.filterFieldType<KeyField, Any?>()
 
-            val keyValue = correlationKeyKind
-                .associatedKeyKinds
+            val keyValue = includedKeyFieldKinds
                 .map { kind ->
                     keyFields
                         .filter { (field, _) -> field.keyFieldKind == kind }
@@ -63,6 +63,30 @@ data class CorrelationKey private constructor(
                 correlationKeyKind = correlationKeyKind
             )
         }
+
+        private fun createAtomFieldCorrelationKey(
+            fields: Map<Field, Any?>
+        ): CorrelationKey {
+            val atomFields = fields.filterFieldType<AtomField, Any?>()
+
+            val keyValue = atomFields.values.joinToString(separator = "/")
+
+            return CorrelationKey(
+                keyValue = keyValue,
+                correlationKeyKind = CorrelationKeyKind.ATOM_FIELD_CORRELATION_KEY
+            )
+        }
+
+        private val fullKeyFieldKinds = listOf(
+            KeyFieldKind.CONTEXT_PARENT_KEY,
+            KeyFieldKind.PARENT_KEY,
+            KeyFieldKind.PRIME_KEY
+        )
+
+        private val parentKeyFieldKinds = listOf(
+            KeyFieldKind.CONTEXT_PARENT_KEY,
+            KeyFieldKind.PARENT_KEY
+        )
     }
 
     fun keyValue() = keyValue

@@ -14,7 +14,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
             sectionShortTitle = "ContextParentAndPrimeKeyWithAtom",
             sectionTitle = "ContextParentAndPrimeKeyWithAtom",
             sectionDescription = "ContextParentAndPrimeKeyWithAtom",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE,
             sectionFields = listOf(
                 contextParentKey,
                 primeKey,
@@ -100,7 +100,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
             sectionShortTitle = "NormalParentAndPrimeKeyWithAtom",
             sectionTitle = "NormalParentAndPrimeKeyWithAtom",
             sectionDescription = "NormalParentAndPrimeKeyWithAtom",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE,
             sectionFields = listOf(
                 parentKey,
                 primeKey,
@@ -186,7 +186,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
             sectionShortTitle = "TwoKeysPerKeyFieldKindAndAtom ",
             sectionTitle = "TwoKeysPerKeyFieldKindAndAtom ",
             sectionDescription = "TwoKeysPerKeyFieldKindAndAtom ",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE,
             sectionFields = listOf(
                 contextParentKey,
                 contextParentKey2,

@@ -3,9 +3,9 @@ package fi.vm.dpm.diff.repgen.dpm.reportingframework
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
+import fi.vm.dpm.diff.model.ChangeDetectionMode
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
@@ -100,7 +100,7 @@ object AxisOrdinateTranslationSection {
         val translation = AtomField(
             fieldName = "Translation",
             displayHint = DisplayHint.FIXED_EXTRA_WIDE,
-            atomOptions = AtomOption.OUTPUT_TO_ADDED_CHANGE
+            atomOptions = listOf(AtomOption.OUTPUT_TO_ADDED_CHANGE)
         )
         val note = NoteField()
 
@@ -108,7 +108,7 @@ object AxisOrdinateTranslationSection {
             sectionShortTitle = "AxisOrdTranslation",
             sectionTitle = "AxisOrdinate translations",
             sectionDescription = "Label and description changes in Axis Ordinates",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE,
             sectionFields = listOf(
                 taxonomyInherentLabel,
                 taxonomyCode,

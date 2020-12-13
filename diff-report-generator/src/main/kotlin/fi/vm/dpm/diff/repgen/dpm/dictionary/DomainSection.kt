@@ -2,9 +2,9 @@ package fi.vm.dpm.diff.repgen.dpm.dictionary
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
+import fi.vm.dpm.diff.model.ChangeDetectionMode
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.FixedChangeKindSort
 import fi.vm.dpm.diff.model.KeyField
@@ -60,7 +60,7 @@ object DomainSection {
             sectionShortTitle = "Domain",
             sectionTitle = "Domains",
             sectionDescription = "Added and deleted Domains, changes in IsTypedDomain and DataType",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 domainId,
                 domainInherentLabel,

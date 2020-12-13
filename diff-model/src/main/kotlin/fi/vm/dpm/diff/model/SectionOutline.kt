@@ -7,7 +7,7 @@ data class SectionOutline(
     val sectionShortTitle: String,
     val sectionTitle: String,
     val sectionDescription: String,
-    val sectionCorrelationMode: CorrelationMode,
+    val sectionChangeDetectionMode: ChangeDetectionMode,
     val sectionFields: List<Field>,
     val sectionSortOrder: List<Sort>,
     val includedChanges: Set<ChangeKind>
@@ -31,14 +31,14 @@ data class SectionOutline(
         run {
             val keyFields = sectionFields.filterFieldType<KeyField>()
 
-            when (sectionCorrelationMode) {
-                CorrelationMode.CORRELATION_BY_KEY -> {
+            when (sectionChangeDetectionMode) {
+                ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS -> {
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.CONTEXT_PARENT_KEY } >= 0)
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.PARENT_KEY } >= 0)
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.PRIME_KEY } >= 1)
                 }
 
-                CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE -> {
+                ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE -> {
                     check(
                         keyFields.count { it.keyFieldKind == KeyFieldKind.CONTEXT_PARENT_KEY } >= 1 ||
                         keyFields.count { it.keyFieldKind == KeyFieldKind.PARENT_KEY } >= 1
@@ -46,7 +46,7 @@ data class SectionOutline(
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.PRIME_KEY } >= 1)
                 }
 
-                CorrelationMode.CORRELATION_BY_KEYS_AND_ATOMS_VALUES -> {
+                ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS -> {
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.CONTEXT_PARENT_KEY } >= 0)
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.PARENT_KEY } >= 0)
                     check(keyFields.count { it.keyFieldKind == KeyFieldKind.PRIME_KEY } >= 1)

@@ -35,12 +35,6 @@ class SqlReportGenerator(
     }
 
     private fun generateSection(sectionPlan: SectionPlanSql): ReportSection {
-        data class PartitionResult(
-            val changes: List<ChangeRecord>,
-            val baselineSourceRecordCount: Int,
-            val currentSourceRecordCount: Int
-        )
-
         diagnostic.info("\nSection: ${sectionPlan.sectionOutline().sectionTitle}")
         sectionPlan.sanityCheck()
 
@@ -119,7 +113,8 @@ class SqlReportGenerator(
     ): List<SourceRecord> {
         val sourceRecords = mutableListOf<SourceRecord>()
 
-        val queryDebugName = "${sectionOutline.sectionTitle} SourceRecordsPartition ${partitionIndex + 1}/$totalPartitions"
+        val queryDebugName =
+            "${sectionOutline.sectionTitle} SourceRecordsPartition ${partitionIndex + 1}/$totalPartitions"
 
         dbConnection.executeQuery(partitionQuery, queryDebugName) { resultSet ->
 
@@ -231,4 +226,10 @@ class SqlReportGenerator(
             )
         }
     }
+
+    data class PartitionResult(
+        val changes: List<ChangeRecord>,
+        val baselineSourceRecordCount: Int,
+        val currentSourceRecordCount: Int
+    )
 }

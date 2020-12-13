@@ -3,8 +3,8 @@ package fi.vm.dpm.diff.repgen.dpm.utils
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.AtomOption
+import fi.vm.dpm.diff.model.ChangeDetectionMode
 import fi.vm.dpm.diff.model.ChangeKind
-import fi.vm.dpm.diff.model.CorrelationMode
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.FixedChangeKindSort
@@ -53,7 +53,7 @@ class DpmTranslationSectionPlanComposer(
     private val translation = AtomField(
         fieldName = "Translation",
         displayHint = DisplayHint.FIXED_EXTRA_WIDE,
-        atomOptions = AtomOption.OUTPUT_TO_ADDED_CHANGE
+        atomOptions = listOf(AtomOption.OUTPUT_TO_ADDED_CHANGE)
     )
 
     fun sectionOutline(
@@ -65,7 +65,7 @@ class DpmTranslationSectionPlanComposer(
             sectionShortTitle = sectionShortTitle,
             sectionTitle = sectionTitle,
             sectionDescription = sectionDescription,
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE,
             sectionFields = listOf(
                 overviewSectionPlanComposer.elementId,
                 overviewSectionPlanComposer.elementInherentLabel,

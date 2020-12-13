@@ -8,11 +8,11 @@ class CorrelationPolicyByKeyAndParentExistence(
     currentSourceRecords
 ) {
     private val baselineRecordsByParentKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
-        baselineSourceRecords.groupBy { record -> record.parentKey }
+        baselineSourceRecords.groupBy { record -> record.parentKeyFieldKey }
     }
 
     private val currentRecordsByParentKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
-        currentSourceRecords.groupBy { record -> record.parentKey }
+        currentSourceRecords.groupBy { record -> record.parentKeyFieldKey }
     }
 
     override fun deletedRecords(): List<SourceRecord> {
@@ -38,7 +38,7 @@ class CorrelationPolicyByKeyAndParentExistence(
         comparisonRecords: Map<CorrelationKey, List<SourceRecord>>
     ): List<SourceRecord> {
         return records.filter { record ->
-            comparisonRecords[record.parentKey] != null
+            comparisonRecords[record.parentKeyFieldKey] != null
         }
     }
 }

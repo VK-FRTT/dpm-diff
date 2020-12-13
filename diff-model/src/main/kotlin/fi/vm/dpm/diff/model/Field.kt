@@ -36,7 +36,7 @@ class ChangeKindField : Field("Change", DisplayHint.FIT_BY_TITLE)
 class AtomField(
     override val fieldName: String,
     override val displayHint: DisplayHint = DisplayHint.FIT_BY_TITLE,
-    val atomOptions: AtomOption = AtomOption.NONE
+    val atomOptions: List<AtomOption> = emptyList()
 ) : Field(fieldName, displayHint)
 
 class NoteField : Field("Notes", DisplayHint.FIXED_WIDE)

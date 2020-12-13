@@ -9,12 +9,16 @@ data class SourceRecord(
     val sourceKind: SourceKind,
     val fields: Map<Field, String?>
 ) {
-    val fullKey: CorrelationKey by lazy {
-        CorrelationKey.fullKey(this)
+    val fullKeyFieldKey: CorrelationKey by lazy {
+        CorrelationKey.createCorrelationKey(CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY, this)
     }
 
-    val parentKey: CorrelationKey by lazy {
-        CorrelationKey.parentKey(this)
+    val parentKeyFieldKey: CorrelationKey by lazy {
+        CorrelationKey.createCorrelationKey(CorrelationKeyKind.PARENT_KEY_FIELD_CORRELATION_KEY, this)
+    }
+
+    val atomFieldKey: CorrelationKey by lazy {
+        CorrelationKey.createCorrelationKey(CorrelationKeyKind.ATOM_FIELD_CORRELATION_KEY, this)
     }
 
     fun toAddedChange(): ChangeRecord {
@@ -40,6 +44,7 @@ data class SourceRecord(
     fun toDeletedChange(): ChangeRecord {
         val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
+        changeFields.transformAtomsToDeletedChange()
         changeFields.setChangeKind(ChangeKind.DELETED)
         changeFields.setNoteWithDetails(
             recordIdentificationDetailIfNeeded = true
@@ -47,8 +52,7 @@ data class SourceRecord(
 
         changeFields.discardFields(
             listOf(
-                FallbackField::class,
-                AtomField::class
+                FallbackField::class
             )
         )
 
@@ -118,8 +122,21 @@ data class SourceRecord(
     private fun MutableMap<Field, Any?>.transformAtomsToAddedChange() {
         doTransformAtoms { field, value ->
 
-            if (field.atomOptions == AtomOption.OUTPUT_TO_ADDED_CHANGE) {
-                AddedChangeAtomValue(
+            if (AtomOption.OUTPUT_TO_ADDED_CHANGE in field.atomOptions) {
+                ChangeAtomValueAdded(
+                    value = value
+                )
+            } else {
+                null
+            }
+        }
+    }
+
+    private fun MutableMap<Field, Any?>.transformAtomsToDeletedChange() {
+        doTransformAtoms { field, value ->
+
+            if (AtomOption.OUTPUT_TO_DELETED_CHANGE in field.atomOptions) {
+                ChangeAtomValueDeleted(
                     value = value
                 )
             } else {
@@ -135,7 +152,7 @@ data class SourceRecord(
             val baselineValue = baselineFields[field]
 
             if (value != baselineValue) {
-                ModifiedChangeAtomValue(
+                ChangeAtomValueModified(
                     currentValue = value,
                     baselineValue = baselineValue
                 )
@@ -249,7 +266,7 @@ data class SourceRecord(
 
         val modifiedFieldItems = fields
             .filterFieldType<AtomField, Any?>()
-            .filter { (_, value) -> value is ModifiedChangeAtomValue }
+            .filter { (_, value) -> value is ChangeAtomValueModified }
             .map { (field, _) -> field.fieldName.replaceCamelCase() }
 
         return layoutNoteDetail(

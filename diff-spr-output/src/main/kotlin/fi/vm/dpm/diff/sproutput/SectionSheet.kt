@@ -1,8 +1,10 @@
 package fi.vm.dpm.diff.sproutput
 
 import ext.kotlin.replaceCamelCase
-import fi.vm.dpm.diff.model.AddedChangeAtomValue
 import fi.vm.dpm.diff.model.AtomField
+import fi.vm.dpm.diff.model.ChangeAtomValueAdded
+import fi.vm.dpm.diff.model.ChangeAtomValueDeleted
+import fi.vm.dpm.diff.model.ChangeAtomValueModified
 import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
@@ -10,7 +12,6 @@ import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.IdentificationLabelField
 import fi.vm.dpm.diff.model.KeyField
 import fi.vm.dpm.diff.model.KeyFieldKind
-import fi.vm.dpm.diff.model.ModifiedChangeAtomValue
 import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.ReportSection
@@ -131,8 +132,9 @@ object SectionSheet {
                             contentStyle = cellStyles.contentStyleNormal,
                             changeToCellValue = { changeValue ->
                                 when (changeValue) {
-                                    is AddedChangeAtomValue -> changeValue.value
-                                    is ModifiedChangeAtomValue -> changeValue.currentValue
+                                    is ChangeAtomValueAdded -> changeValue.value
+                                    is ChangeAtomValueDeleted -> null
+                                    is ChangeAtomValueModified -> changeValue.currentValue
                                     else -> null
                                 }
                             }
@@ -146,8 +148,9 @@ object SectionSheet {
                             contentStyle = cellStyles.contentStyleNormal,
                             changeToCellValue = { changeValue ->
                                 when (changeValue) {
-                                    is AddedChangeAtomValue -> null
-                                    is ModifiedChangeAtomValue -> changeValue.baselineValue
+                                    is ChangeAtomValueAdded -> null
+                                    is ChangeAtomValueDeleted -> changeValue.value
+                                    is ChangeAtomValueModified -> changeValue.baselineValue
                                     else -> null
                                 }
                             }

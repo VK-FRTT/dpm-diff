@@ -10,15 +10,15 @@ interface CorrelationPolicy {
             currentSourceRecords: List<SourceRecord>
         ): CorrelationPolicy {
 
-            return when (sectionOutline.sectionCorrelationMode) {
-                CorrelationMode.CORRELATION_BY_KEY -> {
+            return when (sectionOutline.sectionChangeDetectionMode) {
+                ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS -> {
                     CorrelationPolicyByKey(
                         baselineSourceRecords = baselineSourceRecords,
                         currentSourceRecords = currentSourceRecords
                     )
                 }
 
-                CorrelationMode.CORRELATION_BY_KEY_AND_PARENT_EXISTENCE -> {
+                ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE -> {
                     CorrelationPolicyByKeyAndParentExistence(
                         baselineSourceRecords = baselineSourceRecords,
                         currentSourceRecords = currentSourceRecords
@@ -26,7 +26,7 @@ interface CorrelationPolicy {
                     )
                 }
 
-                CorrelationMode.CORRELATION_BY_KEYS_AND_ATOMS_VALUES -> {
+                ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS -> {
                     CorrelationPolicyByKeyAndAtomValues(
                         baselineSourceRecords = baselineSourceRecords,
                         currentSourceRecords = currentSourceRecords

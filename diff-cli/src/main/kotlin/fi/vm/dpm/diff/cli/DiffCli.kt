@@ -6,6 +6,7 @@ import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
 import fi.vm.dpm.diff.model.SpreadsheetOutput
 import fi.vm.dpm.diff.model.SqlReportGenerator
+import fi.vm.dpm.diff.model.VkDataSectionPlans
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.throwHalt
 import fi.vm.dpm.diff.repgen.SectionPlanSql
@@ -129,8 +130,10 @@ internal class DiffCli(
         )
 
         sourceDbs.use {
+            val sectionPlans = VkDataSectionPlans.allPlans()
+
             generateAndRenderSqlBasedReport(
-                sectionPlans = emptyList(),
+                sectionPlans = sectionPlans,
                 sourceDbs = sourceDbs,
                 reportGeneratorDescriptor = reportGeneratorDescriptor(),
                 reportGenerationOptions = emptyList(),

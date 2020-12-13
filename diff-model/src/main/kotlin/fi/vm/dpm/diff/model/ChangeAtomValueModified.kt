@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.model
 
-data class ModifiedChangeAtomValue(
+data class ChangeAtomValueModified(
     val currentValue: String?,
     val baselineValue: String?
 )

@@ -14,7 +14,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "PrimeKey",
             sectionTitle = "PrimeKey",
             sectionDescription = "PrimeKey",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 primeKey,
                 changeKind,
@@ -76,7 +76,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "PrimeKeyWithAtom",
             sectionTitle = "PrimeKeyWithAtom",
             sectionDescription = "PrimeKeyWithAtom",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 primeKey,
                 atom,
@@ -149,7 +149,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentAndPrimeKey",
             sectionTitle = "ContextParentAndPrimeKey",
             sectionDescription = "ContextParentAndPrimeKey",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 contextParentKey,
                 primeKey,
@@ -218,7 +218,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentAndPrimeKeyWithAtom",
             sectionTitle = "ContextParentAndPrimeKeyWithAtom",
             sectionDescription = "ContextParentAndPrimeKeyWithAtom",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 contextParentKey,
                 primeKey,
@@ -288,7 +288,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "NormalParentAndPrimeKey",
             sectionTitle = "NormalParentAndPrimeKey",
             sectionDescription = "NormalParentAndPrimeKey",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 parentKey,
                 primeKey,
@@ -357,7 +357,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "NormalParentAndPrimeKeyWithAtom",
             sectionTitle = "NormalParentAndPrimeKeyWithAtom",
             sectionDescription = "NormalParentAndPrimeKeyWithAtom",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 parentKey,
                 primeKey,
@@ -427,7 +427,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentNormalParentAndPrimeKey",
             sectionTitle = "ContextParentNormalParentAndPrimeKey",
             sectionDescription = "ContextParentNormalParentAndPrimeKey",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 contextParentKey,
                 parentKey,
@@ -498,7 +498,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentNormalParentAndPrimeKeyWithAtom",
             sectionTitle = "ContextParentNormalParentAndPrimeKeyWithAtom",
             sectionDescription = "ContextParentNormalParentAndPrimeKeyWithAtom",
-            sectionCorrelationMode = CorrelationMode.CORRELATION_BY_KEY,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
             sectionFields = listOf(
                 contextParentKey,
                 parentKey,

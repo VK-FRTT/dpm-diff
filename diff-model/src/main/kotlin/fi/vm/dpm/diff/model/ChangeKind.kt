@@ -7,6 +7,11 @@ enum class ChangeKind {
     DUPLICATE_KEY_ALERT;
 
     companion object {
+        fun additionAndDeletion() = setOf(
+            ADDED,
+            DELETED
+        )
+
         fun allChanges() = setOf(
             ADDED,
             DELETED,

@@ -17,7 +17,7 @@ internal open class ChangeDetectionTestBase {
     )
 
     protected val parentKey = KeyField(
-        fieldName = "parentKey",
+        fieldName = "parentKeyFieldKey",
         keyFieldKind = KeyFieldKind.PARENT_KEY,
         keyFieldFallback = null
     )
@@ -74,7 +74,7 @@ internal open class ChangeDetectionTestBase {
 
     protected fun List<ChangeRecord>.toKeyAndChangeKindList(): List<String> {
         return map { changeRecord ->
-            "${CorrelationKey.fullKey(changeRecord.fields).keyValue()} ${changeRecord.fields[changeKind]}"
+            "${CorrelationKey.fullKeyFieldKey(changeRecord.fields).keyValue()} ${changeRecord.fields[changeKind]}"
         }
     }
 

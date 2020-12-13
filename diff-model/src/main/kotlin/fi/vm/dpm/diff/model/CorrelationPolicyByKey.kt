@@ -6,11 +6,11 @@ open class CorrelationPolicyByKey(
 ) : CorrelationPolicy {
 
     private val baselineRecordsByFullKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
-        baselineSourceRecords.groupBy { record -> record.fullKey }
+        baselineSourceRecords.groupBy { record -> record.fullKeyFieldKey }
     }
 
     private val currentRecordsByFullKey: Map<CorrelationKey, List<SourceRecord>> by lazy {
-        currentSourceRecords.groupBy { record -> record.fullKey }
+        currentSourceRecords.groupBy { record -> record.fullKeyFieldKey }
     }
 
     override fun deletedRecords(): List<SourceRecord> {

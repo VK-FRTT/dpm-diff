@@ -1,5 +1,5 @@
 package fi.vm.dpm.diff.model
 
-data class AddedChangeAtomValue(
+data class ChangeAtomValueDeleted(
     val value: String?
 )
