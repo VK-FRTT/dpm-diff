@@ -2,6 +2,7 @@ package fi.vm.dpm.diff.model
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+import fi.vm.dpm.diff.model.metrics.TimeMetrics
 import fi.vm.dpm.diff.repgen.DbConnection
 import fi.vm.dpm.diff.repgen.SectionPlanSql
 import fi.vm.dpm.diff.repgen.SourceDbs
@@ -17,10 +18,31 @@ class SqlReportGenerator(
     private val reportGenerationOptions: List<String>,
     private val diagnostic: Diagnostic
 ) {
+    private enum class ReportGenerationStep {
+        LOAD_BASELINE,
+        LOAD_CURRENT,
+        RESOLVE_CHANGES,
+        SORT_CHANGES
+    }
+
+    private val timeMetrics = TimeMetrics<ReportGenerationStep>()
+
+    init {
+        timeMetrics.createMetric(ReportGenerationStep.LOAD_BASELINE, "Loading baseline records")
+        timeMetrics.createMetric(ReportGenerationStep.LOAD_CURRENT, "Loading current records")
+        timeMetrics.createMetric(ReportGenerationStep.RESOLVE_CHANGES, "Resolving changes")
+        timeMetrics.createMetric(ReportGenerationStep.SORT_CHANGES, "Sorting changes")
+    }
+
     fun generateReport(): ChangeReport {
 
         val reportSections = sectionPlans.map {
-            generateSection(it)
+            val section = generateSection(it)
+
+            diagnostic.verbose(timeMetrics.report())
+            timeMetrics.reset()
+
+            section
         }
 
         return ChangeReport(
@@ -42,31 +64,35 @@ class SqlReportGenerator(
 
         val partitionResults = partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
 
-            diagnostic.progressStep()
-            val baselineSourceRecords = loadSourceRecordsPartition(
-                partitionQuery = partitionQuery,
-                partitionIndex = partitionIndex,
-                totalPartitions = partitionedQueries.size,
-                queryColumnMapping = sectionPlan.queryColumnMapping(),
-                sectionOutline = sectionPlan.sectionOutline(),
-                dbConnection = sourceDbs.baselineConnection
-            )
+            val baselineSourceRecords = runStep(ReportGenerationStep.LOAD_BASELINE) {
+                loadSourceRecordsPartition(
+                    partitionQuery = partitionQuery,
+                    partitionIndex = partitionIndex,
+                    totalPartitions = partitionedQueries.size,
+                    queryColumnMapping = sectionPlan.queryColumnMapping(),
+                    sectionOutline = sectionPlan.sectionOutline(),
+                    dbConnection = sourceDbs.baselineConnection
+                )
+            }
 
-            val currentSourceRecords = loadSourceRecordsPartition(
-                partitionQuery = partitionQuery,
-                partitionIndex = partitionIndex,
-                totalPartitions = partitionedQueries.size,
-                queryColumnMapping = sectionPlan.queryColumnMapping(),
-                sectionOutline = sectionPlan.sectionOutline(),
-                dbConnection = sourceDbs.currentConnection
-            )
+            val currentSourceRecords = runStep(ReportGenerationStep.LOAD_CURRENT) {
+                loadSourceRecordsPartition(
+                    partitionQuery = partitionQuery,
+                    partitionIndex = partitionIndex,
+                    totalPartitions = partitionedQueries.size,
+                    queryColumnMapping = sectionPlan.queryColumnMapping(),
+                    sectionOutline = sectionPlan.sectionOutline(),
+                    dbConnection = sourceDbs.currentConnection
+                )
+            }
 
-            diagnostic.progressStep()
-            val changes = ChangeRecord.resolveChanges(
-                sectionOutline = sectionPlan.sectionOutline(),
-                baselineSourceRecords = baselineSourceRecords,
-                currentSourceRecords = currentSourceRecords
-            )
+            val changes = runStep(ReportGenerationStep.RESOLVE_CHANGES) {
+                ChangeRecord.resolveChanges(
+                    sectionOutline = sectionPlan.sectionOutline(),
+                    baselineSourceRecords = baselineSourceRecords,
+                    currentSourceRecords = currentSourceRecords
+                )
+            }
 
             PartitionResult(
                 changes = changes,
@@ -89,11 +115,11 @@ class SqlReportGenerator(
             sectionPlan.sectionOutline()
         )
 
-        diagnostic.progressStep()
-        val comparator = ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder)
-        val changes = partitionResults
-            .flatMap { it.changes }
-            .sortedWith(comparator)
+        val changes = runStep(ReportGenerationStep.SORT_CHANGES) {
+            partitionResults
+                .flatMap { it.changes }
+                .sortedWith(ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder))
+        }
 
         diagnostic.info(" => changes: ${changes.size}")
 
@@ -101,6 +127,17 @@ class SqlReportGenerator(
             sectionOutline = sectionPlan.sectionOutline(),
             changes = changes
         )
+    }
+
+    private fun <T> runStep(step: ReportGenerationStep, action: () -> T): T {
+        diagnostic.infoStepProgress()
+        timeMetrics.startStep(step)
+
+        val result = action()
+
+        timeMetrics.stopStep(step)
+
+        return result
     }
 
     private fun loadSourceRecordsPartition(

@@ -99,7 +99,7 @@ class DefinedOptions {
         verbosity = optionParser
             .accepts(
                 "verbosity",
-                "execution output verbosity, modes: ${OutputVerbosity.NORMAL}, ${OutputVerbosity.DEBUG}"
+                "execution output verbosity, modes: ${OutputVerbosity.NORMAL}, ${OutputVerbosity.VERBOSE}, ${OutputVerbosity.DEBUG}"
             )
             .withOptionalArg()
             .withValuesConvertedBy(VerbosityConverter())

@@ -6,6 +6,7 @@ dependencies {
     implementation libs.jacksonKotlin
     implementation libs.jacksonJsr310
     implementation libs.xerialSqliteJdbc
+    implementation libs.kformat
     implementation(project(':diff-model'))
 
     testCompile libs.junitJupiterApi
