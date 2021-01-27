@@ -1,6 +1,6 @@
 package fi.vm.dpm.diff.sproutput
 
-import ext.kotlin.replaceCamelCase
+import ext.kotlin.splitCamelCaseWords
 import fi.vm.dpm.diff.model.AtomField
 import fi.vm.dpm.diff.model.ChangeAtomValueAdded
 import fi.vm.dpm.diff.model.ChangeAtomValueDeleted
@@ -41,7 +41,7 @@ object SectionSheet {
 
         val headerCells = columns.map {
             Triple(
-                first = it.columnTitle.replaceCamelCase().toUpperCase(),
+                first = it.columnTitle.splitCamelCaseWords().toUpperCase(),
                 second = it.headerStyle,
                 third = it.columnWidth
             )
@@ -64,7 +64,7 @@ object SectionSheet {
         sectionIndex: Int,
         sectionOutline: SectionOutline
     ): String {
-        return "${String.format("%02d", sectionIndex + 1)}_${sectionOutline.sectionShortTitle.replaceCamelCase("_")}"
+        return "${String.format("%02d", sectionIndex + 1)}_${sectionOutline.sectionShortTitle.splitCamelCaseWords("_")}"
     }
 
     private fun sectionColumns(

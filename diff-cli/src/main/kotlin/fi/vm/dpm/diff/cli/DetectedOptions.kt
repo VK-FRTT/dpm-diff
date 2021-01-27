@@ -15,6 +15,7 @@ data class DetectedOptions(
     val outputFilePath: Path?,
     val forceOverwrite: Boolean,
     val verbosity: OutputVerbosity,
+    val reportSections: String?,
 
     val identificationLabelLanguages: String?,
     val translationLanguages: String?
@@ -83,6 +84,12 @@ data class DetectedOptions(
                 outputFilePath,
                 forceOverwrite,
                 OptName.OUTPUT,
+                validationResults
+            ),
+
+            reportSections = ReportSectionOptions.checkIncludedReportSections(
+                reportSections,
+                OptName.REPORT_SECTIONS,
                 validationResults
             )
         )

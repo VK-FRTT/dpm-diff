@@ -14,11 +14,16 @@ import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSort
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionOutline
+import fi.vm.dpm.diff.repgen.DbConnection
+import fi.vm.dpm.diff.repgen.MAX_ITEMS_PER_PARTITION
 import fi.vm.dpm.diff.repgen.SectionPlanSql
+import fi.vm.dpm.diff.repgen.SourceDbs
+import kotlin.math.ceil
+import kotlin.math.max
 
 object DataPointIdSection {
 
-    fun sectionPlan(): SectionPlanSql {
+    fun sectionPlan(sourceDbs: SourceDbs): SectionPlanSql {
 
         val rowid = FallbackField(
             fieldName = "Rowid"
@@ -63,7 +68,7 @@ object DataPointIdSection {
         val note = NoteField()
 
         val sectionOutline = SectionOutline(
-            sectionShortTitle = "DatapointIDs",
+            sectionShortTitle = "DatapointID",
             sectionTitle = "Datapoint IDs",
             sectionDescription = "Added and deleted Datapoint IDs",
             sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
@@ -92,7 +97,19 @@ object DataPointIdSection {
             "OpenContext" to openContext
         )
 
-        val queries = (0..9).map { remainder ->
+        fun calculatePartitionCountFor(dbConnection: DbConnection): Int {
+            val rowCount = getKenttatunnuksetRowCount(dbConnection).toFloat()
+            return ceil(rowCount / MAX_ITEMS_PER_PARTITION).toInt()
+        }
+
+        val partitionCount = max(
+            calculatePartitionCountFor(sourceDbs.baselineConnection),
+            calculatePartitionCountFor(sourceDbs.currentConnection)
+        )
+
+        val partitionCriteriaRange = 0.until(partitionCount)
+
+        val queries = partitionCriteriaRange.map { partitionCriteria ->
             """
             SELECT
             rowid AS 'Rowid'
@@ -103,7 +120,7 @@ object DataPointIdSection {
 
             FROM Kenttatunnukset
 
-            WHERE Kenttatunnukset.DatapointID % 10 = $remainder
+            ${if (partitionCount > 1) "WHERE Kenttatunnukset.DatapointID % $partitionCount = $partitionCriteria" else ""}
 
             """.trimLineStartsAndConsequentBlankLines()
         }
@@ -118,5 +135,21 @@ object DataPointIdSection {
             partitionedQueries = queries,
             sourceTableDescriptors = sourceTableDescriptors
         )
+    }
+
+    private fun getKenttatunnuksetRowCount(dbConnection: DbConnection): Int {
+        val totalRowCountQuery = """
+            SELECT COUNT(*) As RowCount
+            FROM Kenttatunnukset
+        """.trimLineStartsAndConsequentBlankLines()
+
+        val queryDebugName = "Kenttatunnukset RowCount"
+
+        val count = dbConnection.executeQuery(totalRowCountQuery, queryDebugName) { resultSet ->
+            resultSet.next()
+            resultSet.getInt("RowCount")
+        }
+
+        return count
     }
 }

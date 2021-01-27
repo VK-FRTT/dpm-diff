@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.ChangeReportKind
 import fi.vm.dpm.diff.model.DpmSectionPlans
 import fi.vm.dpm.diff.model.FailException
 import fi.vm.dpm.diff.model.HaltException
@@ -105,9 +106,13 @@ internal class DiffCli(
         )
 
         sourceDbs.use {
-            val sectionPlans = DpmSectionPlans.allPlans(dpmSectionOptions)
+            val sectionPlans = filterIncludedReportSections(
+                sectionPlans = DpmSectionPlans.allPlans(dpmSectionOptions),
+                commonOptions = commonOptions
+            )
 
             generateAndRenderSqlBasedReport(
+                reportKind = ChangeReportKind.DPM,
                 sectionPlans = sectionPlans,
                 sourceDbs = sourceDbs,
                 reportGeneratorDescriptor = reportGeneratorDescriptor(),
@@ -130,9 +135,13 @@ internal class DiffCli(
         )
 
         sourceDbs.use {
-            val sectionPlans = VkDataSectionPlans.allPlans()
+            val sectionPlans = filterIncludedReportSections(
+                sectionPlans = VkDataSectionPlans.allPlans(sourceDbs),
+                commonOptions = commonOptions
+            )
 
             generateAndRenderSqlBasedReport(
+                reportKind = ChangeReportKind.VK_DATA,
                 sectionPlans = sectionPlans,
                 sourceDbs = sourceDbs,
                 reportGeneratorDescriptor = reportGeneratorDescriptor(),
@@ -153,7 +162,24 @@ internal class DiffCli(
         )
     }
 
+    private fun filterIncludedReportSections(
+        sectionPlans: Collection<SectionPlanSql>,
+        commonOptions: CommonCompareOptions
+    ): Collection<SectionPlanSql> {
+        if (commonOptions.reportSections == null) return sectionPlans
+
+        return sectionPlans.filter { sectionPlan ->
+            commonOptions.reportSections.any { includedSectionName ->
+                includedSectionName.equals(
+                    other = sectionPlan.sectionOutline().sectionShortTitle,
+                    ignoreCase = true
+                )
+            }
+        }
+    }
+
     private fun generateAndRenderSqlBasedReport(
+        reportKind: ChangeReportKind,
         sectionPlans: Collection<SectionPlanSql>,
         sourceDbs: SourceDbs,
         reportGeneratorDescriptor: ReportGeneratorDescriptor,
@@ -162,6 +188,7 @@ internal class DiffCli(
         diagnostic: Diagnostic
     ) {
         val generator = SqlReportGenerator(
+            reportKind = reportKind,
             sectionPlans = sectionPlans,
             sourceDbs = sourceDbs,
             reportGeneratorDescriptor = reportGeneratorDescriptor,

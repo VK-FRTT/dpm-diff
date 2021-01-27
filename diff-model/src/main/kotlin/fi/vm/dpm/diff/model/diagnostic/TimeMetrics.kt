@@ -5,18 +5,13 @@ import de.m3y.kformat.table
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import java.time.Duration
 
-class TimeMetrics<K> {
+class TimeMetrics<K>(vararg metricKeysAndNames: Pair<K, String>) {
 
     private val metricsByKey: MutableMap<K, TimeMetric> = mutableMapOf()
 
-    fun createMetric(key: K, name: String) {
-        check(!metricsByKey.contains(key))
-        metricsByKey[key] = TimeMetric.empty(name)
-    }
-
-    fun reset() {
-        metricsByKey.forEach { (key, metric) ->
-            metricsByKey[key] = metric.toEmpty()
+    init {
+        metricKeysAndNames.forEach { (key, name) ->
+            metricsByKey[key] = TimeMetric.empty(name)
         }
     }
 
@@ -27,9 +22,9 @@ class TimeMetrics<K> {
             header(
                 "",
                 "Steps",
-                "Min (sec/step)",
-                "Max (sec/step)",
-                "Average (sec/step)",
+                "Min (sec/handleStep)",
+                "Max (sec/handleStep)",
+                "Average (sec/handleStep)",
                 "Total (sec)"
             )
 

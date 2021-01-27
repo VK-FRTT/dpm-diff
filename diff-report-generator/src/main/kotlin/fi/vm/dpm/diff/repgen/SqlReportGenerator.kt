@@ -11,42 +11,39 @@ import java.sql.ResultSet
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+private enum class StepKind {
+    LOAD_BASELINE,
+    LOAD_CURRENT,
+    RESOLVE_CHANGES,
+    SORT_CHANGES
+}
+
+private data class PartitionChangeRecords(
+    val changes: List<ChangeRecord>,
+    val baselineSourceRecordCount: Int,
+    val currentSourceRecordCount: Int
+)
+
+private typealias StepAction = () -> Any
+private typealias StepDiagnosticHandler = (step: StepKind, stepAction: StepAction) -> Any
+
 class SqlReportGenerator(
+    private val reportKind: ChangeReportKind,
     private val sectionPlans: Collection<SectionPlanSql>,
     private val sourceDbs: SourceDbs,
     private val reportGeneratorDescriptor: ReportGeneratorDescriptor,
     private val reportGenerationOptions: List<String>,
     private val diagnostic: Diagnostic
 ) {
-    private enum class ReportGenerationStep {
-        LOAD_BASELINE,
-        LOAD_CURRENT,
-        RESOLVE_CHANGES,
-        SORT_CHANGES
-    }
-
-    private val timeMetrics = TimeMetrics<ReportGenerationStep>()
-
-    init {
-        timeMetrics.createMetric(ReportGenerationStep.LOAD_BASELINE, "Loading baseline records")
-        timeMetrics.createMetric(ReportGenerationStep.LOAD_CURRENT, "Loading current records")
-        timeMetrics.createMetric(ReportGenerationStep.RESOLVE_CHANGES, "Resolving changes")
-        timeMetrics.createMetric(ReportGenerationStep.SORT_CHANGES, "Sorting changes")
-    }
 
     fun generateReport(): ChangeReport {
 
         val reportSections = sectionPlans.map {
-            val section = generateSection(it)
-
-            diagnostic.verbose(timeMetrics.report())
-            timeMetrics.reset()
-
-            section
+            generateReportSection(it)
         }
 
         return ChangeReport(
-            reportKind = ChangeReportKind.DPM,
+            reportKind = reportKind,
             createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")),
             baselineFileName = sourceDbs.baselineDbPath.fileName.toString(),
             currentFileName = sourceDbs.currentDbPath.fileName.toString(),
@@ -56,88 +53,136 @@ class SqlReportGenerator(
         )
     }
 
-    private fun generateSection(sectionPlan: SectionPlanSql): ReportSection {
-        diagnostic.info("\nSection: ${sectionPlan.sectionOutline().sectionTitle}")
+    private fun generateReportSection(sectionPlan: SectionPlanSql): ReportSection {
+        diagnostic.info("\n\nSection: ${sectionPlan.sectionOutline().sectionTitle}")
+
+        val sectionGenerationMetrics = TimeMetrics(
+            StepKind.LOAD_BASELINE to "Loading baseline records",
+            StepKind.LOAD_CURRENT to "Loading current records",
+            StepKind.RESOLVE_CHANGES to "Resolving changes",
+            StepKind.SORT_CHANGES to "Sorting changes"
+        )
+
+        val progressIndication = diagnostic.progressIndication()
+
+        val reportSection = doGenerateReportSection(sectionPlan) { stepKind: StepKind, stepAction: StepAction ->
+
+            progressIndication.handleStep()
+            sectionGenerationMetrics.startStep(stepKind)
+
+            val result = stepAction()
+
+            sectionGenerationMetrics.stopStep(stepKind)
+
+            result
+        }
+
+        progressIndication.handleDone()
+
+        diagnostic.verbose("Section generation metrics:")
+        diagnostic.verbose(sectionGenerationMetrics.report())
+
+        diagnostic.info("Baseline records: ${reportSection.baselineSourceRecords}")
+        diagnostic.info("Current records: ${reportSection.currentSourceRecords}")
+        diagnostic.info("Total changes: ${reportSection.changes.size}")
+
+        return reportSection
+    }
+
+    private fun doGenerateReportSection(
+        sectionPlan: SectionPlanSql,
+        stepDiagnosticHandler: StepDiagnosticHandler
+    ): ReportSection {
+
         sectionPlan.sanityCheck()
 
-        val partitionedQueries = sectionPlan.partitionedQueries()
-
-        val partitionResults = partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
-
-            val baselineSourceRecords = runStep(ReportGenerationStep.LOAD_BASELINE) {
-                loadSourceRecordsPartition(
-                    partitionQuery = partitionQuery,
-                    partitionIndex = partitionIndex,
-                    totalPartitions = partitionedQueries.size,
-                    queryColumnMapping = sectionPlan.queryColumnMapping(),
-                    sectionOutline = sectionPlan.sectionOutline(),
-                    dbConnection = sourceDbs.baselineConnection
-                )
-            }
-
-            val currentSourceRecords = runStep(ReportGenerationStep.LOAD_CURRENT) {
-                loadSourceRecordsPartition(
-                    partitionQuery = partitionQuery,
-                    partitionIndex = partitionIndex,
-                    totalPartitions = partitionedQueries.size,
-                    queryColumnMapping = sectionPlan.queryColumnMapping(),
-                    sectionOutline = sectionPlan.sectionOutline(),
-                    dbConnection = sourceDbs.currentConnection
-                )
-            }
-
-            val changes = runStep(ReportGenerationStep.RESOLVE_CHANGES) {
-                ChangeRecord.resolveChanges(
-                    sectionOutline = sectionPlan.sectionOutline(),
-                    baselineSourceRecords = baselineSourceRecords,
-                    currentSourceRecords = currentSourceRecords
-                )
-            }
-
-            PartitionResult(
-                changes = changes,
-                baselineSourceRecordCount = baselineSourceRecords.size,
-                currentSourceRecordCount = currentSourceRecords.size
-            )
-        }
-
-        sanityCheckLoadedSourceRecordsCount(
-            partitionResults.sumBy { it.baselineSourceRecordCount },
-            sectionPlan.sourceTableDescriptors(),
-            sourceDbs.baselineConnection,
-            sectionPlan.sectionOutline()
+        val allPartitionChangeRecords = findSectionChangesForAllPartitions(
+            sectionPlan,
+            stepDiagnosticHandler
         )
 
-        sanityCheckLoadedSourceRecordsCount(
-            partitionResults.sumBy { it.currentSourceRecordCount },
-            sectionPlan.sourceTableDescriptors(),
-            sourceDbs.currentConnection,
-            sectionPlan.sectionOutline()
+        sanityCheckPartitionChangeRecords(
+            allPartitionChangeRecords,
+            sectionPlan
         )
 
-        val changes = runStep(ReportGenerationStep.SORT_CHANGES) {
-            partitionResults
-                .flatMap { it.changes }
-                .sortedWith(ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder))
-        }
-
-        diagnostic.info(" => changes: ${changes.size}")
+        val changes = combinePartitionedSectionChanges(
+            allPartitionChangeRecords,
+            sectionPlan,
+            stepDiagnosticHandler
+        )
 
         return ReportSection(
             sectionOutline = sectionPlan.sectionOutline(),
+            baselineSourceRecords = allPartitionChangeRecords.sumBy { it.baselineSourceRecordCount },
+            currentSourceRecords = allPartitionChangeRecords.sumBy { it.currentSourceRecordCount },
             changes = changes
         )
     }
 
-    private fun <T> runStep(step: ReportGenerationStep, action: () -> T): T {
-        diagnostic.infoStepProgress()
-        timeMetrics.startStep(step)
+    private fun findSectionChangesForAllPartitions(
+        sectionPlan: SectionPlanSql,
+        stepDiagnosticHandler: StepDiagnosticHandler
+    ): List<PartitionChangeRecords> {
 
-        val result = action()
+        val partitionedQueries = sectionPlan.partitionedQueries()
+        val totalPartitions = partitionedQueries.size
 
-        timeMetrics.stopStep(step)
+        return partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
 
-        return result
+            findSectionChangesForPartition(
+                partitionQuery,
+                partitionIndex,
+                totalPartitions,
+                sectionPlan,
+                stepDiagnosticHandler
+            )
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun findSectionChangesForPartition(
+        partitionQuery: String,
+        partitionIndex: Int,
+        totalPartitions: Int,
+        sectionPlan: SectionPlanSql,
+        stepDiagnosticHandler: StepDiagnosticHandler
+    ): PartitionChangeRecords {
+        val baselineSourceRecords = stepDiagnosticHandler(StepKind.LOAD_BASELINE) {
+            loadSourceRecordsPartition(
+                partitionQuery = partitionQuery,
+                partitionIndex = partitionIndex,
+                totalPartitions = totalPartitions,
+                queryColumnMapping = sectionPlan.queryColumnMapping(),
+                sectionOutline = sectionPlan.sectionOutline(),
+                dbConnection = sourceDbs.baselineConnection
+            )
+        } as List<SourceRecord>
+
+        val currentSourceRecords = stepDiagnosticHandler(StepKind.LOAD_CURRENT) {
+            loadSourceRecordsPartition(
+                partitionQuery = partitionQuery,
+                partitionIndex = partitionIndex,
+                totalPartitions = totalPartitions,
+                queryColumnMapping = sectionPlan.queryColumnMapping(),
+                sectionOutline = sectionPlan.sectionOutline(),
+                dbConnection = sourceDbs.currentConnection
+            )
+        } as List<SourceRecord>
+
+        val changes = stepDiagnosticHandler(StepKind.RESOLVE_CHANGES) {
+            ChangeRecord.resolveChanges(
+                sectionOutline = sectionPlan.sectionOutline(),
+                baselineSourceRecords = baselineSourceRecords,
+                currentSourceRecords = currentSourceRecords
+            )
+        } as List<ChangeRecord>
+
+        return PartitionChangeRecords(
+            changes = changes,
+            baselineSourceRecordCount = baselineSourceRecords.size,
+            currentSourceRecordCount = currentSourceRecords.size
+        )
     }
 
     private fun loadSourceRecordsPartition(
@@ -148,35 +193,73 @@ class SqlReportGenerator(
         sectionOutline: SectionOutline,
         dbConnection: DbConnection
     ): List<SourceRecord> {
-        val sourceRecords = mutableListOf<SourceRecord>()
 
-        val queryDebugName =
-            "${sectionOutline.sectionTitle} SourceRecordsPartition ${partitionIndex + 1}/$totalPartitions"
-
-        dbConnection.executeQuery(partitionQuery, queryDebugName) { resultSet ->
+        return dbConnection.executeQuery(
+            query = partitionQuery,
+            queryDebugName = "${sectionOutline.sectionTitle} SourceRecordsPartition ${partitionIndex + 1}/$totalPartitions"
+        ) { resultSet ->
 
             sanityCheckResultSetColumnLabels(
                 queryColumnMapping,
                 resultSet
             )
 
-            while (resultSet.next()) {
+            val sourceRecords = mutableListOf<SourceRecord>()
 
-                val loadedFields = queryColumnMapping.map { (columnLabel, field) ->
-                    field to resultSet.getString(columnLabel)
-                }.toMap()
+            while (resultSet.next()) {
 
                 val sourceRecord = SourceRecord(
                     sectionOutline = sectionOutline,
                     sourceKind = dbConnection.sourceKind,
-                    fields = loadedFields
+                    fields = resultSet.mapColumnValuesToFields(queryColumnMapping)
                 )
 
                 sourceRecords.add(sourceRecord)
             }
-        }
 
-        return sourceRecords
+            sourceRecords
+        }
+    }
+
+    private fun ResultSet.mapColumnValuesToFields(
+        queryColumnMapping: Map<String, Field>
+    ): Map<Field, String> {
+        return queryColumnMapping.map { (columnLabel, field) ->
+            field to getString(columnLabel)
+        }.toMap()
+    }
+
+    private fun sanityCheckPartitionChangeRecords(
+        partitionChangeRecords: List<PartitionChangeRecords>,
+        sectionPlan: SectionPlanSql
+    ) {
+        sanityCheckLoadedSourceRecordCount(
+            partitionChangeRecords.sumBy { it.baselineSourceRecordCount },
+            sectionPlan.sourceTableDescriptors(),
+            sourceDbs.baselineConnection,
+            sectionPlan.sectionOutline()
+        )
+
+        sanityCheckLoadedSourceRecordCount(
+            partitionChangeRecords.sumBy { it.currentSourceRecordCount },
+            sectionPlan.sourceTableDescriptors(),
+            sourceDbs.currentConnection,
+            sectionPlan.sectionOutline()
+        )
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun combinePartitionedSectionChanges(
+        partitionChangeRecords: List<PartitionChangeRecords>,
+        sectionPlan: SectionPlanSql,
+        stepDiagnosticHandler: StepDiagnosticHandler
+    ): List<ChangeRecord> {
+
+        return stepDiagnosticHandler(StepKind.SORT_CHANGES) {
+            partitionChangeRecords
+                .flatMap { it.changes }
+                .sortedWith(ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder))
+        } as List<ChangeRecord>
     }
 
     private fun sanityCheckResultSetColumnLabels(
@@ -204,8 +287,8 @@ class SqlReportGenerator(
         }
     }
 
-    private fun sanityCheckLoadedSourceRecordsCount(
-        loadedRecordCount: Int,
+    private fun sanityCheckLoadedSourceRecordCount(
+        loadedSourceRecordCount: Int,
         sourceTableDescriptors: List<Any>,
         dbConnection: DbConnection,
         sectionOutline: SectionOutline
@@ -253,20 +336,14 @@ class SqlReportGenerator(
             resultSet.getInt("TotalCount")
         }
 
-        if (loadedRecordCount != totalRowCount) {
+        if (loadedSourceRecordCount != totalRowCount) {
             diagnostic.fatal(
                 """
                 Count mismatch in $queryDebugName, database: ${dbConnection.dbPath}".
-                Loaded SourceRecords: $loadedRecordCount
+                Loaded SourceRecords: $loadedSourceRecordCount
                 SourceTable(s) total rows: $totalRowCount
                 """.trimLineStartsAndConsequentBlankLines()
             )
         }
     }
-
-    data class PartitionResult(
-        val changes: List<ChangeRecord>,
-        val baselineSourceRecordCount: Int,
-        val currentSourceRecordCount: Int
-    )
 }

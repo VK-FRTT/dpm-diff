@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+import fi.vm.dpm.diff.model.diagnostic.ProgressIndication
 import fi.vm.dpm.diff.model.throwHalt
 import java.io.PrintWriter
 
@@ -11,11 +12,6 @@ class DiffCliDiagnostic(
 
     override fun info(message: String) {
         printWriter.println(message)
-    }
-
-    override fun infoStepProgress() {
-        printWriter.print(".")
-        printWriter.flush()
     }
 
     override fun verbose(message: String) {
@@ -35,5 +31,28 @@ class DiffCliDiagnostic(
         printWriter.println(message)
 
         throwHalt()
+    }
+
+    override fun progressIndication(): ProgressIndication {
+        return object : ProgressIndication {
+
+            var stepCount = 0
+
+            override fun handleStep() {
+                stepCount++
+
+                if (stepCount == 1) {
+                    printWriter.print("Progress: ")
+                }
+
+                printWriter.print(".")
+                printWriter.flush()
+            }
+
+            override fun handleDone() {
+                printWriter.print("\n")
+                printWriter.flush()
+            }
+        }
     }
 }

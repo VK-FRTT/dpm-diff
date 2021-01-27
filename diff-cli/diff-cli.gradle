@@ -29,6 +29,9 @@ dependencies {
     testCompile libs.junitJupiterApi
     testCompile libs.junitJupiterParams
     testCompile libs.assertjCore
+    testCompile libs.apachePoi
+    testCompile libs.apachePoiOoxml
+    testCompile(project(':diff-model'))
 
     testRuntimeOnly libs.junitJupiterEngine
 }

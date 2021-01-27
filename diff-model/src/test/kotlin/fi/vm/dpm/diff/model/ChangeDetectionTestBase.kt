@@ -74,7 +74,7 @@ internal open class ChangeDetectionTestBase {
 
     protected fun List<ChangeRecord>.toKeyAndChangeKindList(): List<String> {
         return map { changeRecord ->
-            "${CorrelationKey.fullKeyFieldKey(changeRecord.fields).keyValue()} ${changeRecord.fields[changeKind]}"
+            "${CorrelationKey.createCorrelationKey(CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY, changeRecord.fields).keyValue()} ${changeRecord.fields[changeKind]}"
         }
     }
 

@@ -5,5 +5,6 @@ import java.nio.file.Path
 data class CommonCompareOptions(
     val baselineDbPath: Path,
     val currentDbPath: Path,
-    val outputFilePath: Path
+    val outputFilePath: Path,
+    val reportSections: List<String>?
 )

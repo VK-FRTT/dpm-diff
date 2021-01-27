@@ -28,10 +28,6 @@ data class TimeMetric(
         }
     }
 
-    fun toEmpty(): TimeMetric {
-        return TimeMetric.empty(name = name)
-    }
-
     fun toStarted(): TimeMetric {
         check(startAt == null)
 

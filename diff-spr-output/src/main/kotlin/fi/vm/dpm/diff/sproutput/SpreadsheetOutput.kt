@@ -22,7 +22,7 @@ class SpreadsheetOutput(
     }
 
     fun renderOutput(changeReport: ChangeReport) {
-        diagnostic.info("Writing spreadsheet...")
+        diagnostic.info("\n\nWriting report to: $outputFilePath")
 
         ContentsSheet.renderToWorkbook(
             workbook,
@@ -43,6 +43,6 @@ class SpreadsheetOutput(
         workbook.write(out)
         out.close()
 
-        diagnostic.info("Wrote: $outputFilePath")
+        diagnostic.info("Report done!")
     }
 }

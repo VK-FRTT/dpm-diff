@@ -25,17 +25,15 @@ private fun List<String>.filterNotByCurrentAndNext(predicate: (String, String?) 
     return destination
 }
 
-fun String.replaceCamelCase(replacement: String = " "): String {
-    return CAMEL_CASE_SPLIT_PATTERN.replace(this, replacement)
+fun String.splitCamelCaseWords(separator: String = " "): String {
+    return CAMEL_CASE_SPLIT_PATTERN.replace(this, separator)
 }
 
 private val CAMEL_CASE_SPLIT_PATTERN =
     """
     (?<=[A-Z])(?=[A-Z][a-z])
     |
-    (?<=[^A-Z])(?=[A-Z])
-    |
-    (?<=[A-Za-z])(?=[^A-Za-z])
+    (?<=[a-z])(?=[A-Z])
     """.trimIndent().toRegex(RegexOption.COMMENTS)
 
 fun String.isNotHavingWhitespace(): Boolean {

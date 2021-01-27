@@ -8,6 +8,7 @@ import joptsimple.BuiltinHelpFormatter
 import joptsimple.OptionDescriptor
 import joptsimple.OptionException
 import joptsimple.OptionParser
+import joptsimple.OptionSet
 import joptsimple.OptionSpec
 import joptsimple.ValueConversionException
 import joptsimple.util.EnumConverter
@@ -17,6 +18,7 @@ enum class OptName(val nameString: String) {
     BASELINE_DB("baselineDb"),
     CURRENT_DB("currentDb"),
     OUTPUT("output"),
+    REPORT_SECTIONS("reportSections"),
     IDENTIFICATION_LABEL_LANGUAGES("identificationLabelLanguages"),
     TRANSLATION_LANGUAGES("translationLanguages")
 }
@@ -34,6 +36,7 @@ class DefinedOptions {
     private val output: OptionSpec<Path>
     private val forceOverwrite: OptionSpec<Void>
     private val verbosity: OptionSpec<OutputVerbosity>
+    private val reportSections: OptionSpec<String>
 
     private val identificationLabelLanguages: OptionSpec<String>
     private val translationLanguages: OptionSpec<String>
@@ -92,7 +95,7 @@ class DefinedOptions {
 
         forceOverwrite = optionParser
             .accepts(
-                "force-overwrite",
+                "forceOverwrite",
                 "silently overwrites the possibly existing target file"
             )
 
@@ -104,6 +107,13 @@ class DefinedOptions {
             .withOptionalArg()
             .withValuesConvertedBy(VerbosityConverter())
             .defaultsTo(OutputVerbosity.NORMAL)
+
+        reportSections = optionParser
+            .accepts(
+                OptName.REPORT_SECTIONS.nameString,
+                "list of sections to include in generated report"
+            )
+            .withOptionalArg()
 
         // CompareDpm specific options
         identificationLabelLanguages = optionParser
@@ -158,18 +168,10 @@ class DefinedOptions {
             outputFilePath = optionSet.valueOf(output),
             forceOverwrite = optionSet.has(forceOverwrite),
             verbosity = optionSet.valueOf(verbosity),
+            reportSections = optionSet.optionalValueOrNull(reportSections),
 
-            identificationLabelLanguages = if (optionSet.has(identificationLabelLanguages)) {
-                optionSet.valueOf(identificationLabelLanguages)
-            } else {
-                null
-            },
-
-            translationLanguages = if (optionSet.has(translationLanguages)) {
-                optionSet.valueOf(translationLanguages)
-            } else {
-                null
-            }
+            identificationLabelLanguages = optionSet.optionalValueOrNull(identificationLabelLanguages),
+            translationLanguages = optionSet.optionalValueOrNull(translationLanguages)
         )
     }
 
@@ -181,6 +183,14 @@ class DefinedOptions {
         override fun format(options: Map<String, OptionDescriptor>): String {
             addRows(LinkedHashSet(options.values))
             return formattedHelpOutput()
+        }
+    }
+
+    private fun <V> OptionSet.optionalValueOrNull(option: OptionSpec<V>): V? {
+        return if (has(option)) {
+            valueOf(option)
+        } else {
+            null
         }
     }
 }

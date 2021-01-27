@@ -3,6 +3,7 @@ description = 'DPM Diff data model'
 dependencies {
     implementation libs.kotlinStdLib
     implementation libs.kotlinReflect
+    implementation libs.kformat
 
     testCompile libs.junitJupiterApi
     testCompile libs.junitJupiterParams

@@ -1,7 +1,7 @@
 package fi.vm.dpm.diff.model
 
 import ext.kotlin.filterFieldType
-import ext.kotlin.replaceCamelCase
+import ext.kotlin.splitCamelCaseWords
 import kotlin.reflect.KClass
 
 data class SourceRecord(
@@ -249,10 +249,10 @@ data class SourceRecord(
         ) {
             val identityFallbackItems = identityFallbackField
                 .identityFallbacks
-                .map { fallbackField -> "${fallbackField.fieldName.replaceCamelCase()}: ${fields[fallbackField]}" }
+                .map { fallbackField -> "${fallbackField.fieldName.splitCamelCaseWords()}: ${fields[fallbackField]}" }
 
             layoutNoteDetail(
-                detailTitle = "$sourceKind ${identityFallbackField.fieldName.replaceCamelCase().toUpperCase()}",
+                detailTitle = "$sourceKind ${identityFallbackField.fieldName.splitCamelCaseWords().toUpperCase()}",
                 detailItems = identityFallbackItems
             )
         } else {
@@ -267,7 +267,7 @@ data class SourceRecord(
         val modifiedFieldItems = fields
             .filterFieldType<AtomField, Any?>()
             .filter { (_, value) -> value is ChangeAtomValueModified }
-            .map { (field, _) -> field.fieldName.replaceCamelCase() }
+            .map { (field, _) -> field.fieldName.splitCamelCaseWords() }
 
         return layoutNoteDetail(
             detailTitle = "MODIFIED",

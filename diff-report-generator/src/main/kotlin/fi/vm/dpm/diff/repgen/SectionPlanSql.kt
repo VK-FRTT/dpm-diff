@@ -4,6 +4,8 @@ import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.model.thisShouldNeverHappen
 
+const val MAX_ITEMS_PER_PARTITION = 500_000
+
 class SectionPlanSql private constructor(
     private val sectionOutline: SectionOutline,
     private val queryColumnMapping: Map<String, Field>,
