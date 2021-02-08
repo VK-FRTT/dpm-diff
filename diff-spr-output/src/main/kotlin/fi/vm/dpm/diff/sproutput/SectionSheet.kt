@@ -180,6 +180,10 @@ object SectionSheet {
 
     private fun Field.displayHintToColumnWidth(): ColumnWidth {
         return when (displayHint) {
+            DisplayHint.NO_DISPLAY -> {
+                thisShouldNeverHappen("This field should be hidden.")
+            }
+
             DisplayHint.FIT_BY_TITLE -> {
                 ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN
             }
@@ -190,10 +194,6 @@ object SectionSheet {
 
             DisplayHint.FIXED_EXTRA_WIDE -> {
                 ColumnWidth.FIXED_EXTRA_WIDE
-            }
-
-            else -> {
-                thisShouldNeverHappen("Unsupported display hint")
             }
         }
     }

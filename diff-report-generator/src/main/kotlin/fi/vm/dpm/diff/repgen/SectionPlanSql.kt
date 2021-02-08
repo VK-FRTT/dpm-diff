@@ -7,11 +7,10 @@ import fi.vm.dpm.diff.model.thisShouldNeverHappen
 const val MAX_ITEMS_PER_PARTITION = 500_000
 
 class SectionPlanSql private constructor(
-    private val sectionOutline: SectionOutline,
-    private val queryColumnMapping: Map<String, Field>,
-    private val query: String?,
-    private val partitionedQueries: List<String>?,
-    private val sourceTableDescriptors: List<Any>
+    val sectionOutline: SectionOutline,
+    val queryColumnMapping: Map<String, Field>,
+    val partitionedQueries: List<String>,
+    val sourceTableDescriptors: List<Any>
 ) {
     companion object {
 
@@ -21,7 +20,7 @@ class SectionPlanSql private constructor(
             query: String,
             sourceTableDescriptors: List<Any>
         ): SectionPlanSql {
-            return SectionPlanSql(sectionOutline, queryColumnMapping, query, null, sourceTableDescriptors)
+            return SectionPlanSql(sectionOutline, queryColumnMapping, listOf(query), sourceTableDescriptors)
         }
 
         fun withPartitionedQueries(
@@ -30,23 +29,9 @@ class SectionPlanSql private constructor(
             partitionedQueries: List<String>,
             sourceTableDescriptors: List<Any>
         ): SectionPlanSql {
-            return SectionPlanSql(sectionOutline, queryColumnMapping, null, partitionedQueries, sourceTableDescriptors)
+            return SectionPlanSql(sectionOutline, queryColumnMapping, partitionedQueries, sourceTableDescriptors)
         }
     }
-
-    fun sectionOutline() = sectionOutline
-
-    fun queryColumnMapping() = queryColumnMapping
-
-    fun partitionedQueries(): List<String> {
-        return when {
-            query != null -> listOf(query)
-            partitionedQueries != null -> partitionedQueries
-            else -> thisShouldNeverHappen("")
-        }
-    }
-
-    fun sourceTableDescriptors() = sourceTableDescriptors
 
     fun sanityCheck() {
 

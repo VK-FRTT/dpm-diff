@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 @DisplayName("Command ´--help´")
-internal class CommandHelp_Test : DpmDiffCli_TestBase() {
+internal class Help_Test : DpmDiffCli_TestBase() {
 
     @Test
     fun `Should list available command line options`() {

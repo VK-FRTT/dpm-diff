@@ -6,8 +6,8 @@ import fi.vm.dpm.diff.model.IdentificationLabelField
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 
 class DpmSectionIdentificationLabels(
-    val fieldNameBase: String,
-    val dpmSectionOptions: DpmSectionOptions
+    private val fieldNameBase: String,
+    private val dpmSectionOptions: DpmSectionOptions
 ) {
     val labelFields = dpmSectionOptions.identificationLabelLangCodes.map { langCode ->
         IdentificationLabelField(

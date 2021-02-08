@@ -54,7 +54,7 @@ class SqlReportGenerator(
     }
 
     private fun generateReportSection(sectionPlan: SectionPlanSql): ReportSection {
-        diagnostic.info("\n\nSection: ${sectionPlan.sectionOutline().sectionTitle}")
+        diagnostic.info("\n\nSection: ${sectionPlan.sectionOutline.sectionShortTitle}")
 
         val sectionGenerationMetrics = TimeMetrics(
             StepKind.LOAD_BASELINE to "Loading baseline records",
@@ -113,7 +113,7 @@ class SqlReportGenerator(
         )
 
         return ReportSection(
-            sectionOutline = sectionPlan.sectionOutline(),
+            sectionOutline = sectionPlan.sectionOutline,
             baselineSourceRecords = allPartitionChangeRecords.sumBy { it.baselineSourceRecordCount },
             currentSourceRecords = allPartitionChangeRecords.sumBy { it.currentSourceRecordCount },
             changes = changes
@@ -125,15 +125,12 @@ class SqlReportGenerator(
         stepDiagnosticHandler: StepDiagnosticHandler
     ): List<PartitionChangeRecords> {
 
-        val partitionedQueries = sectionPlan.partitionedQueries()
-        val totalPartitions = partitionedQueries.size
-
-        return partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
+        return sectionPlan.partitionedQueries.mapIndexed { partitionIndex, partitionQuery ->
 
             findSectionChangesForPartition(
                 partitionQuery,
                 partitionIndex,
-                totalPartitions,
+                sectionPlan.partitionedQueries.size,
                 sectionPlan,
                 stepDiagnosticHandler
             )
@@ -153,8 +150,8 @@ class SqlReportGenerator(
                 partitionQuery = partitionQuery,
                 partitionIndex = partitionIndex,
                 totalPartitions = totalPartitions,
-                queryColumnMapping = sectionPlan.queryColumnMapping(),
-                sectionOutline = sectionPlan.sectionOutline(),
+                queryColumnMapping = sectionPlan.queryColumnMapping,
+                sectionOutline = sectionPlan.sectionOutline,
                 dbConnection = sourceDbs.baselineConnection
             )
         } as List<SourceRecord>
@@ -164,15 +161,15 @@ class SqlReportGenerator(
                 partitionQuery = partitionQuery,
                 partitionIndex = partitionIndex,
                 totalPartitions = totalPartitions,
-                queryColumnMapping = sectionPlan.queryColumnMapping(),
-                sectionOutline = sectionPlan.sectionOutline(),
+                queryColumnMapping = sectionPlan.queryColumnMapping,
+                sectionOutline = sectionPlan.sectionOutline,
                 dbConnection = sourceDbs.currentConnection
             )
         } as List<SourceRecord>
 
         val changes = stepDiagnosticHandler(StepKind.RESOLVE_CHANGES) {
             ChangeRecord.resolveChanges(
-                sectionOutline = sectionPlan.sectionOutline(),
+                sectionOutline = sectionPlan.sectionOutline,
                 baselineSourceRecords = baselineSourceRecords,
                 currentSourceRecords = currentSourceRecords
             )
@@ -235,16 +232,16 @@ class SqlReportGenerator(
     ) {
         sanityCheckLoadedSourceRecordCount(
             partitionChangeRecords.sumBy { it.baselineSourceRecordCount },
-            sectionPlan.sourceTableDescriptors(),
+            sectionPlan.sourceTableDescriptors,
             sourceDbs.baselineConnection,
-            sectionPlan.sectionOutline()
+            sectionPlan.sectionOutline
         )
 
         sanityCheckLoadedSourceRecordCount(
             partitionChangeRecords.sumBy { it.currentSourceRecordCount },
-            sectionPlan.sourceTableDescriptors(),
+            sectionPlan.sourceTableDescriptors,
             sourceDbs.currentConnection,
-            sectionPlan.sectionOutline()
+            sectionPlan.sectionOutline
         )
     }
 
@@ -258,7 +255,7 @@ class SqlReportGenerator(
         return stepDiagnosticHandler(StepKind.SORT_CHANGES) {
             partitionChangeRecords
                 .flatMap { it.changes }
-                .sortedWith(ChangeRecordComparator(sectionPlan.sectionOutline().sectionSortOrder))
+                .sortedWith(ChangeRecordComparator(sectionPlan.sectionOutline.sectionSortOrder))
         } as List<ChangeRecord>
     }
 

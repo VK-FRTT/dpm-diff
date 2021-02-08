@@ -2,7 +2,6 @@ package fi.vm.dpm.diff.sproutput
 
 import fi.vm.dpm.diff.model.ChangeReport
 import fi.vm.dpm.diff.model.ChangeReportKind
-import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import org.apache.poi.common.usermodel.HyperlinkType
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
@@ -23,7 +22,6 @@ object ContentsSheet {
         val reportTitle = when (changeReport.reportKind) {
             ChangeReportKind.DPM -> "Data Point Model Change Report"
             ChangeReportKind.VK_DATA -> "VK Data Change Report"
-            else -> thisShouldNeverHappen("Unsupported report kind")
         }
 
         sw.addRow(cellStyles.headerStyleNormal, reportTitle)

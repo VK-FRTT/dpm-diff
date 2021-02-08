@@ -79,6 +79,10 @@ object MetricSection {
         val hierarchyStartingMemberCode = AtomField(
             fieldName = "HierarchyStartingMember"
         )
+
+        val isStartingMemberIncluded = AtomField(
+            fieldName = "IsStartingMemberIncluded"
+        )
         val note = NoteField()
 
         val sectionOutline = SectionOutline(
@@ -101,6 +105,7 @@ object MetricSection {
                 referencedDomainCode,
                 referencedHierarchyCode,
                 hierarchyStartingMemberCode,
+                isStartingMemberIncluded,
                 note
             ),
             sectionSortOrder = listOf(
@@ -123,7 +128,8 @@ object MetricSection {
             "BalanceType" to balanceType,
             "ReferencedDomainCode" to referencedDomainCode,
             "ReferencedHierarchyCode" to referencedHierarchyCode,
-            "HierarchyStartingMemberCode" to hierarchyStartingMemberCode
+            "HierarchyStartingMemberCode" to hierarchyStartingMemberCode,
+            "IsStartingMemberIncluded" to isStartingMemberIncluded
         )
 
         val query = """
@@ -140,6 +146,7 @@ object MetricSection {
             ,ReferencedDomain.DomainCode AS 'ReferencedDomainCode'
             ,ReferencedHierarchy.HierarchyCode AS 'ReferencedHierarchyCode'
             ,HierarchyStartingMember.MemberCode AS 'HierarchyStartingMemberCode'
+            ,mMetric.IsStartingMemberIncluded AS 'IsStartingMemberIncluded'
 
             FROM mMetric
             LEFT JOIN mMember ON mMember.MemberID = mMetric.CorrespondingMemberID

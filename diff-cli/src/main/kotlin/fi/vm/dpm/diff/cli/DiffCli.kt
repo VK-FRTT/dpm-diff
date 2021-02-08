@@ -171,7 +171,7 @@ internal class DiffCli(
         return sectionPlans.filter { sectionPlan ->
             commonOptions.reportSections.any { includedSectionName ->
                 includedSectionName.equals(
-                    other = sectionPlan.sectionOutline().sectionShortTitle,
+                    other = sectionPlan.sectionOutline.sectionShortTitle,
                     ignoreCase = true
                 )
             }

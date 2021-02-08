@@ -66,7 +66,7 @@ object CommonDictionarySections {
             elementInherentLabelColumn = "HierarchyLabel",
             parentType = "Domain",
             parentCodeStatement = "mDomain.DomainCode",
-            parentTableJoin = "JOIN mDomain on mDomain.DomainID = mHierarchy.DomainID",
+            parentTableJoin = "LEFT JOIN mDomain on mDomain.DomainID = mHierarchy.DomainID",
             elementTableSliceCriteria = ""
         )
     )
