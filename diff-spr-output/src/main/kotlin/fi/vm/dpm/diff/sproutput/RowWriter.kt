@@ -1,13 +1,13 @@
 package fi.vm.dpm.diff.sproutput
 
 import org.apache.poi.common.usermodel.HyperlinkType
-import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.CreationHelper
 import org.apache.poi.xssf.streaming.SXSSFCell
 import org.apache.poi.xssf.streaming.SXSSFRow
 
 class RowWriter(
-    private val row: SXSSFRow
+    private val row: SXSSFRow,
+    private val cellStyles: CellStyles
 ) {
     private var nextCellIndex: Int = 0
 
@@ -17,7 +17,7 @@ class RowWriter(
     ): SXSSFCell {
         val cell = addCell()
         cell.setCellValue(value)
-        cell.cellStyle = style
+        cell.cellStyle = cellStyles.poiStyle(style)
 
         return cell
     }
@@ -35,7 +35,7 @@ class RowWriter(
         val cell = addCell()
         cell.setCellValue(value)
         cell.hyperlink = link
-        cell.cellStyle = style
+        cell.cellStyle = cellStyles.poiStyle(style)
 
         return cell
     }

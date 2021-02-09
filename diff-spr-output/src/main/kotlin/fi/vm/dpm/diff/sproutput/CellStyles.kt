@@ -1,22 +1,19 @@
 package fi.vm.dpm.diff.sproutput
 
-import org.apache.poi.ss.usermodel.CellStyle
+import org.apache.poi.ss.usermodel.CellStyle as PoiCellStyle
 import org.apache.poi.ss.usermodel.Font
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.Workbook
 
-class CellStyles(
-    val headerStyleNormal: CellStyle,
-    val contentStyleNormal: CellStyle,
-    val contentStyleNormalLink: CellStyle,
-    val headerStyleDimmed: CellStyle,
-    val contentStyleDimmed: CellStyle
+class CellStyles private constructor(
+    private val styleMapping: Map<CellStyle, PoiCellStyle>
 ) {
     companion object {
-        fun initCellStylesToWorkbook(workbook: Workbook): CellStyles {
 
-            return CellStyles(
-                headerStyleNormal = run {
+        fun initToWorkbook(workbook: Workbook): CellStyles {
+
+            val styleMapping = mapOf(
+                CellStyle.HEADER_STYLE_NORMAL to run {
                     val font = workbook.createFont()
                     font.fontHeightInPoints = 12
                     font.bold = true
@@ -27,7 +24,7 @@ class CellStyles(
                     style
                 },
 
-                contentStyleNormal = run {
+                CellStyle.CONTENT_STYLE_NORMAL to run {
                     val font = workbook.createFont()
                     font.fontHeightInPoints = 12
 
@@ -37,7 +34,7 @@ class CellStyles(
                     style
                 },
 
-                contentStyleNormalLink = run {
+                CellStyle.CONTENT_STYLE_NORMAL_LINK to run {
                     val font = workbook.createFont()
                     font.fontHeightInPoints = 12
                     font.underline = Font.U_SINGLE
@@ -49,7 +46,7 @@ class CellStyles(
                     style
                 },
 
-                headerStyleDimmed = run {
+                CellStyle.HEADER_STYLE_DIMMED to run {
                     val font = workbook.createFont()
                     font.fontHeightInPoints = 12
                     font.bold = true
@@ -61,7 +58,7 @@ class CellStyles(
                     style
                 },
 
-                contentStyleDimmed = run {
+                CellStyle.CONTENT_STYLE_DIMMED to run {
                     val font = workbook.createFont()
                     font.fontHeightInPoints = 12
                     font.color = IndexedColors.GREY_40_PERCENT.index
@@ -72,6 +69,12 @@ class CellStyles(
                     style
                 }
             )
+
+            return CellStyles(
+                styleMapping = styleMapping
+            )
         }
     }
+
+    fun poiStyle(cellStyle: CellStyle): PoiCellStyle = styleMapping.getValue(cellStyle)
 }

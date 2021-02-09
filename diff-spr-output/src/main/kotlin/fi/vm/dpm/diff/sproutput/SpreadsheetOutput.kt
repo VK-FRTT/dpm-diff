@@ -15,7 +15,7 @@ class SpreadsheetOutput(
 ) : Closeable {
 
     private val workbook = SXSSFWorkbook()
-    private val cellStyles = CellStyles.initCellStylesToWorkbook(workbook)
+    private val cellStyles = CellStyles.initToWorkbook(workbook)
 
     override fun close() {
         workbook.dispose()

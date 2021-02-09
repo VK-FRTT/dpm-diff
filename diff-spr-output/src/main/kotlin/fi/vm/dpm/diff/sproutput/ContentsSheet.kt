@@ -16,7 +16,7 @@ object ContentsSheet {
             "$title ($revision @ $originUrl)"
         }
 
-        val sw = SheetWriter.createToWorkbook("Contents", workbook)
+        val sw = SheetWriter.createToWorkbook("Contents", workbook, cellStyles)
         sw.trackColumnForAutoSizing(3)
 
         val reportTitle = when (changeReport.reportKind) {
@@ -24,23 +24,23 @@ object ContentsSheet {
             ChangeReportKind.VK_DATA -> "VK Data Change Report"
         }
 
-        sw.addRow(cellStyles.headerStyleNormal, reportTitle)
+        sw.addRow(CellStyle.HEADER_STYLE_NORMAL, reportTitle)
 
         sw.addEmptyRows(1)
 
-        sw.addRow(cellStyles.contentStyleNormal, "Created at", changeReport.createdAt)
-        sw.addRow(cellStyles.contentStyleNormal, "Baseline database", changeReport.baselineFileName)
-        sw.addRow(cellStyles.contentStyleNormal, "Current database", changeReport.currentFileName)
-        sw.addRow(cellStyles.contentStyleNormal, "Generated with", generatorInfo)
+        sw.addRow(CellStyle.CONTENT_STYLE_NORMAL, "Created at", changeReport.createdAt)
+        sw.addRow(CellStyle.CONTENT_STYLE_NORMAL, "Baseline database", changeReport.baselineFileName)
+        sw.addRow(CellStyle.CONTENT_STYLE_NORMAL, "Current database", changeReport.currentFileName)
+        sw.addRow(CellStyle.CONTENT_STYLE_NORMAL, "Generated with", generatorInfo)
         sw.addRow(
-            cellStyles.contentStyleNormal,
+            CellStyle.CONTENT_STYLE_NORMAL,
             "Generation options",
             changeReport.reportGenerationOptions.joinToString(separator = "\n")
         )
 
         sw.addEmptyRows(3)
 
-        sw.addRow(cellStyles.headerStyleNormal, "Sheet", "Description", "Change count")
+        sw.addRow(CellStyle.HEADER_STYLE_NORMAL, "Sheet", "Description", "Change count")
 
         changeReport.sections.forEachIndexed { index, section ->
 
@@ -50,8 +50,8 @@ object ContentsSheet {
             )
 
             sw.addLinkRow(
-                cellStyles.contentStyleNormal,
-                cellStyles.contentStyleNormalLink,
+                CellStyle.CONTENT_STYLE_NORMAL,
+                CellStyle.CONTENT_STYLE_NORMAL_LINK,
                 SheetWriter.Link(
                     linkTitle = section.sectionOutline.sectionTitle,
                     linkAddress = "'$sheetName'!A1",

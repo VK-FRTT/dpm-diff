@@ -1,7 +1,7 @@
 package fi.vm.dpm.diff.sproutput
 
+import fi.vm.dpm.diff.model.DisplayHint
 import org.apache.poi.common.usermodel.HyperlinkType
-import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.ss.util.SheetUtil
@@ -9,7 +9,8 @@ import org.apache.poi.xssf.streaming.SXSSFSheet
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
 class SheetWriter(
-    private val sheet: SXSSFSheet
+    private val sheet: SXSSFSheet,
+    private val cellStyles: CellStyles
 ) {
     data class Link(
         val linkTitle: String,
@@ -18,13 +19,18 @@ class SheetWriter(
     )
 
     companion object {
-        fun createToWorkbook(sheetName: String, workbook: SXSSFWorkbook): SheetWriter {
+        fun createToWorkbook(
+            sheetName: String,
+            workbook: SXSSFWorkbook,
+            cellStyles: CellStyles
+        ): SheetWriter {
             val sheet = workbook.createSheet()
             val index = workbook.getSheetIndex(sheet)
             workbook.setSheetName(index, sheetName)
 
             return SheetWriter(
-                sheet = sheet
+                sheet = sheet,
+                cellStyles = cellStyles
             )
         }
     }
@@ -33,7 +39,7 @@ class SheetWriter(
     private var autoSizingColumns: Int = 0
 
     fun addHeaderRow(
-        cellsData: List<Triple<String?, CellStyle, ColumnWidth>>
+        cellsData: List<Triple<String?, CellStyle, DisplayHint>>
     ) {
         val formatter = DataFormatter()
         val defaultCharWidth = SheetUtil.getDefaultCharWidth(sheet.workbook)
@@ -43,13 +49,8 @@ class SheetWriter(
         cellsData.forEachIndexed { index, cellData ->
             val cell = row.addCell(cellData.first, cellData.second)
 
-            val cellWidth = if (cellData.third == ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN) {
+            val cellWidth = CellWidths.widthFromDisplayHint(cellData.third) {
                 SheetUtil.getCellWidth(cell, defaultCharWidth, formatter, false)
-                    .let { it * 256 + ColumnWidth.FIT_TITLE_CONTENT_WITH_MARGIN.width }
-                    .toInt()
-                    .coerceIn(0..256 * 256)
-            } else {
-                cellData.third.width
             }
 
             sheet.setColumnWidth(index, cellWidth)
@@ -127,7 +128,8 @@ class SheetWriter(
         nextRowIndex++
 
         return RowWriter(
-            row = row
+            row = row,
+            cellStyles = cellStyles
         )
     }
 }
