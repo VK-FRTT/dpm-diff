@@ -6,11 +6,11 @@ import fi.vm.dpm.diff.model.ChangeDetectionMode
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.FallbackField
-import fi.vm.dpm.diff.model.FixedChangeKindSort
+import fi.vm.dpm.diff.model.FixedChangeKindSortBy
 import fi.vm.dpm.diff.model.KeyField
 import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
-import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.NumberAwareSortBy
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.repgen.SectionPlanSql
@@ -73,8 +73,8 @@ object DomainSection {
                 note
             ),
             sectionSortOrder = listOf(
-                NumberAwareSort(domainCode),
-                FixedChangeKindSort(changeKind)
+                NumberAwareSortBy(domainCode),
+                FixedChangeKindSortBy(changeKind)
             ),
             includedChanges = ChangeKind.allChanges()
         )

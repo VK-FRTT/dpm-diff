@@ -8,12 +8,12 @@ import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.FallbackField
-import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.FixedTranslationRoleSort
+import fi.vm.dpm.diff.model.FixedChangeKindSortBy
+import fi.vm.dpm.diff.model.FixedTranslationRoleSortBy
 import fi.vm.dpm.diff.model.KeyField
 import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
-import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.NumberAwareSortBy
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.repgen.SectionPlanSql
@@ -128,13 +128,13 @@ object AxisOrdinateTranslationSection {
                 note
             ),
             sectionSortOrder = listOf(
-                NumberAwareSort(taxonomyCode),
-                NumberAwareSort(tableCode),
-                NumberAwareSort(axisOrientation),
-                NumberAwareSort(ordinateCode),
-                FixedTranslationRoleSort(translationRole),
-                NumberAwareSort(translationLanguage),
-                FixedChangeKindSort(changeKind)
+                NumberAwareSortBy(taxonomyCode),
+                NumberAwareSortBy(tableCode),
+                NumberAwareSortBy(axisOrientation),
+                NumberAwareSortBy(ordinateCode),
+                FixedTranslationRoleSortBy(translationRole),
+                NumberAwareSortBy(translationLanguage),
+                FixedChangeKindSortBy(changeKind)
             ),
             includedChanges = ChangeKind.allExceptDuplicateKeyAlerts()
         )

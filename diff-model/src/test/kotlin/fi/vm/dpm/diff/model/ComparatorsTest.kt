@@ -33,10 +33,13 @@ internal class ComparatorsTest {
             expected = expected,
             o2 = o2,
             comparator = FixedOrderComparator(
-                FixedOrderComparator.UnknownObjectMode.AFTER,
-                "Monday",
-                "Tuesday",
-                "Wednesday"
+                unknownObjectMode = FixedOrderComparator.UnknownObjectMode.AFTER_WITH_NESTED_COMPARE,
+                nestedComparator = NumberAwareStringComparator(),
+                ordering = listOf(
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday"
+                )
             )
         )
     }
@@ -63,10 +66,12 @@ internal class ComparatorsTest {
             expected = expected,
             o2 = o2,
             comparator = FixedOrderComparator(
-                FixedOrderComparator.UnknownObjectMode.FAIL,
-                "Monday",
-                "Tuesday",
-                "Wednesday"
+                unknownObjectMode = FixedOrderComparator.UnknownObjectMode.FAIL,
+                ordering = listOf(
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday"
+                )
             )
         )
     }
@@ -118,12 +123,24 @@ internal class ComparatorsTest {
 
         "aa10, is-before, aa11",
         "10aa, is-before, 11aa",
+        "10aa, is-before, 10bb",
         "aa10bb20, is-before, aa10bb30",
         "aa10bb20cc30, is-before, aa10bb20cc40",
         "aa10bb20cc30, is-equal, aa10bb20cc30",
 
         "aa10bb20, is-after, aa10bb",
-        "aa10bb20cc30, is-after, aa10bb20cc"
+        "aa10bb20cc30, is-after, aa10bb20cc",
+
+        "aa10, is-before, aa10aa",
+        "aa10aa, is-after, aa10",
+        "aa10, is-equal, aa10",
+
+        "aa10aa, is-before, aa10bb",
+        "aa10bb, is-after, aa10aa",
+        "aa10aa, is-equal, aa10aa",
+
+        "aa10, is-before, aa10bb20",
+        "aa100, is-after, aa10bb20"
     )
     fun testNumberAwareStringComparator(
         o1: String,
@@ -150,15 +167,21 @@ internal class ComparatorsTest {
             }
             assertThat(throwable).isNotNull()
         } else {
-            val expectedResultVal = when (expected) {
-                "is-after" -> 1
-                "is-before" -> -1
-                "is-equal" -> 0
+            val result = comparator.compare(o1, o2)
+
+            when (expected) {
+                "is-after" -> {
+                    assertThat(result).isGreaterThan(0)
+                }
+                "is-before" -> {
+                    assertThat(result).isLessThan(0)
+                }
+
+                "is-equal" -> {
+                    assertThat(result).isEqualTo(0)
+                }
                 else -> thisShouldNeverHappen("Unsupported expected: $expected")
             }
-
-            val result = comparator.compare(o1, o2)
-            assertThat(result).isEqualTo(expectedResultVal)
         }
     }
 }

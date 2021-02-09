@@ -3,7 +3,7 @@ package fi.vm.dpm.diff.model
 import java.util.Comparator
 
 class ChangeRecordComparator(
-    private val sectionSortOrder: List<Sort>
+    private val sectionSortOrder: List<SortBy>
 ) : Comparator<ChangeRecord> {
 
     override fun compare(record1: ChangeRecord, record2: ChangeRecord): Int {

@@ -7,12 +7,12 @@ import fi.vm.dpm.diff.model.ChangeDetectionMode
 import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.DisplayHint
 import fi.vm.dpm.diff.model.Field
-import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.FixedElementTypeSort
-import fi.vm.dpm.diff.model.FixedTranslationRoleSort
+import fi.vm.dpm.diff.model.FixedChangeKindSortBy
+import fi.vm.dpm.diff.model.FixedElementTypeSortBy
+import fi.vm.dpm.diff.model.FixedTranslationRoleSortBy
 import fi.vm.dpm.diff.model.KeyField
 import fi.vm.dpm.diff.model.KeyFieldKind
-import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.NumberAwareSortBy
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 
@@ -82,13 +82,13 @@ class DpmTranslationSectionPlanComposer(
                 overviewSectionPlanComposer.note
             ),
             sectionSortOrder = listOf(
-                FixedElementTypeSort(overviewSectionPlanComposer.parentElementType),
-                NumberAwareSort(overviewSectionPlanComposer.parentElementCode),
-                FixedElementTypeSort(elementType),
-                NumberAwareSort(elementCode),
-                FixedTranslationRoleSort(translationRole),
-                NumberAwareSort(translationLanguage),
-                FixedChangeKindSort(overviewSectionPlanComposer.changeKind)
+                FixedElementTypeSortBy(overviewSectionPlanComposer.parentElementType),
+                NumberAwareSortBy(overviewSectionPlanComposer.parentElementCode),
+                FixedElementTypeSortBy(elementType),
+                NumberAwareSortBy(elementCode),
+                FixedTranslationRoleSortBy(translationRole),
+                NumberAwareSortBy(translationLanguage),
+                FixedChangeKindSortBy(overviewSectionPlanComposer.changeKind)
             ),
             includedChanges = ChangeKind.allChanges()
         )

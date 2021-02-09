@@ -13,10 +13,6 @@ class NumberAwareStringComparator : Comparator<Any> {
         val matchIterator1 = regex.findAll(string1).iterator()
         val matchIterator2 = regex.findAll(string2).iterator()
 
-        if (!matchIterator1.hasNext() || !matchIterator2.hasNext()) {
-            return string1.compareTo(string2)
-        }
-
         while (matchIterator1.hasNext() && matchIterator2.hasNext()) {
             val compareResult = compareMatchResults(
                 matchIterator1.next(),
@@ -25,10 +21,7 @@ class NumberAwareStringComparator : Comparator<Any> {
             if (compareResult != 0) return compareResult
         }
 
-        return compareIteratorTails(
-            matchIterator1,
-            matchIterator2
-        )
+        return string1.compareTo(string2)
     }
 
     private fun compareMatchResults(
@@ -43,18 +36,5 @@ class NumberAwareStringComparator : Comparator<Any> {
         val number1 = BigInteger(digits1)
         val number2 = BigInteger(digits2)
         return number1.compareTo(number2)
-    }
-
-    private fun compareIteratorTails(
-        matchIterator1: Iterator<MatchResult>,
-        matchIterator2: Iterator<MatchResult>
-    ): Int {
-        return if (!matchIterator1.hasNext() && !matchIterator2.hasNext()) {
-            0
-        } else if (!matchIterator1.hasNext()) {
-            -1
-        } else {
-            1
-        }
     }
 }

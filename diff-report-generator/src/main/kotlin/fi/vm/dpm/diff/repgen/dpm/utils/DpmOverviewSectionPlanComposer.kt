@@ -6,12 +6,12 @@ import fi.vm.dpm.diff.model.ChangeKind
 import fi.vm.dpm.diff.model.ChangeKindField
 import fi.vm.dpm.diff.model.FallbackField
 import fi.vm.dpm.diff.model.Field
-import fi.vm.dpm.diff.model.FixedChangeKindSort
-import fi.vm.dpm.diff.model.FixedElementTypeSort
+import fi.vm.dpm.diff.model.FixedChangeKindSortBy
+import fi.vm.dpm.diff.model.FixedElementTypeSortBy
 import fi.vm.dpm.diff.model.KeyField
 import fi.vm.dpm.diff.model.KeyFieldKind
 import fi.vm.dpm.diff.model.NoteField
-import fi.vm.dpm.diff.model.NumberAwareSort
+import fi.vm.dpm.diff.model.NumberAwareSortBy
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
@@ -87,11 +87,11 @@ class DpmOverviewSectionPlanComposer(
                 note
             ),
             sectionSortOrder = listOf(
-                FixedElementTypeSort(parentElementType),
-                NumberAwareSort(parentElementCode),
-                FixedElementTypeSort(elementType),
-                NumberAwareSort(elementCode),
-                FixedChangeKindSort(changeKind)
+                FixedElementTypeSortBy(parentElementType),
+                NumberAwareSortBy(parentElementCode),
+                FixedElementTypeSortBy(elementType),
+                NumberAwareSortBy(elementCode),
+                FixedChangeKindSortBy(changeKind)
             ),
             includedChanges = setOf(
                 ChangeKind.ADDED,

@@ -9,7 +9,7 @@ data class SectionOutline(
     val sectionDescription: String,
     val sectionChangeDetectionMode: ChangeDetectionMode,
     val sectionFields: List<Field>,
-    val sectionSortOrder: List<Sort>,
+    val sectionSortOrder: List<SortBy>,
     val includedChanges: Set<ChangeKind>
 ) {
 
