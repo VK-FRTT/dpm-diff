@@ -5,13 +5,13 @@ import fi.vm.dpm.diff.model.comparators.NullsFirstComparator
 import fi.vm.dpm.diff.model.comparators.NumberAwareStringComparator
 
 sealed class SortBy(
-    open val field: Field
+    val field: Field
 ) {
     abstract fun comparator(): Comparator<Any?>
 }
 
-data class NumberAwareSortBy(
-    override val field: Field
+class NumberAwareSortBy(
+    field: Field
 ) : SortBy(field) {
     companion object {
         private val comparator = NullsFirstComparator(NumberAwareStringComparator())
@@ -20,8 +20,8 @@ data class NumberAwareSortBy(
     override fun comparator(): Comparator<Any?> = comparator
 }
 
-data class FixedChangeKindSortBy(
-    override val field: Field
+class FixedChangeKindSortBy(
+    field: Field
 ) : SortBy(field) {
     companion object {
         private val comparator = NullsFirstComparator(
@@ -40,8 +40,8 @@ data class FixedChangeKindSortBy(
     override fun comparator(): Comparator<Any?> = comparator
 }
 
-data class FixedElementTypeSortBy(
-    override val field: Field
+class FixedElementTypeSortBy(
+    field: Field
 ) : SortBy(field) {
     companion object {
         private val comparator = NullsFirstComparator(
@@ -66,8 +66,8 @@ data class FixedElementTypeSortBy(
     override fun comparator(): Comparator<Any?> = comparator
 }
 
-data class FixedTranslationRoleSortBy(
-    override val field: Field
+class FixedTranslationRoleSortBy(
+    field: Field
 ) : SortBy(field) {
     companion object {
         private val comparator = NullsFirstComparator(
