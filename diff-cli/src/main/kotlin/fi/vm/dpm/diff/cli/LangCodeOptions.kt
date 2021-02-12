@@ -1,11 +1,13 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.diagnostic.ValidationResults
+
 object LangCodeOptions {
 
     fun checkIdentificationLabelLanguages(
         identificationLabelLanguages: String?,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): List<String> {
 
         return if (identificationLabelLanguages == null) {
@@ -19,7 +21,7 @@ object LangCodeOptions {
     fun checkTranslationLanguages(
         translationLanguages: String?,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): List<String>? {
 
         return if (translationLanguages == null) {
@@ -32,7 +34,7 @@ object LangCodeOptions {
     private fun doCheckLangCodes(
         langCodes: String,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): List<String> {
         val codes = langCodes.split(",").map { it.trim() }
 

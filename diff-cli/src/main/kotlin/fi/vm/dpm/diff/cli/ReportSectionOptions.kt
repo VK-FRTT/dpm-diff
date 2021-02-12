@@ -1,11 +1,13 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.diagnostic.ValidationResults
+
 object ReportSectionOptions {
 
     fun checkIncludedReportSections(
         reportSections: String?,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): List<String>? {
 
         return if (reportSections == null) {
@@ -18,7 +20,7 @@ object ReportSectionOptions {
     private fun doCheckReportSections(
         reportSections: String,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): List<String> {
         val sections = reportSections.split(",").map { it.trim() }
 

@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.cli
 
+import fi.vm.dpm.diff.model.diagnostic.ValidationResults
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -9,7 +10,7 @@ object PathOptions {
     fun checkExistingFile(
         filePath: Path?,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): Path {
         val path = if (filePath == null) {
             validationResults.add(optName.nameString, "missing required parameter value")
@@ -28,7 +29,7 @@ object PathOptions {
         filePath: Path?,
         forceOverwrite: Boolean,
         optName: OptName,
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): Path {
         val path = if (filePath == null) {
             filePath ?: validationResults.add(optName.nameString, "missing required parameter value")

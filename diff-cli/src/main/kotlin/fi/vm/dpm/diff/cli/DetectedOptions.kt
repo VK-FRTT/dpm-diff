@@ -1,6 +1,7 @@
 package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+import fi.vm.dpm.diff.model.diagnostic.ValidationResults
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 import java.nio.file.Path
 
@@ -38,7 +39,7 @@ data class DetectedOptions(
         diagnostic: Diagnostic
     ): Pair<CommonCompareOptions, DpmSectionOptions> {
 
-        val validationResults = OptionValidationResults()
+        val validationResults = ValidationResults()
 
         val options = Pair(
             commonCompareOptions(validationResults),
@@ -54,7 +55,7 @@ data class DetectedOptions(
         diagnostic: Diagnostic
     ): CommonCompareOptions {
 
-        val validationResults = OptionValidationResults()
+        val validationResults = ValidationResults()
 
         val options = commonCompareOptions(validationResults)
 
@@ -64,7 +65,7 @@ data class DetectedOptions(
     }
 
     private fun commonCompareOptions(
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): CommonCompareOptions {
 
         return CommonCompareOptions(
@@ -96,7 +97,7 @@ data class DetectedOptions(
     }
 
     private fun dpmSectionOptions(
-        validationResults: OptionValidationResults
+        validationResults: ValidationResults
     ): DpmSectionOptions {
 
         return DpmSectionOptions(

@@ -27,9 +27,6 @@ open class DpmDiffCli_TestBase {
         )
     }
 
-    fun testBaseTeardown() {
-    }
-
     protected fun executeCliAndExpectSuccess(args: Array<String>, verifyAction: (String) -> Unit) {
         val result = executeCli(args)
 

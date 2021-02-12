@@ -6,12 +6,12 @@ import fi.vm.dpm.diff.model.FailException
 import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
 import fi.vm.dpm.diff.model.SpreadsheetOutput
-import fi.vm.dpm.diff.model.SqlReportGenerator
 import fi.vm.dpm.diff.model.VkDataSectionPlans
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.throwHalt
 import fi.vm.dpm.diff.repgen.SectionPlanSql
 import fi.vm.dpm.diff.repgen.SourceDbs
+import fi.vm.dpm.diff.repgen.SqlReportGenerator
 import fi.vm.dpm.diff.repgen.dpm.DpmSectionOptions
 import java.io.BufferedWriter
 import java.io.Closeable

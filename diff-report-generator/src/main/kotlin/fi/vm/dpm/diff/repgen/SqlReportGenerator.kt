@@ -1,11 +1,19 @@
-package fi.vm.dpm.diff.model
+package fi.vm.dpm.diff.repgen
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.model.ChangeRecord
+import fi.vm.dpm.diff.model.ChangeRecordComparator
+import fi.vm.dpm.diff.model.ChangeReport
+import fi.vm.dpm.diff.model.ChangeReportKind
+import fi.vm.dpm.diff.model.Field
+import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
+import fi.vm.dpm.diff.model.ReportSection
+import fi.vm.dpm.diff.model.SectionOutline
+import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+import fi.vm.dpm.diff.model.diagnostic.ValidationResults
 import fi.vm.dpm.diff.model.metrics.TimeMetrics
-import fi.vm.dpm.diff.repgen.DbConnection
-import fi.vm.dpm.diff.repgen.SectionPlanSql
-import fi.vm.dpm.diff.repgen.SourceDbs
+import fi.vm.dpm.diff.model.thisShouldNeverHappen
 import fi.vm.dpm.diff.repgen.dpm.utils.SourceTableDescriptor
 import java.sql.ResultSet
 import java.time.LocalDateTime
@@ -56,6 +64,8 @@ class SqlReportGenerator(
     private fun generateReportSection(sectionPlan: SectionPlanSql): ReportSection {
         diagnostic.info("\n\nSection: ${sectionPlan.sectionOutline.sectionShortTitle}")
 
+        sectionPlan.validate(diagnostic)
+
         val sectionGenerationMetrics = TimeMetrics(
             StepKind.LOAD_BASELINE to "Loading baseline records",
             StepKind.LOAD_CURRENT to "Loading current records",
@@ -93,8 +103,6 @@ class SqlReportGenerator(
         sectionPlan: SectionPlanSql,
         stepDiagnosticHandler: StepDiagnosticHandler
     ): ReportSection {
-
-        sectionPlan.sanityCheck()
 
         val allPartitionChangeRecords = findSectionChangesForAllPartitions(
             sectionPlan,
@@ -313,7 +321,7 @@ class SqlReportGenerator(
                     }
                 }
 
-                else -> thisShouldNeverHappen("Unsupported SourceTable in ${this::class.simpleName}")
+                else -> thisShouldNeverHappen("Unsupported SourceTableDescriptors: $it")
             }
 
             sb.toString()
@@ -342,5 +350,14 @@ class SqlReportGenerator(
                 """.trimLineStartsAndConsequentBlankLines()
             )
         }
+    }
+
+    private fun SectionPlanSql.validate(diagnostic: Diagnostic) {
+        val validationResults = ValidationResults()
+
+        sectionOutline.validate(validationResults)
+        validate(validationResults)
+
+        validationResults.reportErrors(diagnostic)
     }
 }

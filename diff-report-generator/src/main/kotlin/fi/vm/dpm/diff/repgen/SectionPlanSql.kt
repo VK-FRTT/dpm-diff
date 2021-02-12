@@ -2,7 +2,8 @@ package fi.vm.dpm.diff.repgen
 
 import fi.vm.dpm.diff.model.Field
 import fi.vm.dpm.diff.model.SectionOutline
-import fi.vm.dpm.diff.model.thisShouldNeverHappen
+import fi.vm.dpm.diff.model.diagnostic.ValidationResults
+import fi.vm.dpm.diff.repgen.dpm.utils.SourceTableDescriptor
 
 const val MAX_ITEMS_PER_PARTITION = 500_000
 
@@ -33,29 +34,55 @@ class SectionPlanSql private constructor(
         }
     }
 
-    fun sanityCheck() {
+    fun validate(validationResults: ValidationResults) {
 
-        // sectionOutline
-        sectionOutline.sanityCheck()
+        validationResults.withSubject("SectionPlanSql.queryColumnMapping") {
+            validateThat(
+                queryColumnMapping.isNotEmpty(),
+                "is empty"
+            )
 
-        // queryColumnMapping
-        check(queryColumnMapping.isNotEmpty())
+            queryColumnMapping
+                .values
+                .forEach { field ->
+                    validateThat(
+                        sectionOutline.sectionFields.contains(field),
+                        "has unknown field",
+                        field.fieldName
+                    )
+                }
 
-        queryColumnMapping.forEach { mapping ->
-            check(sectionOutline.sectionFields.contains(mapping.value))
+            queryColumnMapping
+                .values
+                .groupBy { it }
+                .forEach { (_, mappingsHavingSameField) ->
+                    validateThat(
+                        mappingsHavingSameField.size == 1,
+                        "has duplicate field",
+                        mappingsHavingSameField.first().fieldName
+                    )
+                }
         }
 
-        queryColumnMapping
-            .values
-            .groupBy { it }
-            .forEach { (_, mappingsHavingSameField) ->
-                check(mappingsHavingSameField.size == 1)
-            }
-    }
+        validationResults.withSubject("SectionPlanSql.partitionedQueries") {
+            validateThat(
+                partitionedQueries.isNotEmpty(),
+                "is empty"
+            )
+        }
 
-    private fun check(value: Boolean) {
-        if (!value) {
-            thisShouldNeverHappen("SectionPlanSql SanityCheck failed for: ${sectionOutline.sectionTitle}")
+        validationResults.withSubject("SectionPlanSql.sourceTableDescriptors") {
+            validateThat(
+                sourceTableDescriptors.isNotEmpty(),
+                "is empty"
+            )
+
+            sourceTableDescriptors.forEach {
+                validateThat(
+                    it is String || it is SourceTableDescriptor,
+                    "has unsupported descriptor type"
+                )
+            }
         }
     }
 }
