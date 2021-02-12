@@ -26,9 +26,7 @@ data class SourceRecord(
 
         changeFields.transformAtomsToAddedChange()
         changeFields.setChangeKind(ChangeKind.ADDED)
-        changeFields.setNoteWithDetails(
-            recordIdentificationDetailIfNeeded = true
-        )
+        changeFields.setNoteWithDetails()
 
         changeFields.discardFields(
             listOf(
@@ -46,9 +44,7 @@ data class SourceRecord(
 
         changeFields.transformAtomsToDeletedChange()
         changeFields.setChangeKind(ChangeKind.DELETED)
-        changeFields.setNoteWithDetails(
-            recordIdentificationDetailIfNeeded = true
-        )
+        changeFields.setNoteWithDetails()
 
         changeFields.discardFields(
             listOf(
@@ -65,9 +61,7 @@ data class SourceRecord(
         val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
         changeFields.setChangeKind(ChangeKind.DUPLICATE_KEY_ALERT)
-        changeFields.setNoteWithDetails(
-            recordIdentificationDetailIfNeeded = true
-        )
+        changeFields.setNoteWithDetails()
 
         changeFields.discardFields(
             listOf(
@@ -87,8 +81,7 @@ data class SourceRecord(
         changeFields.transformAtomsToModifiedChange(baselineRecord.fields)
         changeFields.setChangeKind(ChangeKind.MODIFIED)
         changeFields.setNoteWithDetails(
-            recordIdentificationDetailIfNeeded = true,
-            modifiedChangeAtomFieldDetail = true
+            includeAtomValueModifiedDetail = true
         )
 
         changeFields.discardFields(
@@ -186,28 +179,15 @@ data class SourceRecord(
     }
 
     private fun MutableMap<Field, Any?>.setNoteWithDetails(
-        recordIdentificationDetailIfNeeded: Boolean = false,
-        recordIdentificationDetailAlways: Boolean = false,
-        modifiedChangeAtomFieldDetail: Boolean = false
+        includeAtomValueModifiedDetail: Boolean = false
     ) {
         val details = listOf(
             {
-                if (recordIdentificationDetailIfNeeded) {
-                    recordIdentificationDetail(this, false)
-                } else {
-                    null
-                }
+                recordIdentificationDetail(this)
             },
             {
-                if (recordIdentificationDetailAlways) {
-                    recordIdentificationDetail(this, true)
-                } else {
-                    null
-                }
-            },
-            {
-                if (modifiedChangeAtomFieldDetail) {
-                    modifiedChangeAtomFieldDetail(this)
+                if (includeAtomValueModifiedDetail) {
+                    atomValueModifiedDetail(this)
                 } else {
                     null
                 }
@@ -228,8 +208,7 @@ data class SourceRecord(
     }
 
     private fun recordIdentificationDetail(
-        fields: Map<Field, Any?>,
-        alwaysOutputRecordIdentificationDetail: Boolean
+        fields: Map<Field, Any?>
     ): String? {
         fun shouldOutputRecordIdentityFallbackForCorrelationKeys() = fields
             .filterFieldType<KeyField, Any?>()
@@ -243,7 +222,6 @@ data class SourceRecord(
         val identityFallbackField = optionalFieldOfType<RecordIdentityFallbackField>() ?: return null
 
         return if (
-            alwaysOutputRecordIdentificationDetail ||
             shouldOutputRecordIdentityFallbackForCorrelationKeys() ||
             shouldOutputRecordIdentityFallbackForIdentificationLabels()
         ) {
@@ -260,7 +238,7 @@ data class SourceRecord(
         }
     }
 
-    private fun modifiedChangeAtomFieldDetail(
+    private fun atomValueModifiedDetail(
         fields: Map<Field, Any?>
     ): String? {
 
