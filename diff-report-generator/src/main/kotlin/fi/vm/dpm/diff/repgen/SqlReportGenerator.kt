@@ -1,6 +1,5 @@
 package fi.vm.dpm.diff.repgen
 
-import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.ChangeRecord
 import fi.vm.dpm.diff.model.ChangeRecordComparator
 import fi.vm.dpm.diff.model.ChangeReport
@@ -13,8 +12,6 @@ import fi.vm.dpm.diff.model.SourceRecord
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
 import fi.vm.dpm.diff.model.diagnostic.ValidationResults
 import fi.vm.dpm.diff.model.metrics.TimeMetrics
-import fi.vm.dpm.diff.model.thisShouldNeverHappen
-import fi.vm.dpm.diff.repgen.dpm.utils.SourceTableDescriptor
 import java.sql.ResultSet
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -109,7 +106,7 @@ class SqlReportGenerator(
             stepDiagnosticHandler
         )
 
-        sanityCheckPartitionChangeRecords(
+        validatePartitionChangeRecordCounts(
             allPartitionChangeRecords,
             sectionPlan
         )
@@ -204,9 +201,10 @@ class SqlReportGenerator(
             queryDebugName = "${sectionOutline.sectionTitle} SourceRecordsPartition ${partitionIndex + 1}/$totalPartitions"
         ) { resultSet ->
 
-            sanityCheckResultSetColumnLabels(
+            QueryColumnMappingValidator.validateColumnNamesMatch(
                 queryColumnMapping,
-                resultSet
+                resultSet.metaData,
+                diagnostic
             )
 
             val sourceRecords = mutableListOf<SourceRecord>()
@@ -234,22 +232,24 @@ class SqlReportGenerator(
         }.toMap()
     }
 
-    private fun sanityCheckPartitionChangeRecords(
+    private fun validatePartitionChangeRecordCounts(
         partitionChangeRecords: List<PartitionChangeRecords>,
         sectionPlan: SectionPlanSql
     ) {
-        sanityCheckLoadedSourceRecordCount(
+        SourceRecordCountValidator.validateCountWithSourceTableTotalRows(
             partitionChangeRecords.sumBy { it.baselineSourceRecordCount },
             sectionPlan.sourceTableDescriptors,
             sourceDbs.baselineConnection,
-            sectionPlan.sectionOutline
+            sectionPlan.sectionOutline.sectionTitle,
+            diagnostic
         )
 
-        sanityCheckLoadedSourceRecordCount(
+        SourceRecordCountValidator.validateCountWithSourceTableTotalRows(
             partitionChangeRecords.sumBy { it.currentSourceRecordCount },
             sectionPlan.sourceTableDescriptors,
             sourceDbs.currentConnection,
-            sectionPlan.sectionOutline
+            sectionPlan.sectionOutline.sectionTitle,
+            diagnostic
         )
     }
 
@@ -265,91 +265,6 @@ class SqlReportGenerator(
                 .flatMap { it.changes }
                 .sortedWith(ChangeRecordComparator(sectionPlan.sectionOutline.sectionSortOrder))
         } as List<ChangeRecord>
-    }
-
-    private fun sanityCheckResultSetColumnLabels(
-        queryColumnMapping: Map<String, Field>,
-        resultSet: ResultSet
-    ) {
-        val resultSetColumnLabels =
-            (1..resultSet.metaData.columnCount)
-                .map { resultSet.metaData.getColumnLabel(it) }
-                .toTypedArray()
-
-        val mappingColumnLabels =
-            queryColumnMapping
-                .map { (columnLabel, _) -> columnLabel }
-                .toTypedArray()
-
-        if (!(resultSetColumnLabels contentDeepEquals mappingColumnLabels)) {
-            diagnostic.fatal(
-                """
-                ResultSet and ColumnMapping mismatch.
-                ResultSet columns: ${resultSetColumnLabels.toList()}
-                ColumnMapping columns: ${mappingColumnLabels.toList()}
-                """.trimLineStartsAndConsequentBlankLines()
-            )
-        }
-    }
-
-    private fun sanityCheckLoadedSourceRecordCount(
-        loadedSourceRecordCount: Int,
-        sourceTableDescriptors: List<Any>,
-        dbConnection: DbConnection,
-        sectionOutline: SectionOutline
-    ) {
-        val tableRowCountQueries = sourceTableDescriptors.map {
-            val sb = StringBuilder()
-            sb.append("SELECT COUNT(*) AS Count")
-
-            when (it) {
-                is String -> {
-                    sb.append("\nFROM $it")
-                }
-
-                is SourceTableDescriptor -> {
-                    sb.append("\nFROM ${it.table}")
-
-                    if (it.joins != null) {
-                        it.joins.forEach { join ->
-                            sb.append("\nLEFT JOIN $join")
-                        }
-                    }
-
-                    if (it.where != null) {
-                        sb.append("\nWHERE ${it.where}")
-                    }
-                }
-
-                else -> thisShouldNeverHappen("Unsupported SourceTableDescriptors: $it")
-            }
-
-            sb.toString()
-        }
-
-        val totalRowCountQuery = """
-            SELECT SUM(Count) As TotalCount
-            FROM (
-            ${tableRowCountQueries.joinToString(separator = "\nUNION ALL\n")}
-            )
-        """.trimLineStartsAndConsequentBlankLines()
-
-        val queryDebugName = "${sectionOutline.sectionTitle} TotalRowCount"
-
-        val totalRowCount = dbConnection.executeQuery(totalRowCountQuery, queryDebugName) { resultSet ->
-            resultSet.next()
-            resultSet.getInt("TotalCount")
-        }
-
-        if (loadedSourceRecordCount != totalRowCount) {
-            diagnostic.fatal(
-                """
-                Count mismatch in $queryDebugName, database: ${dbConnection.dbPath}".
-                Loaded SourceRecords: $loadedSourceRecordCount
-                SourceTable(s) total rows: $totalRowCount
-                """.trimLineStartsAndConsequentBlankLines()
-            )
-        }
     }
 
     private fun SectionPlanSql.validate(diagnostic: Diagnostic) {

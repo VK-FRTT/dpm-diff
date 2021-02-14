@@ -1,8 +1,17 @@
-package fi.vm.dpm.diff.model
+package fi.vm.dpm.diff.repgen
 
+import fi.vm.dpm.diff.model.ChangeDetectionMode
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.Field
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
+import fi.vm.dpm.diff.model.NoteField
+import fi.vm.dpm.diff.model.NumberAwareSortBy
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
+import fi.vm.dpm.diff.model.SectionOutline
 import fi.vm.dpm.diff.model.diagnostic.DiagnosticCollector
 import fi.vm.dpm.diff.model.diagnostic.ValidationResults
-import fi.vm.dpm.diff.repgen.SectionPlanSql
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.BeforeEach

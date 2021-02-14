@@ -17,7 +17,7 @@ class DiagnosticCollector : Diagnostic {
 
     override fun fatal(message: String): Nothing {
         messages.add("FATAL: $message")
-        throw ArithmeticException(message)
+        throw ArithmeticException()
     }
 
     override fun progressIndication(): ProgressIndication {
