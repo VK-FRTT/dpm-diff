@@ -1,7 +1,6 @@
 package fi.vm.dpm.diff.repgen
 
 import fi.vm.dpm.diff.model.SourceKind
-import fi.vm.dpm.diff.model.diagnostic.DiagnosticCollector
 import java.nio.file.Files
 import java.nio.file.Path
 import org.assertj.core.api.Assertions.assertThat

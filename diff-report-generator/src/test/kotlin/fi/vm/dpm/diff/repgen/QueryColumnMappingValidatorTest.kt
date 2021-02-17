@@ -5,7 +5,6 @@ import com.nhaarman.mockitokotlin2.mock
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 import fi.vm.dpm.diff.model.KeyField
 import fi.vm.dpm.diff.model.KeyFieldKind
-import fi.vm.dpm.diff.model.diagnostic.DiagnosticCollector
 import java.sql.ResultSetMetaData
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat

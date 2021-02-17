@@ -40,11 +40,15 @@ open class CorrelationPolicyByKeyAndAtomValues(
     }
 
     override fun correlatingRecordPairs(): List<SourceRecordPair> {
-        thisShouldNeverHappen("Not supported")
+        thisShouldNeverHappen(
+            "CorrelationPolicyByKeyAndAtomValues does not support operation: correlatingRecordPairs()"
+        )
     }
 
     override fun duplicateCorrelationKeyRecords(): List<SourceRecord> {
-        thisShouldNeverHappen("Not supported")
+        thisShouldNeverHappen(
+            "CorrelationPolicyByKeyAndAtomValues does not support operation: duplicateCorrelationKeyRecords()"
+        )
     }
 
     private fun recordsWithoutCorrelation(

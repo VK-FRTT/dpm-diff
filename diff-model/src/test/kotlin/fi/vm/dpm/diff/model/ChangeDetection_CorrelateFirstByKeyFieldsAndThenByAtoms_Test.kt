@@ -1,11 +1,14 @@
 package fi.vm.dpm.diff.model
 
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 @Suppress("UNUSED_PARAMETER")
-internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase() {
+internal class ChangeDetection_CorrelateFirstByKeyFieldsAndThenByAtoms_Test : ChangeDetectionTestBase() {
 
     @Nested
     inner class PrimeKey {
@@ -14,14 +17,14 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "PrimeKey",
             sectionTitle = "PrimeKey",
             sectionDescription = "PrimeKey",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 primeKey,
                 changeKind,
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -37,14 +40,14 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 "::PK ADDED",
 
             "Multiple record deletion, " +
-                "PK | PK_B | PK_C, " +
+                "PK | PK_B | PK_C, " +
                 ", " +
-                "::PK DELETED | ::PK_B DELETED | ::PK_C DELETED",
+                "::PK DELETED | ::PK_B DELETED | ::PK_C DELETED",
 
             "Multiple record addition, " +
                 ", " +
-                "PK | PK_B | PK_C, " +
-                "::PK ADDED | ::PK_B ADDED | ::PK_C ADDED"
+                "PK | PK_B | PK_C, " +
+                "::PK ADDED | ::PK_B ADDED | ::PK_C ADDED"
         )
         fun testChangeDetection(
             testName: String,
@@ -62,10 +65,80 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                         primeKey to values[0]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndChangeKindString() }
             )
+        }
+
+        @Test
+        fun `change detection should fail with error when ChangeKind MODIFIED is used`() {
+
+            val sectionOutlineWithModifiedChangeKind = SectionOutline(
+                sectionShortTitle = "PrimeKey",
+                sectionTitle = "PrimeKey",
+                sectionDescription = "PrimeKey",
+                sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
+                sectionFields = listOf(
+                    primeKey,
+                    changeKind,
+                    note
+                ),
+                sectionSortOrder = emptyList(),
+                includedChanges = setOf(ChangeKind.MODIFIED)
+            )
+
+            val thrown = catchThrowable {
+                executeChangeDetectionTest(
+                    baselineRecordsValues = "PK VAL",
+                    currentRecordsValues = "PK VAL_B",
+                    expectedResultsValues = "::PK MODIFIED",
+                    sectionOutline = sectionOutlineWithModifiedChangeKind,
+                    recordValueMapper = { values ->
+                        mapOf(
+                            primeKey to values[0]
+                        )
+                    },
+                    changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
+                )
+            }
+
+            assertThat(thrown).hasMessage("CorrelationPolicyByKeyAndAtomValues does not support operation: correlatingRecordPairs()")
+            assertThat(thrown).isInstanceOf(IllegalStateException::class.java)
+        }
+
+        @Test
+        fun `change detection should fail with error when ChangeKind DUPLICATE_KEY_ALERT is used`() {
+
+            val sectionOutlineWithDupeAlertChangeKind = SectionOutline(
+                sectionShortTitle = "PrimeKey",
+                sectionTitle = "PrimeKey",
+                sectionDescription = "PrimeKey",
+                sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
+                sectionFields = listOf(
+                    primeKey,
+                    changeKind,
+                    note
+                ),
+                sectionSortOrder = emptyList(),
+                includedChanges = setOf(ChangeKind.DUPLICATE_KEY_ALERT)
+            )
+
+            val thrown = catchThrowable {
+                executeChangeDetectionTest(
+                    baselineRecordsValues = "PK VAL",
+                    currentRecordsValues = "PK VAL_B",
+                    expectedResultsValues = "::PK MODIFIED",
+                    sectionOutline = sectionOutlineWithDupeAlertChangeKind,
+                    recordValueMapper = { values ->
+                        mapOf(
+                            primeKey to values[0]
+                        )
+                    },
+                    changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
+                )
+            }
+
+            assertThat(thrown).hasMessage("CorrelationPolicyByKeyAndAtomValues does not support operation: duplicateCorrelationKeyRecords()")
+            assertThat(thrown).isInstanceOf(IllegalStateException::class.java)
         }
     }
 
@@ -76,48 +149,39 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "PrimeKeyWithAtom",
             sectionTitle = "PrimeKeyWithAtom",
             sectionDescription = "PrimeKeyWithAtom",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 primeKey,
                 atom,
                 changeKind,
-                note
+                note,
+                idFallbackField
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single record deletion, " +
-                "PK VAL, " +
+                "PK VAL #1, " +
                 ", " +
-                "::PK DELETED",
+                "::PK (#1) DELETED",
 
             "Single record addition, " +
                 ", " +
-                "PK VAL, " +
-                "::PK ADDED",
+                "PK VAL #1, " +
+                "::PK (#1) ADDED",
 
-            "Single record changes, " +
-                "PK VAL, " +
-                "PK VAL_B, " +
-                "::PK MODIFIED",
+            "Atom value changes in single primary key record, " +
+                "PK VAL #1, " +
+                "PK VAL_B #2, " +
+                "::PK (#2) ADDED | ::PK (#1) DELETED",
 
-            "Multiple record changes, " +
-                "PK VAL | PK_B VAL, " +
-                "PK VAL_B | PK_B VAL_B, " +
-                "::PK MODIFIED | ::PK_B MODIFIED",
-
-            "Record changes with duplicate record keys in baseline, " +
-                "PK VAL | PK VAL_B, " +
-                "PK VAL_C, " +
-                "::PK DUPLICATE_KEY_ALERT | ::PK DUPLICATE_KEY_ALERT",
-
-            "Record changes with duplicate record keys in current, " +
-                "PK VAL, " +
-                "PK VAL_B | PK VAL_C, " +
-                "::PK DUPLICATE_KEY_ALERT | ::PK DUPLICATE_KEY_ALERT"
+            "Atom value changes in multiple primary key records, " +
+                "PK VAL #1 | PK_B VAL #2, " +
+                "PK VAL_B #3 | PK_B VAL_B #4, " +
+                "::PK (#3) ADDED | ::PK_B (#4) ADDED | ::PK (#1) DELETED | ::PK_B (#2) DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -133,12 +197,11 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 recordValueMapper = { values ->
                     mapOf(
                         primeKey to values[0],
-                        atom to values[1]
+                        atom to values[1],
+                        idFallbackField to values[2]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
             )
         }
     }
@@ -149,7 +212,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentAndPrimeKey",
             sectionTitle = "ContextParentAndPrimeKey",
             sectionDescription = "ContextParentAndPrimeKey",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 contextParentKey,
                 primeKey,
@@ -157,7 +220,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
@@ -173,18 +236,18 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 "CTX::PK ADDED",
 
             "Multiple record deletion, " +
-                "CTX PK | CTX PK_B | CTX PK_C, " +
+                "CTX PK | CTX PK_B | CTX PK_C, " +
                 ", " +
-                "CTX::PK DELETED | CTX::PK_B DELETED | CTX::PK_C DELETED",
+                "CTX::PK DELETED | CTX::PK_B DELETED | CTX::PK_C DELETED",
 
             "Multiple record addition, " +
                 ", " +
-                "CTX PK | CTX PK_B | CTX PK_C, " +
-                "CTX::PK ADDED | CTX::PK_B ADDED | CTX::PK_C ADDED",
+                "CTX PK | CTX PK_B | CTX PK_C, " +
+                "CTX::PK ADDED | CTX::PK_B ADDED | CTX::PK_C ADDED",
 
             "ContextParent isolates equal prime keys, " +
-                "CTX PK | CTX_B PK | CTX_C PK, " +
-                "CTX PK | CTX_C PK, " +
+                "CTX PK | CTX_B PK | CTX_C PK, " +
+                "CTX PK | CTX_C PK, " +
                 "CTX_B::PK DELETED"
         )
         fun testChangeDetection(
@@ -204,9 +267,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                         primeKey to values[1]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndChangeKindString() }
             )
         }
     }
@@ -218,7 +279,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentAndPrimeKeyWithAtom",
             sectionTitle = "ContextParentAndPrimeKeyWithAtom",
             sectionDescription = "ContextParentAndPrimeKeyWithAtom",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 contextParentKey,
                 primeKey,
@@ -227,35 +288,35 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single record deletion, " +
-                "CTX PK VAL, " +
+                "CTX PK VAL #1, " +
                 ", " +
-                "CTX::PK DELETED",
+                "CTX::PK (#1) DELETED",
 
             "Single record addition, " +
                 ", " +
-                "CTX PK VAL, " +
-                "CTX::PK ADDED",
+                "CTX PK VAL #1, " +
+                "CTX::PK (#1) ADDED",
 
-            "Single record changes, " +
-                "CTX PK VAL, " +
-                "CTX PK VAL_B, " +
-                "CTX::PK MODIFIED",
+            "Atom value changes in single ctx + primary key record, " +
+                "CTX PK VAL #1, " +
+                "CTX PK VAL_B #2, " +
+                "CTX::PK (#2) ADDED | CTX::PK (#1) DELETED",
 
-            "Multiple record changes, " +
-                "CTX PK VAL | CTX PK_B VAL, " +
-                "CTX PK VAL_B | CTX PK_B VAL_B, " +
-                "CTX::PK MODIFIED | CTX::PK_B MODIFIED",
+            "Atom value changes in multiple ctx + primary key records, " +
+                "CTX PK VAL #1 | CTX PK_B VAL #2, " +
+                "CTX PK VAL_B #3 | CTX PK_B VAL_B #4, " +
+                "CTX::PK (#3) ADDED | CTX::PK_B (#4) ADDED | CTX::PK (#1) DELETED | CTX::PK_B (#2) DELETED",
 
             "ContextParent isolates equal prime keys, " +
-                "CTX PK VAL | CTX_B PK VAL | CTX_C PK VAL, " +
-                "CTX PK VAL | CTX_C PK VAL_B, " +
-                "CTX_B::PK DELETED | CTX_C::PK MODIFIED"
+                "CTX PK VAL #1 | CTX_B PK VAL #2 | CTX_C PK VAL #3, " +
+                "CTX PK VAL #4 | CTX_C PK VAL_B #5, " +
+                "CTX_C::PK (#5) ADDED | CTX_B::PK (#2) DELETED | CTX_C::PK (#3) DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -272,12 +333,11 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                     mapOf(
                         contextParentKey to values[0],
                         primeKey to values[1],
-                        atom to values[2]
+                        atom to values[2],
+                        idFallbackField to values[3]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
             )
         }
     }
@@ -288,7 +348,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "NormalParentAndPrimeKey",
             sectionTitle = "NormalParentAndPrimeKey",
             sectionDescription = "NormalParentAndPrimeKey",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 parentKey,
                 primeKey,
@@ -296,35 +356,35 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single record deletion, " +
-                "PAR PK, " +
+                "PAR PK #1, " +
                 ", " +
-                ":PAR:PK DELETED",
+                ":PAR:PK (#1) DELETED",
 
             "Single record addition, " +
                 ", " +
-                "PAR PK, " +
-                ":PAR:PK ADDED",
+                "PAR PK #1, " +
+                ":PAR:PK (#1) ADDED",
 
             "Multiple record deletion, " +
-                "PAR PK | PAR PK_B | PAR PK_C, " +
+                "PAR PK #1 | PAR PK_B #2 | PAR PK_C #3, " +
                 ", " +
-                ":PAR:PK DELETED | :PAR:PK_B DELETED | :PAR:PK_C DELETED",
+                ":PAR:PK (#1) DELETED | :PAR:PK_B (#2) DELETED | :PAR:PK_C (#3) DELETED",
 
             "Multiple record addition, " +
                 ", " +
-                "PAR PK | PAR PK_B | PAR PK_C, " +
-                ":PAR:PK ADDED | :PAR:PK_B ADDED | :PAR:PK_C ADDED",
+                "PAR PK #1 | PAR PK_B #2 | PAR PK_C #3, " +
+                ":PAR:PK (#1) ADDED | :PAR:PK_B (#2) ADDED | :PAR:PK_C (#3) ADDED",
 
             "Parent isolates equal prime keys, " +
-                "PAR PK | PAR_B PK | PAR_C PK, " +
-                "PAR PK | PAR_C PK, " +
-                ":PAR_B:PK DELETED"
+                "PAR PK #1 | PAR_B PK #2 | PAR_C PK #3, " +
+                "PAR PK #4 | PAR_C PK #5, " +
+                ":PAR_B:PK (#2) DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -340,12 +400,11 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 recordValueMapper = { values ->
                     mapOf(
                         parentKey to values[0],
-                        primeKey to values[1]
+                        primeKey to values[1],
+                        idFallbackField to values[2]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
             )
         }
     }
@@ -357,7 +416,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "NormalParentAndPrimeKeyWithAtom",
             sectionTitle = "NormalParentAndPrimeKeyWithAtom",
             sectionDescription = "NormalParentAndPrimeKeyWithAtom",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 parentKey,
                 primeKey,
@@ -366,35 +425,35 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single record deletion, " +
-                "PAR PK VAL, " +
+                "PAR PK VAL #1, " +
                 ", " +
-                ":PAR:PK DELETED",
+                ":PAR:PK (#1) DELETED",
 
             "Single record addition, " +
                 ", " +
-                "PAR PK VAL, " +
-                ":PAR:PK ADDED",
+                "PAR PK VAL #1, " +
+                ":PAR:PK (#1) ADDED",
 
-            "Single record changes, " +
-                "PAR PK VAL, " +
-                "PAR PK VAL_B, " +
-                ":PAR:PK MODIFIED",
+            "Atom value changes in single parent + primary key record, " +
+                "PAR PK VAL #1, " +
+                "PAR PK VAL_B #2, " +
+                ":PAR:PK (#2) ADDED | :PAR:PK (#1) DELETED",
 
-            "Multiple record changes, " +
-                "PAR PK VAL | PAR PK_B VAL, " +
-                "PAR PK VAL_B | PAR PK_B VAL_B, " +
-                ":PAR:PK MODIFIED | :PAR:PK_B MODIFIED",
+            "Atom value changes in multiple parent + primary key records, " +
+                "PAR PK VAL #1 | PAR PK_B VAL #2, " +
+                "PAR PK VAL_B #3 | PAR PK_B VAL_B #4, " +
+                ":PAR:PK (#3) ADDED | :PAR:PK_B (#4) ADDED | :PAR:PK (#1) DELETED | :PAR:PK_B (#2) DELETED",
 
             "Parent isolates equal prime keys, " +
-                "PAR PK VAL | PAR_B PK VAL | PAR_C PK VAL, " +
-                "PAR PK VAL | PAR_C PK VAL_B, " +
-                ":PAR_B:PK DELETED | :PAR_C:PK MODIFIED"
+                "PAR PK VAL #1 | PAR_B PK VAL #2 | PAR_C PK VAL #3, " +
+                "PAR PK VAL #4 | PAR_C PK VAL_B #5, " +
+                ":PAR_C:PK (#5) ADDED | :PAR_B:PK (#2) DELETED | :PAR_C:PK (#3) DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -411,12 +470,11 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                     mapOf(
                         parentKey to values[0],
                         primeKey to values[1],
-                        atom to values[2]
+                        atom to values[2],
+                        idFallbackField to values[3]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
             )
         }
     }
@@ -427,7 +485,7 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
             sectionShortTitle = "ContextParentNormalParentAndPrimeKey",
             sectionTitle = "ContextParentNormalParentAndPrimeKey",
             sectionDescription = "ContextParentNormalParentAndPrimeKey",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
             sectionFields = listOf(
                 contextParentKey,
                 parentKey,
@@ -436,107 +494,35 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                 note
             ),
             sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
+            includedChanges = ChangeKind.additionAndDeletion()
         )
 
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single record deletion, " +
-                "CTX PAR PK, " +
+                "CTX PAR PK #1, " +
                 ", " +
-                "CTX:PAR:PK DELETED",
+                "CTX:PAR:PK (#1) DELETED",
 
             "Single record addition, " +
                 ", " +
-                "CTX PAR PK, " +
-                "CTX:PAR:PK ADDED",
+                "CTX PAR PK #1, " +
+                "CTX:PAR:PK (#1) ADDED",
 
             "Multiple record deletion, " +
-                "CTX PAR PK | CTX PAR PK_B | CTX PAR PK_C, " +
+                "CTX PAR PK #1 | CTX PAR PK_B #2 | CTX PAR PK_C #3, " +
                 ", " +
-                "CTX:PAR:PK DELETED | CTX:PAR:PK_B DELETED | CTX:PAR:PK_C DELETED",
+                "CTX:PAR:PK (#1) DELETED | CTX:PAR:PK_B (#2) DELETED | CTX:PAR:PK_C (#3) DELETED",
 
             "Multiple record addition, " +
                 ", " +
-                "CTX PAR PK | CTX PAR PK_B | CTX PAR PK_C, " +
-                "CTX:PAR:PK ADDED | CTX:PAR:PK_B ADDED | CTX:PAR:PK_C ADDED",
+                "CTX PAR PK #1 | CTX PAR PK_B #2| CTX PAR PK_C #3, " +
+                "CTX:PAR:PK (#1) ADDED | CTX:PAR:PK_B (#2) ADDED | CTX:PAR:PK_C (#3) ADDED",
 
             "ContextParent isolates equal prime keys, " +
-                "CTX PAR PK | CTX_B PAR PK | CTX_C PAR PK, " +
-                "CTX PAR PK | CTX_C PAR PK, " +
-                "CTX_B:PAR:PK DELETED"
-        )
-        fun testChangeDetection(
-            testName: String,
-            baselineRecordsValues: String?,
-            currentRecordsValues: String?,
-            expectedResultsValues: String
-        ) {
-            executeChangeDetectionTest(
-                baselineRecordsValues = baselineRecordsValues,
-                currentRecordsValues = currentRecordsValues,
-                expectedResultsValues = expectedResultsValues,
-                sectionOutline = sectionOutline,
-                recordValueMapper = { values ->
-                    mapOf(
-                        contextParentKey to values[0],
-                        parentKey to values[1],
-                        primeKey to values[2]
-                    )
-                },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
-            )
-        }
-    }
-
-    @Nested
-    inner class ContextParentNormalParentAndPrimeKeyWithAtom {
-
-        private val sectionOutline = SectionOutline(
-            sectionShortTitle = "ContextParentNormalParentAndPrimeKeyWithAtom",
-            sectionTitle = "ContextParentNormalParentAndPrimeKeyWithAtom",
-            sectionDescription = "ContextParentNormalParentAndPrimeKeyWithAtom",
-            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,
-            sectionFields = listOf(
-                contextParentKey,
-                parentKey,
-                primeKey,
-                atom,
-                changeKind,
-                note
-            ),
-            sectionSortOrder = emptyList(),
-            includedChanges = ChangeKind.allChanges()
-        )
-
-        @ParameterizedTest(name = "{0}")
-        @CsvSource(
-            "Single record deletion, " +
-                "CTX PAR PK VAL, " +
-                ", " +
-                "CTX:PAR:PK DELETED",
-
-            "Single record addition, " +
-                ", " +
-                "CTX PAR PK VAL, " +
-                "CTX:PAR:PK ADDED",
-
-            "Single record changes, " +
-                "CTX PAR PK VAL, " +
-                "CTX PAR PK VAL_B, " +
-                "CTX:PAR:PK MODIFIED",
-
-            "Multiple record changes, " +
-                "CTX PAR PK VAL | CTX PAR PK_B VAL, " +
-                "CTX PAR PK VAL_B | CTX PAR PK_B VAL_B, " +
-                "CTX:PAR:PK MODIFIED | CTX:PAR:PK_B MODIFIED",
-
-            "ContextParent isolates equal prime keys, " +
-                "CTX PAR PK VAL | CTX_B PAR PK VAL | CTX_C PAR PK VAL, " +
-                "CTX PAR PK VAL | CTX_C PAR PK VAL_B, " +
-                "CTX_B:PAR:PK DELETED | CTX_C:PAR:PK MODIFIED"
+                "CTX PAR PK #1 | CTX_B PAR PK #2 | CTX_C PAR PK #3, " +
+                "CTX PAR PK #4 | CTX_C PAR PK #5, " +
+                "CTX_B:PAR:PK (#2) DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -554,12 +540,82 @@ internal class ChangeDetection_CorrelationByKey_Test : ChangeDetectionTestBase()
                         contextParentKey to values[0],
                         parentKey to values[1],
                         primeKey to values[2],
-                        atom to values[3]
+                        idFallbackField to values[3]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
+            )
+        }
+    }
+
+    @Nested
+    inner class ContextParentNormalParentAndPrimeKeyWithAtom {
+
+        private val sectionOutline = SectionOutline(
+            sectionShortTitle = "ContextParentNormalParentAndPrimeKeyWithAtom",
+            sectionTitle = "ContextParentNormalParentAndPrimeKeyWithAtom",
+            sectionDescription = "ContextParentNormalParentAndPrimeKeyWithAtom",
+            sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_FIRST_BY_KEY_FIELDS_AND_THEN_BY_ATOMS,
+            sectionFields = listOf(
+                contextParentKey,
+                parentKey,
+                primeKey,
+                atom,
+                changeKind,
+                note
+            ),
+            sectionSortOrder = emptyList(),
+            includedChanges = ChangeKind.additionAndDeletion()
+        )
+
+        @ParameterizedTest(name = "{0}")
+        @CsvSource(
+            "Single record deletion, " +
+                "CTX PAR PK VAL #1, " +
+                ", " +
+                "CTX:PAR:PK (#1) DELETED",
+
+            "Single record addition, " +
+                ", " +
+                "CTX PAR PK VAL #1, " +
+                "CTX:PAR:PK (#1) ADDED",
+
+            "Atom value changes in single ctx + parent + primary key record, " +
+                "CTX PAR PK VAL #1, " +
+                "CTX PAR PK VAL_B #2, " +
+                "CTX:PAR:PK (#2) ADDED | CTX:PAR:PK (#1) DELETED",
+
+            "Atom value changes in multiple ctx + parent + primary key records, " +
+                "CTX PAR PK VAL #1 | CTX PAR PK_B VAL #2, " +
+                "CTX PAR PK VAL_B #3 | CTX PAR PK_B VAL_B #4, " +
+                "CTX:PAR:PK (#3) ADDED | CTX:PAR:PK_B (#4) ADDED | CTX:PAR:PK (#1) DELETED | CTX:PAR:PK_B (#2) DELETED",
+
+            "ContextParent isolates equal prime keys, " +
+                "CTX PAR PK VAL #1 | CTX_B PAR PK VAL #2 | CTX_C PAR PK VAL #3, " +
+                "CTX PAR PK VAL #4 | CTX_C PAR PK VAL_B #5, " +
+                "CTX_C:PAR:PK (#5) ADDED | CTX_B:PAR:PK (#2) DELETED | CTX_C:PAR:PK (#3) DELETED"
+        )
+        fun testChangeDetection(
+            testName: String,
+            baselineRecordsValues: String?,
+            currentRecordsValues: String?,
+            expectedResultsValues: String
+        ) {
+            executeChangeDetectionTest(
+                baselineRecordsValues = baselineRecordsValues,
+                currentRecordsValues = currentRecordsValues,
+                expectedResultsValues = expectedResultsValues,
+                sectionOutline = sectionOutline,
+                recordValueMapper = { values ->
+                    mapOf(
+                        contextParentKey to values[0],
+                        parentKey to values[1],
+                        primeKey to values[2],
+                        atom to values[3],
+                        idFallbackField to values[4]
+                    )
+                },
+                changeRecordMapper = { it.toKeyFieldsAndIdFallbackAndChangeKindString() }
             )
         }
     }

@@ -1,4 +1,7 @@
-package fi.vm.dpm.diff.model.diagnostic
+package fi.vm.dpm.diff.repgen
+
+import fi.vm.dpm.diff.model.diagnostic.Diagnostic
+import fi.vm.dpm.diff.model.diagnostic.ProgressIndication
 
 class DiagnosticCollector : Diagnostic {
     val messages = mutableListOf<String>()

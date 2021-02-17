@@ -5,7 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 @Suppress("UNUSED_PARAMETER")
-internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeDetectionTestBase() {
+internal class ChangeDetection_CorrelateByKeyFieldsAndRequireParentExistence_Test : ChangeDetectionTestBase() {
 
     @Nested
     inner class ContextParentAndPrimeKeyWithAtom {
@@ -29,18 +29,18 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single object deletion, " +
-                "CTX PK VAL | CTX PK_B VAL, " +
+                "CTX PK VAL | CTX PK_B VAL, " +
                 "CTX PK_B VAL, " +
                 "CTX::PK DELETED",
 
             "Whole parent tree deletion, " +
-                "CTX PL VAL | CTX PK_B VAL, " +
+                "CTX PL VAL | CTX PK_B VAL, " +
                 ", " +
                 "",
 
             "Single object addition, " +
                 "CTX PK VAL, " +
-                "CTX PK VAL | CTX PK_B VAL, " +
+                "CTX PK VAL | CTX PK_B VAL, " +
                 "CTX::PK_B ADDED",
 
             "Whole parent tree addition, " +
@@ -50,7 +50,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
 
             "Whole parent tree addition with multiple objects, " +
                 ", " +
-                "CTX PK VAL | CTX PK_B VAL, " +
+                "CTX PK VAL | CTX PK_B VAL, " +
                 "",
 
             "Single object change, " +
@@ -59,13 +59,13 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
                 "CTX::PK MODIFIED",
 
             "Multiple object changes, " +
-                "CTX PK VAL | CTX PK_B VAL, " +
-                "CTX PK VAL_B | CTX PK_B VAL_B, " +
-                "CTX::PK MODIFIED | CTX::PK_B MODIFIED",
+                "CTX PK VAL | CTX PK_B VAL, " +
+                "CTX PK VAL_B | CTX PK_B VAL_B, " +
+                "CTX::PK MODIFIED | CTX::PK_B MODIFIED",
 
             "ContextParent isolates equal keys, " +
-                "CTX PK VAL | CTX_B PK VAL | CTX_C PK VAL, " +
-                "CTX PK VAL | CTX_C PK VAL_B, " +
+                "CTX PK VAL | CTX_B PK VAL | CTX_C PK VAL, " +
+                "CTX PK VAL | CTX_C PK VAL_B, " +
                 "CTX_C::PK MODIFIED"
         )
         fun testChangeDetection(
@@ -86,9 +86,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
                         atom to values[2]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndChangeKindString() }
             )
         }
     }
@@ -115,18 +113,18 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "Single object deletion, " +
-                "PAR PK VAL | PAR PK_B VAL, " +
+                "PAR PK VAL | PAR PK_B VAL, " +
                 "PAR PK_B VAL, " +
                 ":PAR:PK DELETED",
 
             "Whole parent tree deletion, " +
-                "PAR PL VAL | PAR PK_B VAL, " +
+                "PAR PL VAL | PAR PK_B VAL, " +
                 ", " +
                 "",
 
             "Single object addition, " +
                 "PAR PK VAL, " +
-                "PAR PK VAL | PAR PK_B VAL, " +
+                "PAR PK VAL | PAR PK_B VAL, " +
                 ":PAR:PK_B ADDED",
 
             "Whole parent tree addition, " +
@@ -136,7 +134,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
 
             "Whole parent tree addition with multiple objects, " +
                 ", " +
-                "PAR PK VAL | PAR PK_B VAL, " +
+                "PAR PK VAL | PAR PK_B VAL, " +
                 "",
 
             "Single object change, " +
@@ -145,13 +143,13 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
                 ":PAR:PK MODIFIED",
 
             "Multiple object changes, " +
-                "PAR PK VAL | PAR PK_B VAL, " +
-                "PAR PK VAL_B | PAR PK_B VAL_B, " +
-                ":PAR:PK MODIFIED | :PAR:PK_B MODIFIED",
+                "PAR PK VAL | PAR PK_B VAL, " +
+                "PAR PK VAL_B | PAR PK_B VAL_B, " +
+                ":PAR:PK MODIFIED | :PAR:PK_B MODIFIED",
 
             "Parent isolates equal keys, " +
-                "PAR PK VAL | PAR_B PK VAL | PAR_C PK VAL, " +
-                "PAR PK VAL | PAR_C PK VAL_B, " +
+                "PAR PK VAL | PAR_B PK VAL | PAR_C PK VAL, " +
+                "PAR PK VAL | PAR_C PK VAL_B, " +
                 ":PAR_C:PK MODIFIED"
         )
         fun testChangeDetection(
@@ -172,9 +170,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
                         atom to values[2]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndChangeKindString() }
             )
         }
     }
@@ -205,33 +201,33 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
         @ParameterizedTest(name = "{0}")
         @CsvSource(
             "First ContextParent isolates keys, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX_B CTX2 PAR PAR2 PK PK2 VAL, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX_B CTX2 PAR PAR2 PK PK2 VAL_B, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX_B CTX2 PAR PAR2 PK PK2 VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX_B CTX2 PAR PAR2 PK PK2 VAL_B, " +
                 "CTX_B/CTX2:PAR/PAR2:PK/PK2 MODIFIED",
 
             "Second ContextParent isolates keys, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2_B PAR PAR2 PK PK2 VAL, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2_B PAR PAR2 PK PK2 VAL_B, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2_B PAR PAR2 PK PK2 VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2_B PAR PAR2 PK PK2 VAL_B, " +
                 "CTX/CTX2_B:PAR/PAR2:PK/PK2 MODIFIED",
 
             "First Parent isolates keys, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR_B PAR2 PK PK2 VAL, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR_B PAR2 PK PK2 VAL_B, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR_B PAR2 PK PK2 VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR_B PAR2 PK PK2 VAL_B, " +
                 "CTX/CTX2:PAR_B/PAR2:PK/PK2 MODIFIED",
 
             "Second Parent isolates keys, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2_B PK PK2 VAL, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2_B PK PK2 VAL_B, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2_B PK PK2 VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2_B PK PK2 VAL_B, " +
                 "CTX/CTX2:PAR/PAR2_B:PK/PK2 MODIFIED",
 
             "First prime isolates keys, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK_B PK2 VAL, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK_B PK2 VAL_B, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK_B PK2 VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK_B PK2 VAL_B, " +
                 "CTX/CTX2:PAR/PAR2:PK_B/PK2 MODIFIED",
 
             "Second prime isolates keys, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK PK2_B VAL, " +
-                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK PK2_B VAL_B, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK PK2_B VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX CTX2 PAR PAR2 PK PK2_B VAL_B, " +
                 "CTX/CTX2:PAR/PAR2:PK/PK2_B MODIFIED"
         )
         fun testChangeDetection(
@@ -256,9 +252,7 @@ internal class ChangeDetection_CorrelationByKeyAndParentExistence_Test : ChangeD
                         atom to values[6]
                     )
                 },
-                changeResultsMapper = { changeResults ->
-                    changeResults.toKeyAndChangeKindList()
-                }
+                changeRecordMapper = { it.toKeyFieldsAndChangeKindString() }
             )
         }
     }

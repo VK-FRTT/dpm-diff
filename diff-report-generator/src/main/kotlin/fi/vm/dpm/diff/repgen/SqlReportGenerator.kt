@@ -212,9 +212,9 @@ class SqlReportGenerator(
             while (resultSet.next()) {
 
                 val sourceRecord = SourceRecord(
+                    fields = resultSet.mapColumnValuesToFields(queryColumnMapping),
                     sectionOutline = sectionOutline,
-                    sourceKind = dbConnection.sourceKind,
-                    fields = resultSet.mapColumnValuesToFields(queryColumnMapping)
+                    sourceKind = dbConnection.sourceKind
                 )
 
                 sourceRecords.add(sourceRecord)

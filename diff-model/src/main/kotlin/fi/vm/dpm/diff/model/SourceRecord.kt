@@ -1,13 +1,15 @@
 package fi.vm.dpm.diff.model
 
 import ext.kotlin.filterFieldType
+import ext.kotlin.firstFieldOfType
+import ext.kotlin.firstFieldOfTypeOrNull
 import ext.kotlin.splitCamelCaseWords
 import kotlin.reflect.KClass
 
 data class SourceRecord(
-    val sectionOutline: SectionOutline,
-    val sourceKind: SourceKind,
-    val fields: Map<Field, String?>
+    val fields: Map<Field, String?>,
+    private val sectionOutline: SectionOutline,
+    private val sourceKind: SourceKind
 ) {
     val fullKeyFieldKey: CorrelationKey by lazy {
         CorrelationKey.createCorrelationKey(CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY, this)
@@ -99,19 +101,6 @@ data class SourceRecord(
         }
     }
 
-    private inline fun <reified FT : Field> optionalFieldOfType(): FT? {
-        val classCriteria = FT::class
-
-        val fields = sectionOutline.sectionFields.filter { it::class == classCriteria }
-
-        if (fields.isEmpty()) return null
-        return fields.first() as FT
-    }
-
-    private inline fun <reified FT : Field> requiredFieldOfType(): FT {
-        return optionalFieldOfType() ?: thisShouldNeverHappen("No field with type: ${FT::class.simpleName}")
-    }
-
     private fun MutableMap<Field, Any?>.transformAtomsToAddedChange() {
         doTransformAtoms { field, value ->
 
@@ -174,7 +163,10 @@ data class SourceRecord(
     private fun MutableMap<Field, Any?>.setChangeKind(
         changeKind: ChangeKind
     ) {
-        val changeKindField = requiredFieldOfType<ChangeKindField>()
+        val changeKindField = sectionOutline
+            .sectionFields
+            .firstFieldOfType<ChangeKindField>()
+
         this[changeKindField] = changeKind
     }
 
@@ -196,7 +188,10 @@ data class SourceRecord(
 
         if (details.isEmpty()) return
 
-        val noteField = requiredFieldOfType<NoteField>()
+        val noteField = sectionOutline
+            .sectionFields
+            .firstFieldOfType<NoteField>()
+
         val noteValue = details.joinToString(separator = "\n\n")
 
         this[noteField] = noteValue
@@ -219,7 +214,9 @@ data class SourceRecord(
             .filterFieldType<IdentificationLabelField, Any?>()
             .all { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
 
-        val identityFallbackField = optionalFieldOfType<RecordIdentityFallbackField>() ?: return null
+        val identityFallbackField = sectionOutline
+            .sectionFields
+            .firstFieldOfTypeOrNull<RecordIdentityFallbackField>() ?: return null
 
         return if (
             shouldOutputRecordIdentityFallbackForCorrelationKeys() ||

@@ -10,7 +10,6 @@ import fi.vm.dpm.diff.model.NoteField
 import fi.vm.dpm.diff.model.NumberAwareSortBy
 import fi.vm.dpm.diff.model.RecordIdentityFallbackField
 import fi.vm.dpm.diff.model.SectionOutline
-import fi.vm.dpm.diff.model.diagnostic.DiagnosticCollector
 import fi.vm.dpm.diff.model.diagnostic.ValidationResults
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable

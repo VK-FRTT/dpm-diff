@@ -48,34 +48,58 @@ internal open class ChangeDetectionTestBase {
 
     protected val note = NoteField()
 
+    protected val idFallbackField = FallbackField(
+        fieldName = "ID"
+    )
+
     protected fun executeChangeDetectionTest(
         baselineRecordsValues: String?,
         currentRecordsValues: String?,
         expectedResultsValues: String?,
         sectionOutline: SectionOutline,
         recordValueMapper: (List<String?>) -> (Map<Field, String?>),
-        changeResultsMapper: (List<ChangeRecord>) -> (List<String>)
+        changeRecordMapper: (ChangeRecord) -> (String)
     ) {
-        val changes = executeResolveChanges(
+        val changeRecords = executeResolveChanges(
             sectionOutline = sectionOutline,
             baselineRecordsFieldValues = buildRecordsFieldValues(baselineRecordsValues, recordValueMapper),
             currentRecordsFieldValues = buildRecordsFieldValues(currentRecordsValues, recordValueMapper)
         )
 
-        val changesResults = changeResultsMapper(changes)
+        val verifiableResults = changeRecords.map(changeRecordMapper)
 
         if (expectedResultsValues == null) {
-            assertThat(changesResults).isEmpty()
+            assertThat(verifiableResults).isEmpty()
         } else {
             val expectedResults = expectedResultsValues.splitExpectedResultsToList()
-            assertThat(changesResults).containsExactly(*expectedResults.toTypedArray())
+            assertThat(verifiableResults).containsExactly(*expectedResults.toTypedArray())
         }
     }
 
-    protected fun List<ChangeRecord>.toKeyAndChangeKindList(): List<String> {
-        return map { changeRecord ->
-            "${CorrelationKey.createCorrelationKey(CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY, changeRecord.fields).keyValue()} ${changeRecord.fields[changeKind]}"
-        }
+    protected fun ChangeRecord.toKeyFieldsAndChangeKindString(): String {
+        val fullKeyFieldCorrelationKeyValue = CorrelationKey
+            .createCorrelationKey(
+                CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY,
+                fields
+            ).keyValue()
+
+        val changeKindValue = fields[changeKind]
+
+        return "$fullKeyFieldCorrelationKeyValue $changeKindValue"
+    }
+
+    protected fun ChangeRecord.toKeyFieldsAndIdFallbackAndChangeKindString(): String {
+        val fullKeyFieldCorrelationKeyValue = CorrelationKey
+            .createCorrelationKey(
+                CorrelationKeyKind.FULL_KEY_FIELD_CORRELATION_KEY,
+                fields
+            ).keyValue()
+
+        val idFallbackValue = fields[idFallbackField]
+
+        val changeKindValue = fields[changeKind]
+
+        return "$fullKeyFieldCorrelationKeyValue ($idFallbackValue) $changeKindValue"
     }
 
     private fun buildRecordsFieldValues(
@@ -128,9 +152,9 @@ internal open class ChangeDetectionTestBase {
             }.toMap() + recordFieldValues
 
             SourceRecord(
+                totalFieldValues,
                 sectionOutline,
-                sourceKind,
-                totalFieldValues
+                sourceKind
             )
         }
 

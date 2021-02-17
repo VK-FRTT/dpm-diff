@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-internal class StringExtensions_Test {
+internal class StringExtensionsTest {
 
     @DisplayName("String.splitCamelCaseWords")
     @ParameterizedTest(name = "´{0}´ to ´{1}´")

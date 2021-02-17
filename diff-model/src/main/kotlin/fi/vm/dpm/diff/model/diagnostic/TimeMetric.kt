@@ -11,7 +11,7 @@ data class TimeMetric(
     val cumulativeMovingAverageDuration: Duration,
     val minDuration: Duration,
     val maxDuration: Duration,
-    val startAt: Instant?
+    private val startAt: Instant?
 ) {
     companion object {
 

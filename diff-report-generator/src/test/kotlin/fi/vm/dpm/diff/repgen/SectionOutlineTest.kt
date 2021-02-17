@@ -1,10 +1,20 @@
-package fi.vm.dpm.diff.model
+package fi.vm.dpm.diff.repgen
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import fi.vm.dpm.diff.model.diagnostic.DiagnosticCollector
+import fi.vm.dpm.diff.model.ChangeDetectionMode
+import fi.vm.dpm.diff.model.ChangeKind
+import fi.vm.dpm.diff.model.ChangeKindField
+import fi.vm.dpm.diff.model.Field
+import fi.vm.dpm.diff.model.KeyField
+import fi.vm.dpm.diff.model.KeyFieldKind
+import fi.vm.dpm.diff.model.NoteField
+import fi.vm.dpm.diff.model.NumberAwareSortBy
+import fi.vm.dpm.diff.model.RecordIdentityFallbackField
+import fi.vm.dpm.diff.model.SectionOutline
+import fi.vm.dpm.diff.model.SortBy
 import fi.vm.dpm.diff.model.diagnostic.ValidationResults
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -12,12 +22,6 @@ internal class SectionOutlineTest {
 
     private val keyField = KeyField(
         fieldName = "keyField",
-        keyFieldKind = KeyFieldKind.PRIME_KEY,
-        keyFieldFallback = null
-    )
-
-    private val unboundKeyField = KeyField(
-        fieldName = "unboundKeyField",
         keyFieldKind = KeyFieldKind.PRIME_KEY,
         keyFieldFallback = null
     )
@@ -47,7 +51,7 @@ internal class SectionOutlineTest {
 
         reportValidationErrors()
 
-        Assertions.assertThat(diagnosticCollector.messages).contains(
+        assertThat(diagnosticCollector.messages).contains(
             "FATAL: - SectionOutline.sectionShortTitle: is blank"
         )
     }
@@ -60,7 +64,7 @@ internal class SectionOutlineTest {
 
         reportValidationErrors()
 
-        Assertions.assertThat(diagnosticCollector.messages).contains(
+        assertThat(diagnosticCollector.messages).contains(
             "FATAL: - SectionOutline.sectionTitle: is blank"
         )
     }
@@ -73,7 +77,7 @@ internal class SectionOutlineTest {
 
         reportValidationErrors()
 
-        Assertions.assertThat(diagnosticCollector.messages).contains(
+        assertThat(diagnosticCollector.messages).contains(
             "FATAL: - SectionOutline.sectionDescription: is blank"
         )
     }
@@ -87,7 +91,7 @@ internal class SectionOutlineTest {
 
         reportValidationErrors()
 
-        Assertions.assertThat(diagnosticCollector.messages).contains(
+        assertThat(diagnosticCollector.messages).contains(
             """
             FATAL: - SectionOutline.sectionFields: must have one RecordIdentityFallbackField
             - SectionOutline.sectionFields: must have one or more KeyField
@@ -107,7 +111,7 @@ internal class SectionOutlineTest {
 
         reportValidationErrors()
 
-        Assertions.assertThat(diagnosticCollector.messages).contains(
+        assertThat(diagnosticCollector.messages).contains(
             "FATAL: - SectionOutline.sectionSortOrder: is empty"
         )
     }
@@ -120,7 +124,7 @@ internal class SectionOutlineTest {
 
         reportValidationErrors()
 
-        Assertions.assertThat(diagnosticCollector.messages).contains(
+        assertThat(diagnosticCollector.messages).contains(
             "FATAL: - SectionOutline.includedChanges: is empty"
         )
     }
@@ -154,7 +158,7 @@ internal class SectionOutlineTest {
     }
 
     private fun reportValidationErrors() {
-        val thrown = Assertions.catchThrowable {
+        val thrown = catchThrowable {
             validationResults.reportErrors(diagnosticCollector)
         }
 
