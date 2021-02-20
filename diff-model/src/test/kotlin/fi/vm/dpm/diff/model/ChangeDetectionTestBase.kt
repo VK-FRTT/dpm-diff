@@ -110,7 +110,16 @@ internal open class ChangeDetectionTestBase {
 
         return recordsValues
             .splitRecordsValuesToNestedLists()
-            .map { recordValues -> recordValueMapper(recordValues) }
+            .map { recordValues ->
+                recordValueMapper(recordValues).map { (field, value) ->
+                    val finalValue = if (value == "!null") {
+                        null
+                    } else {
+                        value
+                    }
+                    field to finalValue
+                }.toMap()
+            }
     }
 
     private fun executeResolveChanges(

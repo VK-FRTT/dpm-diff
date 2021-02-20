@@ -18,7 +18,7 @@ class CorrelationPolicyByKeyAndParentExistence(
     override fun deletedRecords(): List<SourceRecord> {
         val records = super.deletedRecords()
 
-        return keepRecordsWhichObjectKeyExists(
+        return keepRecordsWhichParentExistsAndHaveNonNullPrimeKey(
             records = records,
             comparisonRecords = currentRecordsByParentKey
         )
@@ -27,18 +27,19 @@ class CorrelationPolicyByKeyAndParentExistence(
     override fun addedRecords(): List<SourceRecord> {
         val records = super.addedRecords()
 
-        return keepRecordsWhichObjectKeyExists(
+        return keepRecordsWhichParentExistsAndHaveNonNullPrimeKey(
             records = records,
             comparisonRecords = baselineRecordsByParentKey
         )
     }
 
-    private fun keepRecordsWhichObjectKeyExists(
+    private fun keepRecordsWhichParentExistsAndHaveNonNullPrimeKey(
         records: List<SourceRecord>,
         comparisonRecords: Map<CorrelationKey, List<SourceRecord>>
     ): List<SourceRecord> {
         return records.filter { record ->
-            comparisonRecords[record.parentKeyFieldKey] != null
+            comparisonRecords[record.parentKeyFieldKey] != null &&
+                !record.isPrimeKeyCompletelyNull()
         }
     }
 }

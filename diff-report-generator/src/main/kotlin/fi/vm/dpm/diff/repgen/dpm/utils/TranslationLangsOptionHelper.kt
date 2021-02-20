@@ -11,7 +11,7 @@ class TranslationLangsOptionHelper(
             """
             WHERE TranslationLanguage IN (
                 ${dpmSectionOptions.translationLangCodes.toQuotedAndCommaSeparatedString()}
-            )
+            ) OR TranslationLanguage IS NULL
             """
         } else {
             ""
@@ -35,7 +35,7 @@ class TranslationLangsOptionHelper(
                     conceptTranslationJoin,
                     "mLanguage on mLanguage.LanguageID = mConceptTranslation.LanguageID"
                 ),
-                where = "mLanguage.IsoCode IN (${dpmSectionOptions.translationLangCodes.toQuotedAndCommaSeparatedString()})"
+                where = "mLanguage.IsoCode IN (${dpmSectionOptions.translationLangCodes.toQuotedAndCommaSeparatedString()}) OR mLanguage.IsoCode IS NULL"
             )
         }
     }

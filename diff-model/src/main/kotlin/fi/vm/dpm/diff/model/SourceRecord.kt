@@ -23,6 +23,13 @@ data class SourceRecord(
         CorrelationKey.createCorrelationKey(CorrelationKeyKind.ATOM_FIELD_CORRELATION_KEY, this)
     }
 
+    fun isPrimeKeyCompletelyNull(): Boolean {
+        return fields
+            .filterFieldType<KeyField, Any?>()
+            .filter { (field, _) -> field.keyFieldKind == KeyFieldKind.PRIME_KEY }
+            .all { (_, value) -> value == null }
+    }
+
     fun toAddedChange(): ChangeRecord {
         val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 

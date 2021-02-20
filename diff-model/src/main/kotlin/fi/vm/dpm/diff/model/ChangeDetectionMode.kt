@@ -1,13 +1,19 @@
 package fi.vm.dpm.diff.model
 
 enum class ChangeDetectionMode {
+
     // Records are correlated by their key field values
     // Expects that there are no duplicate records (i.e. combined keys are unique)
     CORRELATE_BY_KEY_FIELDS,
 
     // Records are correlated by their key field values
     // Expects that there are no duplicate records (i.e. combined keys are unique)
-    // Additions & deletions are reported only if there exists a record with matching parent key in comparison record set
+    // Additions & deletions are reported only for records which:
+    // - A) There exists "a parent record" in comparison record set
+    //   (i.e. comparison record set must contain a record with matching
+    //   CONTEXT_PARENT_KEY and PARENT_KEY values)
+    // - B) PRIME_KEY is not completely NULL
+    //   (such records are needed in record set for condition A) to work)
     CORRELATE_BY_KEY_FIELDS_AND_REQUIRE_PARENT_EXISTENCE,
 
     // Records are correlated first by their key field values and then by atom values

@@ -1,7 +1,6 @@
 package fi.vm.dpm.diff.cli.integration
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -11,6 +10,76 @@ internal class DictTranslationSectionTest : DpmDiffCliCompareTestBase(
     section = "DictTranslation",
     commonSetupSql = compareDpmSetupSql()
 ) {
+
+    @Nested
+    inner class NoPreviousTranslations {
+
+        @Test
+        fun `Should report ADDED when first translation is added`() {
+            executeDpmCompareForSectionAndExpectSuccess(
+                baselineSql =
+                """
+                    DELETE from 'mConceptTranslation'
+                    WHERE ConceptID = 2 AND Role = 'label'
+                """.trimIndent(),
+
+                currentSql =
+                """
+                    DELETE from 'mConceptTranslation'
+                    WHERE ConceptID = 2 AND LanguageID IN (2,3,4) AND Role = 'label'
+                """.trimIndent(),
+
+                expectedChanges = 1
+            ) { _, outputFileContent ->
+                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly(
+                    "ParentElementType: ",
+                    "ParentElementCode: ",
+                    "ElementType: Domain",
+                    "ElementCode: EDB",
+                    "ElementLabelFi: Explicit domain B (label fi)",
+                    "TranslationRole: label",
+                    "Language: fi",
+                    "Change: ADDED",
+                    "Translation: Explicit domain B (label fi)",
+                    "Translation(baseline): ",
+                    "Notes: "
+                )
+            }
+        }
+
+        @Test
+        fun `Should report DELETED when last translation is removed`() {
+            executeDpmCompareForSectionAndExpectSuccess(
+                baselineSql =
+                """
+                    DELETE from 'mConceptTranslation'
+                    WHERE ConceptID = 2 AND LanguageID IN (2,3,4) AND Role = 'label'
+                """.trimIndent(),
+
+                currentSql =
+                """
+                    DELETE from 'mConceptTranslation'
+                    WHERE ConceptID = 2 AND Role = 'label'
+                """.trimIndent(),
+
+                expectedChanges = 1
+            ) { _, outputFileContent ->
+                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly(
+                    "ParentElementType: ",
+                    "ParentElementCode: ",
+                    "ElementType: Domain",
+                    "ElementCode: EDB",
+                    "ElementLabelFi: Explicit domain B (label fi)",
+                    "TranslationRole: label",
+                    "Language: fi",
+                    "Change: DELETED",
+                    "Translation: ",
+                    "Translation(baseline): ",
+                    "Notes: "
+                )
+            }
+        }
+    }
 
     @Nested
     inner class AddedTranslations {
@@ -503,23 +572,8 @@ internal class DictTranslationSectionTest : DpmDiffCliCompareTestBase(
         }
     }
 
-    @Disabled
     @Nested
     inner class IncludedTranslationLanguagesOption {
-
-        @Test
-        fun `Should report ADDED for all translation languages when 'translationLanguages' option is not given`() {
-            executeDpmCompareForSectionAndExpectSuccess(
-                baselineSql =
-                """
-                    DELETE from 'mConceptTranslation'
-                    WHERE ConceptID = 2 AND Role = 'label'
-                """.trimIndent(),
-                expectedChanges = 4 // TODO BUG: Extra DELETED being reported
-            ) { _, outputFileContent ->
-                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly()
-            }
-        }
 
         @Test
         fun `Should report ADDED only for requested translation languages`() {
@@ -530,9 +584,33 @@ internal class DictTranslationSectionTest : DpmDiffCliCompareTestBase(
                     DELETE from 'mConceptTranslation'
                     WHERE ConceptID = 2 AND Role = 'label'
                 """.trimIndent(),
-                expectedChanges = 2 // TODO BUG
+                expectedChanges = 2
             ) { _, outputFileContent ->
-                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly()
+                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly(
+                    "ParentElementType: ",
+                    "ParentElementCode: ",
+                    "ElementType: Domain",
+                    "ElementCode: EDB",
+                    "ElementLabelFi: Explicit domain B (label fi)",
+                    "TranslationRole: label",
+                    "Language: en",
+                    "Change: ADDED",
+                    "Translation: Explicit domain B (label en)",
+                    "Translation(baseline): ",
+                    "Notes: ",
+                    "-----------",
+                    "ParentElementType: ",
+                    "ParentElementCode: ",
+                    "ElementType: Domain",
+                    "ElementCode: EDB",
+                    "ElementLabelFi: Explicit domain B (label fi)",
+                    "TranslationRole: label",
+                    "Language: pl",
+                    "Change: ADDED",
+                    "Translation: Explicit domain B (label pl)",
+                    "Translation(baseline): ",
+                    "Notes: "
+                )
             }
         }
 
@@ -546,9 +624,22 @@ internal class DictTranslationSectionTest : DpmDiffCliCompareTestBase(
                     DELETE from 'mConceptTranslation'
                     WHERE ConceptID = 2 AND Role = 'label'
                 """.trimIndent(),
-                expectedChanges = 1 // TODO BUG
+                expectedChanges = 1
             ) { _, outputFileContent ->
-                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly()
+                assertThat(outputFileContent.transposeSectionSheetAsList("01_Dict_Translation")).containsExactly(
+                    "ParentElementType: ",
+                    "ParentElementCode: ",
+                    "ElementType: Domain",
+                    "ElementCode: EDB",
+                    "ElementLabelFi: Explicit domain B (label fi)",
+                    "ElementLabelSv: Explicit domain B (label sv)",
+                    "TranslationRole: label",
+                    "Language: en",
+                    "Change: ADDED",
+                    "Translation: Explicit domain B (label en)",
+                    "Translation(baseline): ",
+                    "Notes: "
+                )
             }
         }
     }

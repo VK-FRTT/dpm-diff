@@ -66,7 +66,17 @@ internal class ChangeDetection_CorrelateByKeyFieldsAndRequireParentExistence_Tes
             "ContextParent isolates equal keys, " +
                 "CTX PK VAL | CTX_B PK VAL | CTX_C PK VAL, " +
                 "CTX PK VAL | CTX_C PK VAL_B, " +
-                "CTX_C::PK MODIFIED"
+                "CTX_C::PK MODIFIED",
+
+            "Prime key null record is not reported as DELETED, " +
+                "CTX !null VAL, " +
+                "CTX PK VAL, " +
+                "CTX::PK ADDED",
+
+            "Prime key null record is not reported as ADDED, " +
+                "CTX PK VAL, " +
+                "CTX !null VAL, " +
+                "CTX::PK DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -150,7 +160,17 @@ internal class ChangeDetection_CorrelateByKeyFieldsAndRequireParentExistence_Tes
             "Parent isolates equal keys, " +
                 "PAR PK VAL | PAR_B PK VAL | PAR_C PK VAL, " +
                 "PAR PK VAL | PAR_C PK VAL_B, " +
-                ":PAR_C:PK MODIFIED"
+                ":PAR_C:PK MODIFIED",
+
+            "Prime key null record is not reported as DELETED, " +
+                "PAR !null VAL, " +
+                "PAR PK VAL, " +
+                ":PAR:PK ADDED",
+
+            "Prime key null record is not reported as ADDED, " +
+                "PAR PK VAL, " +
+                "PAR !null VAL, " +
+                ":PAR:PK DELETED"
         )
         fun testChangeDetection(
             testName: String,
@@ -200,6 +220,16 @@ internal class ChangeDetection_CorrelateByKeyFieldsAndRequireParentExistence_Tes
 
         @ParameterizedTest(name = "{0}")
         @CsvSource(
+            "Prime key null record is not reported as DELETED, " +
+                "CTX CTX2 PAR PAR2 !null !null VAL, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL, " +
+                "CTX/CTX2:PAR/PAR2:PK/PK2 ADDED",
+
+            "Prime key null record is not reported as ADDED, " +
+                "CTX CTX2 PAR PAR2 PK PK2 VAL, " +
+                "CTX CTX2 PAR PAR2 !null !null VAL, " +
+                "CTX/CTX2:PAR/PAR2:PK/PK2 DELETED",
+
             "First ContextParent isolates keys, " +
                 "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX_B CTX2 PAR PAR2 PK PK2 VAL, " +
                 "CTX CTX2 PAR PAR2 PK PK2 VAL | CTX_B CTX2 PAR PAR2 PK PK2 VAL_B, " +
