@@ -2,13 +2,10 @@ package fi.vm.dpm.diff.cli
 
 import fi.vm.dpm.diff.model.ChangeReportKind
 import fi.vm.dpm.diff.model.DpmSectionPlans
-import fi.vm.dpm.diff.model.FailException
-import fi.vm.dpm.diff.model.HaltException
 import fi.vm.dpm.diff.model.ReportGeneratorDescriptor
 import fi.vm.dpm.diff.model.SpreadsheetOutput
 import fi.vm.dpm.diff.model.VkDataSectionPlans
 import fi.vm.dpm.diff.model.diagnostic.Diagnostic
-import fi.vm.dpm.diff.model.throwHalt
 import fi.vm.dpm.diff.repgen.SectionPlanSql
 import fi.vm.dpm.diff.repgen.SourceDbs
 import fi.vm.dpm.diff.repgen.SqlReportGenerator
@@ -40,7 +37,7 @@ internal class DiffCli(
     }
 
     fun execute(args: Array<String>): Int {
-        return withExceptionHarness {
+        return DiffCliExceptionHarness.withExceptionHarness(errWriter) {
             outWriter.println(DPM_DIFF_TITLE)
 
             val detectedOptions = definedOptions.detectOptionsFromArgs(args)
@@ -49,47 +46,25 @@ internal class DiffCli(
 
             detectedOptions.ensureSingleCommandGiven(diagnostic)
 
-            if (detectedOptions.cmdShowHelp) {
-                definedOptions.printHelp(outWriter)
-                throwHalt()
+            when {
+                detectedOptions.cmdShowHelp -> {
+                    definedOptions.printHelp(outWriter)
+                }
+
+                detectedOptions.cmdShowVersion -> {
+                    DiffCliVersion.printVersion(outWriter)
+                }
+
+                detectedOptions.cmdCompareDpm -> {
+                    val (commonOptions, dpmSectionOptions) = detectedOptions.compareDpmOptions(diagnostic)
+                    compareDpm(commonOptions, dpmSectionOptions, diagnostic)
+                }
+
+                detectedOptions.cmdCompareVkData -> {
+                    val commonOptions = detectedOptions.compareVkDataOptions(diagnostic)
+                    compareVkData(commonOptions, diagnostic)
+                }
             }
-
-            if (detectedOptions.cmdShowVersion) {
-                DiffCliVersion.printVersion(outWriter)
-                throwHalt()
-            }
-
-            if (detectedOptions.cmdCompareDpm) {
-                val (commonOptions, dpmSectionOptions) = detectedOptions.compareDpmOptions(diagnostic)
-                compareDpm(commonOptions, dpmSectionOptions, diagnostic)
-                throwHalt()
-            }
-
-            if (detectedOptions.cmdCompareVkData) {
-                val commonOptions = detectedOptions.compareVkDataOptions(diagnostic)
-                compareVkData(commonOptions, diagnostic)
-                throwHalt()
-            }
-        }
-    }
-
-    private fun withExceptionHarness(steps: () -> Unit): Int {
-        return try {
-            steps()
-            DPM_DIFF_CLI_SUCCESS
-        } catch (exception: HaltException) {
-            DPM_DIFF_CLI_SUCCESS
-        } catch (exception: FailException) {
-            errWriter.println("\n${exception.message}")
-            errWriter.println()
-
-            DPM_DIFF_CLI_FAIL
-        } catch (exception: Throwable) {
-            errWriter.println(DPM_DIFF_TITLE)
-            exception.printStackTrace(errWriter)
-            errWriter.println()
-
-            DPM_DIFF_CLI_FAIL
         }
     }
 

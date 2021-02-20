@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.cli
+package fi.vm.dpm.diff.cli.integration
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 @DisplayName("Command ´--compareDpm´ DictTranslation")
-internal class CompareDpm_DictTranslationSection_Test : DpmDiffCli_CompareTestBase(
+internal class DictTranslationSectionTest : DpmDiffCliCompareTestBase(
     section = "DictTranslation",
     commonSetupSql = compareDpmSetupSql()
 ) {

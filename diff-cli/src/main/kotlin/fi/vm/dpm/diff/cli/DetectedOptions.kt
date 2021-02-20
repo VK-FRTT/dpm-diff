@@ -11,15 +11,15 @@ data class DetectedOptions(
     val cmdCompareDpm: Boolean,
     val cmdCompareVkData: Boolean,
 
-    val baselineDpmDbPath: Path?,
-    val currentDpmDbPath: Path?,
-    val outputFilePath: Path?,
-    val forceOverwrite: Boolean,
+    private val baselineDpmDbPath: Path?,
+    private val currentDpmDbPath: Path?,
+    private val outputFilePath: Path?,
+    private val forceOverwrite: Boolean,
     val verbosity: OutputVerbosity,
-    val reportSections: String?,
+    private val reportSections: String?,
 
-    val identificationLabelLanguages: String?,
-    val translationLanguages: String?
+    private val identificationLabelLanguages: String?,
+    private val translationLanguages: String?
 ) {
 
     fun ensureSingleCommandGiven(diagnostic: Diagnostic) {
@@ -69,28 +69,27 @@ data class DetectedOptions(
     ): CommonCompareOptions {
 
         return CommonCompareOptions(
-            baselineDbPath = PathOptions.checkExistingFile(
+            baselineDbPath = ValidateAndTransformPathOption.existingFile(
                 baselineDpmDbPath,
                 OptName.BASELINE_DB,
                 validationResults
             ),
 
-            currentDbPath = PathOptions.checkExistingFile(
+            currentDbPath = ValidateAndTransformPathOption.existingFile(
                 currentDpmDbPath,
                 OptName.CURRENT_DB,
                 validationResults
             ),
 
-            outputFilePath = PathOptions.checkWritableFile(
+            outputFilePath = ValidateAndTransformPathOption.writableFile(
                 outputFilePath,
                 forceOverwrite,
                 OptName.OUTPUT,
                 validationResults
             ),
 
-            reportSections = ReportSectionOptions.checkIncludedReportSections(
+            reportSections = ValidateAndTransformReportSectionOption.includedReportSections(
                 reportSections,
-                OptName.REPORT_SECTIONS,
                 validationResults
             )
         )
@@ -101,15 +100,13 @@ data class DetectedOptions(
     ): DpmSectionOptions {
 
         return DpmSectionOptions(
-            identificationLabelLangCodes = LangCodeOptions.checkIdentificationLabelLanguages(
+            identificationLabelLangCodes = ValidateAndTransformLangCodeOption.identificationLabelLanguages(
                 identificationLabelLanguages,
-                OptName.IDENTIFICATION_LABEL_LANGUAGES,
                 validationResults
             ),
 
-            translationLangCodes = LangCodeOptions.checkTranslationLanguages(
+            translationLangCodes = ValidateAndTransformLangCodeOption.translationLanguages(
                 translationLanguages,
-                OptName.TRANSLATION_LANGUAGES,
                 validationResults
             )
         )

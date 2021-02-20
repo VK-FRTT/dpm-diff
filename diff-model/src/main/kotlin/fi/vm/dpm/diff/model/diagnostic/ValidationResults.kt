@@ -16,13 +16,15 @@ class ValidationResults {
         if (messages.any()) {
 
             val message = messages.joinToString(
-                    separator = "\n- ",
-                    prefix = "- "
-                )
+                separator = "\n- ",
+                prefix = "- "
+            )
 
             diagnostic.fatal(message)
         }
     }
+
+    fun messages(): List<String> = messages
 
     fun withSubject(subject: String, execute: SubjectValidator.() -> Unit) {
         val validator = SubjectValidator(subject, this)

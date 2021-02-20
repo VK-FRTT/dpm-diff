@@ -145,11 +145,6 @@ class DefinedOptions {
         }
     }
 
-    fun printHelp(outWriter: PrintWriter) {
-        optionParser.formatHelpWith(FixedOrderHelpFormatter())
-        optionParser.printHelpOn(outWriter)
-    }
-
     private fun doDetectOptions(args: Array<String>): DetectedOptions {
         val optionSet = optionParser.parse(*args)
 
@@ -173,6 +168,11 @@ class DefinedOptions {
             identificationLabelLanguages = optionSet.optionalValueOrNull(identificationLabelLanguages),
             translationLanguages = optionSet.optionalValueOrNull(translationLanguages)
         )
+    }
+
+    fun printHelp(outWriter: PrintWriter) {
+        optionParser.formatHelpWith(FixedOrderHelpFormatter())
+        optionParser.printHelpOn(outWriter)
     }
 
     private class VerbosityConverter : EnumConverter<OutputVerbosity>(OutputVerbosity::class.java)

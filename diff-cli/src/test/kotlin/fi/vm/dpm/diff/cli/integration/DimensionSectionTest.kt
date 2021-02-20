@@ -1,11 +1,11 @@
-package fi.vm.dpm.diff.cli
+package fi.vm.dpm.diff.cli.integration
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 @DisplayName("Command ´--compareDpm´ Dimension")
-internal class CompareDpm_DimensionSection_Test : DpmDiffCli_CompareTestBase(
+internal class DimensionSectionTest : DpmDiffCliCompareTestBase(
     section = "Dimension",
     commonSetupSql = compareDpmSetupSql()
 ) {

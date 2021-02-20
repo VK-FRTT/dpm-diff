@@ -36,7 +36,7 @@ class DiffCliDiagnostic(
     override fun progressIndication(): ProgressIndication {
         return object : ProgressIndication {
 
-            var stepCount = 0
+            private var stepCount = 0
 
             override fun handleStep() {
                 stepCount++

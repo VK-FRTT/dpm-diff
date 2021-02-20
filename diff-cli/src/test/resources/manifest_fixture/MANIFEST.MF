@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Build-OriginUrl: https://github.com/VK-FRTT/dpm-diff.git
+Build-Timestamp: 2021-01-20T10:20:30.400+02:00
+Build-Revision: abcd1234
+Build-OS: Mac OS X x86_64 10.14.2
+Build-Jdk: 1.8.0_161 (Oracle Corporation 25.161-b12)
+Main-Class: fi.vm.dpm.diff.cli.MainKt
+

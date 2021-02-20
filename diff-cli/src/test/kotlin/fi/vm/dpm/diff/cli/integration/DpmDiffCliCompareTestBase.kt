@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.cli
+package fi.vm.dpm.diff.cli.integration
 
 import java.io.FileInputStream
 import java.nio.file.Files
@@ -10,10 +10,10 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-open class DpmDiffCli_CompareTestBase(
+open class DpmDiffCliCompareTestBase(
     val section: String,
     val commonSetupSql: String
-) : DpmDiffCli_TestBase() {
+) : DpmDiffCliIntegrationTestBase() {
 
     private lateinit var tempFolder: TempFolder
     private lateinit var baselineDbPath: Path
@@ -38,31 +38,24 @@ open class DpmDiffCli_CompareTestBase(
         currentSql: String = "",
         identificationLabelLanguages: String = "fi",
         translationLanguages: String? = null,
+        verbosity: String? = "DEBUG",
         expectedChanges: Int,
         verifyAction: (String, Map<String, List<List<String>>>) -> Unit
     ) {
-        doExecuteCompareAndExpectSuccess(
-            seedResourceName = "/db_fixture/empty_dpm.db",
-            commonSetupSql = commonSetupSql,
+        setupDpmCompareFixtures(
             baselineSql = baselineSql,
-            currentSql = currentSql,
-            args = arrayOf(
-                "--compareDpm",
-                "--baselineDb",
-                "$baselineDbPath",
-                "--currentDb",
-                "$currentDbPath",
-                "--output",
-                "$outputSpreadsheetPath",
-                "--verbosity",
-                "DEBUG",
-                "--identificationLabelLanguages",
-                identificationLabelLanguages,
-                "--translationLanguages",
-                translationLanguages,
-                "--reportSections",
-                section
-            ),
+            currentSql = currentSql
+        )
+
+        val args = buildDpmCompareArgs(
+            identificationLabelLanguages = identificationLabelLanguages,
+            translationLanguages = translationLanguages,
+            verbosity = verbosity
+
+        )
+
+        executeCompareAndExpectSuccess(
+            args = args,
             expectedSection = section,
             expectedChanges = expectedChanges,
             verifyAction = verifyAction
@@ -75,13 +68,48 @@ open class DpmDiffCli_CompareTestBase(
         expectedChanges: Int,
         verifyAction: (String, Map<String, List<List<String>>>) -> Unit
     ) {
-        doExecuteCompareAndExpectSuccess(
-            seedResourceName = "/db_fixture/empty_vkdata.db",
-            commonSetupSql = "",
+        setupVkDataFixtures(
             baselineSql = baselineSql,
-            currentSql = currentSql,
-            args = arrayOf(
-                "--compareVkData",
+            currentSql = currentSql
+        )
+
+        val args = buildVkDataArgs()
+
+        executeCompareAndExpectSuccess(
+            args = args,
+            expectedSection = section,
+            expectedChanges = expectedChanges,
+            verifyAction = verifyAction
+        )
+    }
+
+    protected fun setupDpmCompareFixtures(
+        baselineSql: String = "",
+        currentSql: String = ""
+    ) {
+        setupSourceDb(
+            targetDbPath = baselineDbPath,
+            seedResourceName = "/db_fixture/empty_dpm.db",
+            commonSetupSql = commonSetupSql,
+            testCaseSql = baselineSql
+        )
+
+        setupSourceDb(
+            targetDbPath = currentDbPath,
+            seedResourceName = "/db_fixture/empty_dpm.db",
+            commonSetupSql = commonSetupSql,
+            testCaseSql = currentSql
+        )
+    }
+
+    protected fun buildDpmCompareArgs(
+        identificationLabelLanguages: String = "fi",
+        translationLanguages: String? = null,
+        verbosity: String? = "DEBUG"
+    ): Array<String> {
+        return filterNonNullArgs(
+            arrayOf(
+                "--compareDpm",
                 "--baselineDb",
                 "$baselineDbPath",
                 "--currentDb",
@@ -89,43 +117,60 @@ open class DpmDiffCli_CompareTestBase(
                 "--output",
                 "$outputSpreadsheetPath",
                 "--verbosity",
-                "DEBUG",
+                verbosity,
+                "--identificationLabelLanguages",
+                identificationLabelLanguages,
+                "--translationLanguages",
+                translationLanguages,
                 "--reportSections",
-                "$section"
-            ),
-            expectedSection = section,
-            expectedChanges = expectedChanges,
-            verifyAction = verifyAction
+                section
+            )
         )
     }
 
-    private fun doExecuteCompareAndExpectSuccess(
-        seedResourceName: String,
-        commonSetupSql: String,
+    private fun setupVkDataFixtures(
         baselineSql: String,
-        currentSql: String,
-        args: Array<String?>,
-        expectedSection: String,
-        expectedChanges: Int,
-        verifyAction: (String, Map<String, List<List<String>>>) -> Unit
+        currentSql: String
     ) {
         setupSourceDb(
             targetDbPath = baselineDbPath,
-            seedResourceName = seedResourceName,
-            commonSetupSql = commonSetupSql,
+            seedResourceName = "/db_fixture/empty_vkdata.db",
+            commonSetupSql = "",
             testCaseSql = baselineSql
         )
 
         setupSourceDb(
             targetDbPath = currentDbPath,
-            seedResourceName = seedResourceName,
-            commonSetupSql = commonSetupSql,
+            seedResourceName = "/db_fixture/empty_vkdata.db",
+            commonSetupSql = "",
             testCaseSql = currentSql
         )
+    }
 
-        val validArgs = filterNonNullArgs(args)
+    private fun buildVkDataArgs(): Array<String> {
+        return arrayOf(
+            "--compareVkData",
+            "--baselineDb",
+            "$baselineDbPath",
+            "--currentDb",
+            "$currentDbPath",
+            "--output",
+            "$outputSpreadsheetPath",
+            "--verbosity",
+            "DEBUG",
+            "--reportSections",
+            "$section"
 
-        executeCliAndExpectSuccess(validArgs) { outText ->
+        )
+    }
+
+    private fun executeCompareAndExpectSuccess(
+        args: Array<String>,
+        expectedSection: String,
+        expectedChanges: Int,
+        verifyAction: (String, Map<String, List<List<String>>>) -> Unit
+    ) {
+        executeCliAndExpectSuccess(args) { outText ->
 
             Assertions.assertThat(outText).containsSubsequence(
                 "Writing report to:",

@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.cli
+package fi.vm.dpm.diff.cli.integration
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 
