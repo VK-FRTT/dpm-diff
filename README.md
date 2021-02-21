@@ -4,12 +4,13 @@
 
 <br/>
 
-Command line tool for generating change report from Data Point Model. 
-The tool reads two Data Point Model versions from given SQLite databases, compares model contents and produces spreadsheet report from found differences. 
+Command line tool for generating change report from Data Point Model and VK Data databases. 
+The tool reads model versions from given databases, compares model contents and produces spreadsheet report from found differences.
+
 
 ## 1. Data Point Model change report
 
-[Empty sample report](docs/dpm_change_report_empty.xlsx) shows generated change report structure.
+[Empty DPM change report](docs/dpm_change_report_empty.xlsx) shows generated change report structure.
 Change report covers following Data Point Model details:  
 
 | Report section                    | Covered DPM changes |
@@ -33,7 +34,19 @@ Change report covers following Data Point Model details:
 
 <br/>
 
-## 2. System structure
+## 2. VK Data change report
+
+[Empty VK change report](docs/vkdata_change_report_empty.xlsx) shows generated VK Data change report structure.
+Change report covers following VK Data details:  
+
+| Report section                    | Covered DPM changes |
+| --------------------------------- | ------------------------------------------------------------------------------- |
+| Datapoint IDs                     | Added and deleted Datapoint IDs |
+| Required                          | Added and deleted Datapoints which must be reported |
+
+<br/>
+
+## 3. System structure
 
 DPM Diff consists from following modules:
 
@@ -41,11 +54,11 @@ DPM Diff consists from following modules:
 - Implements object comparison framework for DPM Diff 
 - Provides: 
     - Data structures for describing report sections and their object structure (data fields)
-    - Data structures for object data 
-    - Logic for composing correlation key from object data
-    - Logic for correlating objects between data sets and resolving detailed object changes
-    - Data structures for object change information
-    - Logic for sorting object change entries 
+    - Data structures for record data 
+    - Logic for composing correlation key from record data
+    - Logic for correlating records between baseline and current data sets and resolving detailed record changes
+    - Data structures for record change information
+    - Logic for sorting change entries 
         
 #### `diff-report-generator`
 - Describes Data Point Model change report sections and their content (in declarative manner)
@@ -89,6 +102,8 @@ Executing DPM Diff from JAR:
 DPM Diff test suite can be executed with:
 
 `$ gradlew test`
+
+Note: Keep code coverage high (line coverage close 100%) and no failing tests to master branch.
 
 <br/>
 
