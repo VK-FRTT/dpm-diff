@@ -1,4 +1,4 @@
-package fi.vm.dpm.diff.cli.integration
+package fi.vm.dpm.diff.cli.integration.comparedpm
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
 
@@ -54,7 +54,17 @@ fun compareDpmSetupSql() =
         (350, 'HierarchyNode', 1, NULL, NULL, NULL, NULL),
         (351, 'HierarchyNode', 1, NULL, NULL, NULL, NULL),
         (400, 'Dimension', 1, NULL, NULL, NULL, NULL),
-        (450, 'Dimension', 1, NULL, NULL, NULL, NULL);
+        (450, 'Dimension', 1, NULL, NULL, NULL, NULL),
+        (500, 'Framework', 1, NULL, NULL, NULL, NULL),
+        (501, 'Framework', 1, NULL, NULL, NULL, NULL),
+        (600, 'Taxonomy', 1, NULL, NULL, NULL, NULL),
+        (601, 'Taxonomy', 1, NULL, NULL, NULL, NULL),
+        (700, 'Module', 1, NULL, NULL, NULL, NULL),
+        (800, 'Table', 1, NULL, NULL, NULL, NULL),
+        (900, 'TemplateOrTable', 1, NULL, NULL, NULL, NULL),
+        (1000, 'Axis', 1, NULL, NULL, NULL, NULL),
+        (1100, 'AxisOrdinate', 1, NULL, NULL, NULL, NULL),
+        (1101, 'AxisOrdinate', 1, NULL, NULL, NULL, NULL);
 
 
     INSERT INTO 'mConceptTranslation' (
@@ -122,7 +132,57 @@ fun compareDpmSetupSql() =
         (450, 1, 'TDS Dimension (label fi)', 'label'),
         (450, 2, 'TDS Dimension (label sv)', 'label'),
         (450, 3, 'TDS Dimension (label en)', 'label'),
-        (450, 4, 'TDS Dimension (label pl)', 'label');
+        (450, 4, 'TDS Dimension (label pl)', 'label'),
+
+        (500, 1, 'RFA framework (label fi)', 'label'),
+        (500, 2, 'RFA framework (label sv)', 'label'),
+        (500, 3, 'RFA framework (label en)', 'label'),
+        (500, 4, 'RFA framework (label pl)', 'label'),
+
+        (501, 1, 'RFB framework (label fi)', 'label'),
+        (501, 2, 'RFB framework (label sv)', 'label'),
+        (501, 3, 'RFB framework (label en)', 'label'),
+        (501, 4, 'RFB framework (label pl)', 'label'),
+
+        (600, 1, 'TXA taxonomy (label fi)', 'label'),
+        (600, 2, 'TXA taxonomy (label sv)', 'label'),
+        (600, 3, 'TXA taxonomy (label en)', 'label'),
+        (600, 4, 'TXA taxonomy (label pl)', 'label'),
+
+        (601, 1, 'TXB taxonomy (label fi)', 'label'),
+        (601, 2, 'TXB taxonomy (label sv)', 'label'),
+        (601, 3, 'TXB taxonomy (label en)', 'label'),
+        (601, 4, 'TXB taxonomy (label pl)', 'label'),
+
+        (700, 1, 'MDA module (label fi)', 'label'),
+        (700, 2, 'MDA module (label sv)', 'label'),
+        (700, 3, 'MDA module (label en)', 'label'),
+        (700, 4, 'MDA module (label pl)', 'label'),
+
+        (800, 1, 'TBA table (label fi)', 'label'),
+        (800, 2, 'TBA table (label sv)', 'label'),
+        (800, 3, 'TBA table (label en)', 'label'),
+        (800, 4, 'TBA table (label pl)', 'label'),
+
+        (900, 1, 'TTA template or table (label fi)', 'label'),
+        (900, 2, 'TTA template or table (label sv)', 'label'),
+        (900, 3, 'TTA template or table (label en)', 'label'),
+        (900, 4, 'TTA template or table (label pl)', 'label'),
+
+        (1000, 1, 'AXA axis (label fi)', 'label'),
+        (1000, 2, 'AXA axis (label sv)', 'label'),
+        (1000, 3, 'AXA axis (label en)', 'label'),
+        (1000, 4, 'AXA axis (label pl)', 'label'),
+
+        (1100, 1, 'AOA axis ordinate (label fi)', 'label'),
+        (1100, 2, 'AOA axis ordinate (label sv)', 'label'),
+        (1100, 3, 'AOA axis ordinate (label en)', 'label'),
+        (1100, 4, 'AOA axis ordinate (label pl)', 'label'),
+
+        (1101, 1, 'AOB axis ordinate (label fi)', 'label'),
+        (1101, 2, 'AOB axis ordinate (label sv)', 'label'),
+        (1101, 3, 'AOB axis ordinate (label en)', 'label'),
+        (1101, 4, 'AOB axis ordinate (label pl)', 'label');
 
 
     INSERT INTO 'mDomain' (
@@ -219,6 +279,123 @@ fun compareDpmSetupSql() =
         (400, 'EDA-DIM', 'EDA dimension', NULL, NULL, 1, 0, 400),
         (450, 'TDS-DIM', 'TDS dimension', NULL, NULL, 50, 1, 450);
 
+
+    INSERT INTO 'mReportingFramework' (
+        FrameworkID,
+        FrameworkCode,
+        FrameworkLabel,
+        ConceptID
+        )
+    VALUES
+        (500, 'RFA', 'RFA framework', 500),
+        (501, 'RFB', 'RFB framework', 501);
+
+
+    INSERT INTO 'mTaxonomy' (
+        TaxonomyID,
+        FrameworkID,
+        TaxonomyCode,
+        TaxonomyLabel,
+        ConceptID
+        )
+    VALUES
+        (600, 500, 'TXA', 'TXA taxonomy', 600),
+        (601, 500, 'TXB', 'TXB taxonomy', 601);
+
+
+    INSERT INTO 'mModule' (
+        ModuleID,
+        TaxonomyID,
+        ModuleCode,
+        ModuleLabel,
+        ConceptID
+        )
+    VALUES
+        (700, 600, 'MDA', 'MDA module', 700);
+
+
+    INSERT INTO 'mTable' (
+        TableID,
+        TableCode,
+        TableLabel,
+        XbrlFilingIndicatorCode,
+        ConceptID
+        )
+    VALUES
+        (800, 'TBA', 'TBA table', 'filing-indicator', 800);
+
+
+    INSERT INTO 'mTemplateOrTable' (
+        TemplateOrTableID,
+        TaxonomyID,
+        TemplateOrTableCode,
+        TemplateOrTableLabel,
+        TemplateOrTableType,
+        ConceptID
+        )
+    VALUES
+        (900, 600, 'TTA', 'TTA template or table', 'BusinessTable', 900);
+
+
+    INSERT INTO 'mTaxonomyTable' (
+        TaxonomyID,
+        TableID,
+        AnnotatedTableID,
+        IsSimplyReuse
+        )
+    VALUES
+        (600, 800, 900, 0);
+
+
+    INSERT INTO 'mAxis' (
+        AxisID,
+        AxisOrientation,
+        AxisLabel,
+        IsOpenAxis,
+        ConceptID
+        )
+    VALUES
+        (1000, 'X', 'AXA axis', 0, 1000);
+
+
+    INSERT INTO 'mTableAxis' (
+        AxisID,
+        TableID,
+        'Order'
+        )
+    VALUES
+        (1000, 800, 1);
+
+
+    INSERT INTO 'mAxisOrdinate' (
+        OrdinateID,
+        AxisID,
+        OrdinateLabel,
+        OrdinateCode,
+        IsDisplayBeforeChildren,
+        IsAbstractHeader,
+        IsRowKey,
+        Level,
+        'Order',
+        TypeOfKey,
+        ParentOrdinateID,
+        ConceptID
+        )
+    VALUES
+        (1100, 1000, 'AOA axis ordinate', 'AOA', 0, 0, 0, 5, 15, 'type-of-key-A', NULL, 1100),
+        (1101, 1000, 'AOB axis ordinate', 'AOB', 0, 0, 0, 10, 20, 'type-of-key-B', 1100, 1101);
+
+
+    INSERT INTO 'mOrdinateCategorisation' (
+        OrdinateID,
+        DimensionID,
+        MemberID,
+        DimensionMemberSignature,
+        Source,
+        DPS
+        )
+    VALUES
+        (1100, 400, 150, 'signature-A', 'source-A', 'dps-A');
 
     COMMIT;
     """.trimLineStartsAndConsequentBlankLines()

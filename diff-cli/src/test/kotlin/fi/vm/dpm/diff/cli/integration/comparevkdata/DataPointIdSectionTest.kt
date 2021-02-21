@@ -1,6 +1,7 @@
-package fi.vm.dpm.diff.cli.integration
+package fi.vm.dpm.diff.cli.integration.comparevkdata
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
+import fi.vm.dpm.diff.cli.integration.DpmDiffCliCompareTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -44,7 +45,7 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
                 "DpsFull(baseline): ",
                 "OpenContext: OC_B",
                 "OpenContext(baseline): ",
-                "Notes: CURRENT ROW: #- Rowid: 2"
+                "Notes: "
             )
         }
     }
@@ -82,7 +83,7 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
                 "DpsFull(baseline): ",
                 "OpenContext: OC_A2",
                 "OpenContext(baseline): ",
-                "Notes: CURRENT ROW: #- Rowid: 2"
+                "Notes: "
             )
         }
     }
@@ -120,7 +121,7 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
                 "DpsFull(baseline): DPSF_B",
                 "OpenContext: ",
                 "OpenContext(baseline): OC_B",
-                "Notes: BASELINE ROW: #- Rowid: 2"
+                "Notes: "
             )
         }
     }
@@ -158,7 +159,7 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
                 "DpsFull(baseline): DPSF_A",
                 "OpenContext: ",
                 "OpenContext(baseline): OC_A",
-                "Notes: BASELINE ROW: #- Rowid: 1"
+                "Notes: "
             )
         }
     }
@@ -241,7 +242,7 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
                 "DpsFull(baseline): ",
                 "OpenContext: OC_500001",
                 "OpenContext(baseline): ",
-                "Notes: CURRENT ROW: #- Rowid: 500001",
+                "Notes: ",
                 "-----------",
                 "DatapointId: 500002",
                 "Change: ADDED",
@@ -251,7 +252,7 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
                 "DpsFull(baseline): ",
                 "OpenContext: OC_500002",
                 "OpenContext(baseline): ",
-                "Notes: CURRENT ROW: #- Rowid: 500002"
+                "Notes: "
             )
         }
     }

@@ -1,7 +1,7 @@
 package fi.vm.dpm.diff.repgen
 
 import ext.kotlin.trimLineStartsAndConsequentBlankLines
-import kotlin.math.max
+import kotlin.math.ceil
 
 object PartitionHelper {
 
@@ -9,7 +9,8 @@ object PartitionHelper {
         sourceDbs: SourceDbs,
         tableName: String
     ): Int {
-        val partitionCount = max(
+        val partitionCount = maxOf(
+            1,
             getPartitionCount(sourceDbs.baselineConnection, tableName),
             getPartitionCount(sourceDbs.currentConnection, tableName)
         )
@@ -22,7 +23,7 @@ object PartitionHelper {
         tableName: String
     ): Int {
         val rowCount = getRowCount(dbConnection, tableName).toFloat()
-        return kotlin.math.ceil(rowCount / MAX_ITEMS_PER_PARTITION).toInt()
+        return ceil(rowCount / MAX_ITEMS_PER_PARTITION).toInt()
     }
 
     private fun getRowCount(
