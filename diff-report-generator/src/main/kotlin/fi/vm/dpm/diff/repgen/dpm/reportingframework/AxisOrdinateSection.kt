@@ -110,7 +110,7 @@ object AxisOrdinateSection {
         val note = NoteField()
 
         val sectionOutline = SectionOutline(
-            sectionShortTitle = "AxisOrdinates",
+            sectionShortTitle = "AxisOrdinate",
             sectionTitle = "AxisOrdinates",
             sectionDescription = "Added and deleted Axis Ordinates, changes in IsDisplayBeforeChildren, IsAbstractHeader, IsRowKey and TypeOfKey",
             sectionChangeDetectionMode = ChangeDetectionMode.CORRELATE_BY_KEY_FIELDS,

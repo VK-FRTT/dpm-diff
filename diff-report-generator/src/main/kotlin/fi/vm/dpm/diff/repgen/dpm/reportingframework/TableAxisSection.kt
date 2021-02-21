@@ -122,7 +122,7 @@ object TableAxisSection {
             ,mAxis.AxisLabel AS 'AxisInherentLabel'
             ,mAxis.AxisOrientation AS 'AxisOrientation'
              ${identificationLabels.labelAggregateFragment()}
-            ,'mAxisTable.Order' AS 'Order'
+            ,mTableAxis.'Order' AS 'Order'
 
             FROM mTableAxis
             LEFT JOIN mAxis ON mAxis.AxisID = mTableAxis.AxisID

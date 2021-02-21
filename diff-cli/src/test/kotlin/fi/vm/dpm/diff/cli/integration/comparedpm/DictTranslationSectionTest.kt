@@ -1,5 +1,6 @@
-package fi.vm.dpm.diff.cli.integration
+package fi.vm.dpm.diff.cli.integration.comparedpm
 
+import fi.vm.dpm.diff.cli.integration.DpmDiffCliCompareTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -12,7 +13,7 @@ internal class DictTranslationSectionTest : DpmDiffCliCompareTestBase(
 ) {
 
     @Nested
-    inner class NoPreviousTranslations {
+    inner class TranslationAmountEdgeCases {
 
         @Test
         fun `Should report ADDED when first translation is added`() {

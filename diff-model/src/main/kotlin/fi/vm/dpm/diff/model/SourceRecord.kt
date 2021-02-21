@@ -1,5 +1,6 @@
 package fi.vm.dpm.diff.model
 
+import ext.kotlin.allItems
 import ext.kotlin.filterFieldType
 import ext.kotlin.firstFieldOfType
 import ext.kotlin.firstFieldOfTypeOrNull
@@ -35,12 +36,12 @@ data class SourceRecord(
 
         changeFields.transformAtomsToAddedChange()
         changeFields.setChangeKind(ChangeKind.ADDED)
-        changeFields.setNoteWithDetails()
+        changeFields.setNote(
+            NoteOption.RECORD_IDENTITY_FALLBACK_ON_DEMAND
+        )
 
         changeFields.discardFields(
-            listOf(
-                FallbackField::class
-            )
+            FallbackField::class
         )
 
         return ChangeRecord(
@@ -53,12 +54,12 @@ data class SourceRecord(
 
         changeFields.transformAtomsToDeletedChange()
         changeFields.setChangeKind(ChangeKind.DELETED)
-        changeFields.setNoteWithDetails()
+        changeFields.setNote(
+            NoteOption.RECORD_IDENTITY_FALLBACK_ON_DEMAND
+        )
 
         changeFields.discardFields(
-            listOf(
-                FallbackField::class
-            )
+            FallbackField::class
         )
 
         return ChangeRecord(
@@ -70,13 +71,13 @@ data class SourceRecord(
         val changeFields: MutableMap<Field, Any?> = fields.toMutableMap()
 
         changeFields.setChangeKind(ChangeKind.DUPLICATE_KEY_ALERT)
-        changeFields.setNoteWithDetails()
+        changeFields.setNote(
+            NoteOption.RECORD_IDENTITY_FALLBACK_ALWAYS
+        )
 
         changeFields.discardFields(
-            listOf(
-                FallbackField::class,
-                AtomField::class
-            )
+            FallbackField::class,
+            AtomField::class
         )
 
         return ChangeRecord(
@@ -89,14 +90,13 @@ data class SourceRecord(
 
         changeFields.transformAtomsToModifiedChange(baselineRecord.fields)
         changeFields.setChangeKind(ChangeKind.MODIFIED)
-        changeFields.setNoteWithDetails(
-            includeAtomValueModifiedDetail = true
+        changeFields.setNote(
+            NoteOption.RECORD_IDENTITY_FALLBACK_ON_DEMAND,
+            NoteOption.MODIFIED_ATOMS
         )
 
         changeFields.discardFields(
-            listOf(
-                FallbackField::class
-            )
+            FallbackField::class
         )
 
         val atoms = changeFields.filterFieldType<AtomField, Any?>()
@@ -177,16 +177,35 @@ data class SourceRecord(
         this[changeKindField] = changeKind
     }
 
-    private fun MutableMap<Field, Any?>.setNoteWithDetails(
-        includeAtomValueModifiedDetail: Boolean = false
+    private enum class NoteOption {
+        RECORD_IDENTITY_FALLBACK_ALWAYS,
+        RECORD_IDENTITY_FALLBACK_ON_DEMAND,
+        MODIFIED_ATOMS
+    }
+
+    private fun MutableMap<Field, Any?>.setNote(
+        vararg noteOptions: NoteOption
     ) {
         val details = listOf(
             {
-                recordIdentificationDetail(this)
+                if (noteOptions.contains(NoteOption.RECORD_IDENTITY_FALLBACK_ALWAYS)) {
+                    recordIdentityNoteDetail(fields = this, forceOutput = true)
+                } else {
+                    null
+                }
             },
+
             {
-                if (includeAtomValueModifiedDetail) {
-                    atomValueModifiedDetail(this)
+                if (noteOptions.contains(NoteOption.RECORD_IDENTITY_FALLBACK_ON_DEMAND)) {
+                    recordIdentityNoteDetail(fields = this, forceOutput = false)
+                } else {
+                    null
+                }
+            },
+
+            {
+                if (noteOptions.contains(NoteOption.MODIFIED_ATOMS)) {
+                    modifiedAtomsNoteDetail(fields = this)
                 } else {
                     null
                 }
@@ -204,28 +223,34 @@ data class SourceRecord(
         this[noteField] = noteValue
     }
 
-    private fun MutableMap<Field, Any?>.discardFields(discarded: List<KClass<*>>) {
+    private fun MutableMap<Field, Any?>.discardFields(
+        vararg discarded: KClass<*>
+    ) {
         val discard = filter { it::class in discarded }.keys
         discard.forEach { remove(it) }
     }
 
-    private fun recordIdentificationDetail(
-        fields: Map<Field, Any?>
+    private fun recordIdentityNoteDetail(
+        fields: Map<Field, Any?>,
+        forceOutput: Boolean
     ): String? {
+
         fun shouldOutputRecordIdentityFallbackForCorrelationKeys() = fields
             .filterFieldType<KeyField, Any?>()
-            .filter { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
-            .any()
+            .any { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
 
         fun shouldOutputRecordIdentityFallbackForIdentificationLabels() = fields
             .filterFieldType<IdentificationLabelField, Any?>()
-            .all { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
+            .allItems { (field, value) -> field.shouldOutputRecordIdentityFallback(value) }
 
         val identityFallbackField = sectionOutline
             .sectionFields
-            .firstFieldOfTypeOrNull<RecordIdentityFallbackField>() ?: return null
+            .firstFieldOfTypeOrNull<RecordIdentityFallbackField>()
+
+        identityFallbackField ?: return null
 
         return if (
+            forceOutput ||
             shouldOutputRecordIdentityFallbackForCorrelationKeys() ||
             shouldOutputRecordIdentityFallbackForIdentificationLabels()
         ) {
@@ -242,7 +267,7 @@ data class SourceRecord(
         }
     }
 
-    private fun atomValueModifiedDetail(
+    private fun modifiedAtomsNoteDetail(
         fields: Map<Field, Any?>
     ): String? {
 
