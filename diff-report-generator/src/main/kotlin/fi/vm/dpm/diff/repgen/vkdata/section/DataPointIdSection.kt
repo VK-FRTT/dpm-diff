@@ -46,22 +46,6 @@ object DataPointIdSection {
             )
         )
 
-        val openContext = AtomField(
-            fieldName = "OpenContext",
-            atomOptions = listOf(
-                AtomOption.OUTPUT_TO_ADDED_CHANGE,
-                AtomOption.OUTPUT_TO_DELETED_CHANGE
-            )
-        )
-
-        val dps = AtomField(
-            fieldName = "Dps",
-            atomOptions = listOf(
-                AtomOption.OUTPUT_TO_ADDED_CHANGE,
-                AtomOption.OUTPUT_TO_DELETED_CHANGE
-            )
-        )
-
         val note = NoteField()
 
         val sectionOutline = SectionOutline(
@@ -74,9 +58,7 @@ object DataPointIdSection {
                 recordIdentityFallback,
                 datapointID,
                 changeKind,
-                dps,
                 dpsFull,
-                openContext,
                 note
             ),
             sectionSortOrder = listOf(
@@ -88,10 +70,8 @@ object DataPointIdSection {
 
         val queryColumnMapping = mapOf(
             "Rowid" to rowid,
-            "DPS" to dps,
             "DPS_Full" to dpsFull,
-            "DatapointID" to datapointID,
-            "OpenContext" to openContext
+            "DatapointID" to datapointID
         )
 
         val partitionCount = PartitionHelper.getPartitionCount(
@@ -105,10 +85,8 @@ object DataPointIdSection {
             """
             SELECT
             rowid AS 'Rowid'
-            ,Kenttatunnukset.DPS AS 'DPS'
             ,Kenttatunnukset.DPS_Full AS 'DPS_Full'
             ,Kenttatunnukset.DatapointID AS 'DatapointID'
-            ,Kenttatunnukset.OpenContext AS 'OpenContext'
 
             FROM Kenttatunnukset
 

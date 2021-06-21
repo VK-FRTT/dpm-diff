@@ -18,19 +18,19 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
 
             baselineSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('C', 'DPS_C', 'DPSF_C', 'OC_C')
+                ('A', 'DPSF_A'),
+                ('C', 'DPSF_C')
             """.trimLineStartsAndConsequentBlankLines(),
 
             currentSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('B', 'DPS_B', 'DPSF_B', 'OC_B'),
-                ('C', 'DPS_C', 'DPSF_C', 'OC_C')
+                ('A', 'DPSF_A'),
+                ('B', 'DPSF_B'),
+                ('C', 'DPSF_C')
             """.trimLineStartsAndConsequentBlankLines(),
 
             expectedChanges = 1
@@ -39,12 +39,8 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
             assertThat(outputFileContent.transposeSectionSheetAsList("01_Datapoint_ID")).containsExactly(
                 "DatapointId: B",
                 "Change: ADDED",
-                "Dps: DPS_B",
-                "Dps(baseline): ",
                 "DpsFull: DPSF_B",
                 "DpsFull(baseline): ",
-                "OpenContext: OC_B",
-                "OpenContext(baseline): ",
                 "Notes: "
             )
         }
@@ -56,19 +52,19 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
 
             baselineSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('B', 'DPS_B', 'DPSF_B', 'OC_B')
+                ('A', 'DPSF_A'),
+                ('B', 'DPSF_B')
             """.trimLineStartsAndConsequentBlankLines(),
 
             currentSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('A', 'DPS_A2', 'DPSF_A2', 'OC_A2'),
-                ('B', 'DPS_B', 'DPSF_B', 'OC_B')
+                ('A', 'DPSF_A'),
+                ('A', 'DPSF_A2'),
+                ('B', 'DPSF_B')
             """.trimLineStartsAndConsequentBlankLines(),
 
             expectedChanges = 1
@@ -77,12 +73,8 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
             assertThat(outputFileContent.transposeSectionSheetAsList("01_Datapoint_ID")).containsExactly(
                 "DatapointId: A",
                 "Change: ADDED",
-                "Dps: DPS_A2",
-                "Dps(baseline): ",
                 "DpsFull: DPSF_A2",
                 "DpsFull(baseline): ",
-                "OpenContext: OC_A2",
-                "OpenContext(baseline): ",
                 "Notes: "
             )
         }
@@ -94,19 +86,19 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
 
             baselineSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('B', 'DPS_B', 'DPSF_B', 'OC_B'),
-                ('C', 'DPS_C', 'DPSF_C', 'OC_C')
+                ('A', 'DPSF_A'),
+                ('B', 'DPSF_B'),
+                ('C', 'DPSF_C')
             """.trimLineStartsAndConsequentBlankLines(),
 
             currentSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('C', 'DPS_C', 'DPSF_C', 'OC_C')
+                ('A', 'DPSF_A'),
+                ('C', 'DPSF_C')
             """.trimLineStartsAndConsequentBlankLines(),
 
             expectedChanges = 1
@@ -115,12 +107,8 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
             assertThat(outputFileContent.transposeSectionSheetAsList("01_Datapoint_ID")).containsExactly(
                 "DatapointId: B",
                 "Change: DELETED",
-                "Dps: ",
-                "Dps(baseline): DPS_B",
                 "DpsFull: ",
                 "DpsFull(baseline): DPSF_B",
-                "OpenContext: ",
-                "OpenContext(baseline): OC_B",
                 "Notes: "
             )
         }
@@ -132,19 +120,19 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
 
             baselineSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A', 'DPSF_A', 'OC_A'),
-                ('A', 'DPS_A2', 'DPSF_A2', 'OC_A2'),
-                ('C', 'DPS_C', 'DPSF_C', 'OC_C')
+                ('A', 'DPSF_A'),
+                ('A', 'DPSF_A2'),
+                ('C', 'DPSF_C')
             """.trimLineStartsAndConsequentBlankLines(),
 
             currentSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ('A', 'DPS_A2', 'DPSF_A2', 'OC_A2'),
-                ('C', 'DPS_C', 'DPSF_C', 'OC_C')
+                ('A', 'DPSF_A2'),
+                ('C', 'DPSF_C')
             """.trimLineStartsAndConsequentBlankLines(),
 
             expectedChanges = 1
@@ -153,12 +141,8 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
             assertThat(outputFileContent.transposeSectionSheetAsList("01_Datapoint_ID")).containsExactly(
                 "DatapointId: A",
                 "Change: DELETED",
-                "Dps: ",
-                "Dps(baseline): DPS_A",
                 "DpsFull: ",
                 "DpsFull(baseline): DPSF_A",
-                "OpenContext: ",
-                "OpenContext(baseline): OC_A",
                 "Notes: "
             )
         }
@@ -168,9 +152,9 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
     fun `Should execute 1 partition when DBs have 500_000 rows`() {
         val initSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ${(1..500_000).map { "('$it', 'DPS_$it', 'DPSF_$it', 'OC_$it')" }.joinToString(separator = ",\n")}
+                ${(1..500_000).map { "('$it', 'DPSF_$it')" }.joinToString(separator = ",\n")}
             """.trimLineStartsAndConsequentBlankLines()
 
         executeVkDataCompareForSectionAndExpectSuccess(
@@ -191,12 +175,8 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
             assertThat(outputFileContent.transposeSectionSheetAsList("01_Datapoint_ID")).containsExactly(
                 "DatapointId: ",
                 "Change: ",
-                "Dps: ",
-                "Dps(baseline): ",
                 "DpsFull: ",
                 "DpsFull(baseline): ",
-                "OpenContext: ",
-                "OpenContext(baseline): ",
                 "Notes: "
             )
         }
@@ -206,16 +186,16 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
     fun `Should execute 2 partitions when DBs have more than 500_000 rows`() {
         val baselineInitSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ${(1..500_000).map { "('$it', 'DPS_$it', 'DPSF_$it', 'OC_$it')" }.joinToString(separator = ",\n")}
+                ${(1..500_000).map { "('$it', 'DPSF_$it')" }.joinToString(separator = ",\n")}
             """.trimLineStartsAndConsequentBlankLines()
 
         val currentInitSql =
             """
-            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS', 'DPS_Full', 'OpenContext')
+            INSERT INTO 'Kenttatunnukset' ('DatapointID', 'DPS_Full')
             VALUES
-                ${(1..500_002).map { "('$it', 'DPS_$it', 'DPSF_$it', 'OC_$it')" }.joinToString(separator = ",\n")}
+                ${(1..500_002).map { "('$it', 'DPSF_$it')" }.joinToString(separator = ",\n")}
             """.trimLineStartsAndConsequentBlankLines()
 
         executeVkDataCompareForSectionAndExpectSuccess(
@@ -236,22 +216,14 @@ internal class DataPointIdSectionTest : DpmDiffCliCompareTestBase(
             assertThat(outputFileContent.transposeSectionSheetAsList("01_Datapoint_ID")).containsExactly(
                 "DatapointId: 500001",
                 "Change: ADDED",
-                "Dps: DPS_500001",
-                "Dps(baseline): ",
                 "DpsFull: DPSF_500001",
                 "DpsFull(baseline): ",
-                "OpenContext: OC_500001",
-                "OpenContext(baseline): ",
                 "Notes: ",
                 "-----------",
                 "DatapointId: 500002",
                 "Change: ADDED",
-                "Dps: DPS_500002",
-                "Dps(baseline): ",
                 "DpsFull: DPSF_500002",
                 "DpsFull(baseline): ",
-                "OpenContext: OC_500002",
-                "OpenContext(baseline): ",
                 "Notes: "
             )
         }
